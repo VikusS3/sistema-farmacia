@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import usuarioRoutes from "./routes/usuarioRoutes";
+import productoRoutes from "./routes/productoRoutes";
 
 dotenv.config();
 
@@ -12,6 +13,7 @@ app.use(express.json());
 
 //Rutas
 app.use("/api/usuarios", usuarioRoutes);
+app.use("/api/productos", productoRoutes);
 
 const PORT = process.env.PORT || 5000;
 
