@@ -1,15 +1,6 @@
 import pool from "../config/db";
 import { RowDataPacket } from "mysql2";
-
-export type Usuario = {
-  id?: number;
-  nombres: string;
-  email: string;
-  password: string;
-  rol?: "admin" | "empleado";
-  creado_en?: Date;
-  actualizado_en?: Date;
-};
+import { Usuario } from "../types";
 
 export const UsuarioModel = {
   async findAll(): Promise<Usuario[]> {
