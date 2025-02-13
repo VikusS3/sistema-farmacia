@@ -31,3 +31,13 @@ export type Proovedor = {
   creado_en?: Date;
   actualizado_en?: Date;
 };
+
+export type Clientes = {
+  id?: number;
+  nombre: string;
+  email?: string;
+  telefono?: string;
+  direccion?: string;
+  creado_en?: Date;
+  actualizado_en?: Date;
+};

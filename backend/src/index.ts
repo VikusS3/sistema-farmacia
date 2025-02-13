@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import usuarioRoutes from "./routes/usuarioRoutes";
 import productoRoutes from "./routes/productoRoutes";
 import proveedoresRoutes from "./routes/proovedoresRoutes";
+import clientesRoutes from "./routes/clientesRoutes";
+
 dotenv.config();
 
 const app = express();
@@ -15,6 +17,7 @@ app.use(express.json());
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/productos", productoRoutes);
 app.use("/api/proovedores", proveedoresRoutes);
+app.use("/api/clientes", clientesRoutes);
 
 const PORT = process.env.PORT || 5000;
 
