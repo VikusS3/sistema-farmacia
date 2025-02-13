@@ -54,8 +54,8 @@ export type Compras = {
 
 export type Ventas = {
   id?: number;
-  id_cliente: number;
-  id_usuario: number;
+  cliente_id: number;
+  usuario_id: number;
   fecha: string;
   total: number;
   descuento?: number;
@@ -67,8 +67,8 @@ export type Ventas = {
 
 export type DetalleVenta = {
   id?: number;
-  id_venta: number;
-  id_producto: number;
+  venta_id: number;
+  producto_id: number;
   cantidad: number;
   precio_unitario: number;
   descuento?: number;

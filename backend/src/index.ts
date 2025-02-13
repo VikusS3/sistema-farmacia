@@ -6,6 +6,7 @@ import productoRoutes from "./routes/productoRoutes";
 import proveedoresRoutes from "./routes/proovedoresRoutes";
 import clientesRoutes from "./routes/clientesRoutes";
 import comprasRoutes from "./routes/comprasRoutes";
+import ventasRoutes from "./routes/ventasRoutes";
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use("/api/productos", productoRoutes);
 app.use("/api/proovedores", proveedoresRoutes);
 app.use("/api/clientes", clientesRoutes);
 app.use("/api/compras", comprasRoutes);
+app.use("/api/ventas", ventasRoutes);
 
 const PORT = process.env.PORT || 5000;
 
