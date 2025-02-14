@@ -91,7 +91,7 @@ export type DetalleVenta = {
 
 export type Inventario = {
   id?: number;
-  id_producto: number;
+  producto_id: number;
   movimiento: "compra" | "venta" | "ajuste";
   cantidad: number;
   motivo?: string;
