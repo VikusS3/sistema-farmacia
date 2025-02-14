@@ -14,7 +14,7 @@ export type Producto = {
   descripcion: string;
   precio_compra: number;
   precio_venta: number;
-  cantidad: number;
+  stock: number;
   stock_minimo: number;
   categoria?: string;
   fecha_vencimiento?: string;

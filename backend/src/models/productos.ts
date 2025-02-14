@@ -22,19 +22,19 @@ export const ProductoModel = {
       descripcion,
       precio_compra,
       precio_venta,
-      cantidad,
+      stock,
       stock_minimo,
       categoria,
       fecha_vencimiento,
     } = producto;
     const [result] = await pool.query<any>(
-      "INSERT INTO productos (nombre, descripcion, precio_compra, precio_venta, cantidad, stock_minimo, categoria, fecha_vencimiento) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO productos (nombre, descripcion, precio_compra, precio_venta, stock, stock_minimo, categoria, fecha_vencimiento) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
       [
         nombre,
         descripcion,
         precio_compra,
         precio_venta,
-        cantidad,
+        stock,
         stock_minimo,
         categoria,
         fecha_vencimiento,
