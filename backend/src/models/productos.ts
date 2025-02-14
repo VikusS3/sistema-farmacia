@@ -55,6 +55,14 @@ export const ProductoModel = {
     return result.affectedRows > 0;
   },
 
+  async updateStock(productoId: number, cantidad: number): Promise<boolean> {
+    const [result] = await pool.query<any>(
+      "UPDATE productos SET stock = stock - ? WHERE id = ? AND stock >= ?",
+      [cantidad, productoId, cantidad]
+    );
+    return result.affectedRows > 0; // Verifica si se realizó la actualización
+  },
+
   async delete(id: number): Promise<boolean> {
     const [result] = await pool.query<any>(
       "DELETE FROM productos WHERE id = ?",

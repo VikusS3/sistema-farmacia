@@ -1,6 +1,7 @@
 import { Request, Response, RequestHandler } from "express";
 import { VentasModel } from "../models/ventas";
 import { DetalleVentaModel } from "../models/detalleVenta";
+import { ProductoModel } from "../models/productos";
 import {
   createVentaSchema,
   updateVentaSchema,
@@ -47,13 +48,35 @@ export class VentaController {
     }
   };
 
-  static create: RequestHandler = async (req: Request, res: Response) => {
+  static create: RequestHandler = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
     try {
       const validatedData = createVentaSchema.parse(req.body);
+      const detalleVenta = req.body.detalle_venta;
+
+      // Verifica el stock para todos los productos antes de continuar
+      for (const detalle of detalleVenta) {
+        const producto = await ProductoModel.findById(detalle.producto_id);
+        if (!producto) {
+          res.status(404).json({
+            message: `Producto con ID ${detalle.producto_id} no encontrado`,
+          });
+          return; // Asegúrate de que la función termina aquí
+        }
+        if (producto.stock < detalle.cantidad) {
+          res.status(400).json({
+            message: `Stock insuficiente para el producto ${producto.nombre}. Disponible: ${producto.stock}, solicitado: ${detalle.cantidad}`,
+          });
+          return; // Termina la función si hay un error
+        }
+      }
+
+      // Crear la venta
       const ventaId = await VentasModel.create(validatedData);
 
-      //creamos el detalle de la venta
-      const detalleVenta = req.body.detalle_venta;
+      // Crear los detalles de la venta y actualizar el inventario
       for (const detalle of detalleVenta) {
         await DetalleVentaModel.create({
           venta_id: ventaId,
@@ -64,13 +87,29 @@ export class VentaController {
           adicional: detalle.adicional,
           subtotal: detalle.subtotal,
         });
+
+        // Actualizar el stock del producto
+        const stockActualizado = await ProductoModel.updateStock(
+          detalle.producto_id,
+          detalle.cantidad
+        );
+
+        if (!stockActualizado) {
+          res.status(400).json({
+            message: `Error al actualizar el stock para el producto ID ${detalle.producto_id}`,
+          });
+          return; // Termina la función si hay un error
+        }
       }
-      res
-        .status(201)
-        .json({ id: ventaId, message: "Venta created successfully" });
+
+      res.status(201).json({
+        id: ventaId,
+        message: "Venta creada exitosamente",
+      });
     } catch (error) {
-      res.status(400).json({
-        error: (error as any).errors || "Error creating the sale",
+      console.error(error);
+      res.status(500).json({
+        error: "Error al registrar la venta",
       });
     }
   };
