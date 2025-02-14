@@ -13,10 +13,9 @@ export const createProductoSchema = z.object({
   precio_venta: z.number().min(0, "El precio de venta no puede ser negativo"),
   stock: z.number().min(0, "La cantidad no puede ser negativa"),
   stock_minimo: z.number().min(0, "El stock mínimo no puede ser negativo"),
-  categoria: z
-    .string()
-    .min(3)
-    .max(255, "La categoría debe tener menos de 255 caracteres"),
+  unidad_medida: z.string().min(1).max(255, "La unidad de medida es requerida"),
+  conversion: z.number().min(0, "La conversión no puede ser negativa"),
+  categoria_id: z.number().min(1, "La categoría es requerida"),
   fecha_vencimiento: z.string().optional(),
 });
 
@@ -33,9 +32,8 @@ export const updateProductoSchema = z.object({
   precio_venta: z.number().min(0, "El precio de venta no puede ser negativo"),
   cantidad: z.number().min(0, "La cantidad no puede ser negativa"),
   stock_minimo: z.number().min(0, "El stock mínimo no puede ser negativo"),
-  categoria: z
-    .string()
-    .min(3)
-    .max(255, "La categoría debe tener menos de 255 caracteres"),
+  unidad_medida: z.string().min(1).max(255, "La unidad de medida es requerida"),
+  conversion: z.number().min(0, "La conversión no puede ser negativa"),
+  categoria_id: z.number().min(1, "La categoría es requerida"),
   fecha_vencimiento: z.string().optional(),
 });

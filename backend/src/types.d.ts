@@ -24,6 +24,9 @@ export type Producto = {
   precio_venta: number;
   stock: number;
   stock_minimo: number;
+  unidad_medida: string;
+  conversion: number;
+  categoria_id: number;
   categoria?: string;
   fecha_vencimiento?: string;
   creado_en?: Date;

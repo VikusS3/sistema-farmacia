@@ -35,6 +35,7 @@ export class ProductoController {
       const id = await ProductoModel.create(validatedData);
       res.status(201).json({ id, message: "Producto creado exitosamente" });
     } catch (error) {
+      console.log(error);
       res.status(400).json({
         error: (error as any).errors || "Error al crear el producto",
       });
