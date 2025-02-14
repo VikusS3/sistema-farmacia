@@ -12,19 +12,32 @@ CREATE TABLE IF NOT EXISTS usuarios (
     actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS productos (
+CREATE TABLE IF NOT EXISTS categorias (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     descripcion TEXT,
-    precio_compra DECIMAL(10, 2) NOT NULL,
-    precio_venta DECIMAL(10, 2) NOT NULL,
-    cantidad INT NOT NULL,
-    stock_minimo INT NOT NULL,
-    categoria VARCHAR(100),
-    fecha_vencimiento DATE,
     creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+
+    CREATE TABLE IF NOT EXISTS productos (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nombre VARCHAR(100) NOT NULL,
+        descripcion TEXT,
+        precio_compra DECIMAL(10, 2) NOT NULL,
+        precio_venta DECIMAL(10, 2) NOT NULL,
+        stock INT NOT NULL,
+        stock_minimo INT NOT NULL,
+        unidad_medida VARCHAR(50) DEFAULT 'unidad', -- Puede ser 'tableta', 'ampolla', 'caja', etc.
+        conversion INT DEFAULT 1, -- Si es una caja, cuántas unidades contiene. Si es individual, será 1.
+        categoria_id INT, -- Relación con tabla de categorías
+        fecha_vencimiento DATE DEFAULT NULL, -- Permitir NULL para productos no perecederos
+        creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (categoria_id) REFERENCES categorias(id)
+    );
+
 
 CREATE TABLE IF NOT EXISTS clientes (
     id INT AUTO_INCREMENT PRIMARY KEY,
