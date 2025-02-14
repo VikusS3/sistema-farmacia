@@ -8,6 +8,14 @@ export type Usuario = {
   actualizado_en?: Date;
 };
 
+export type Categoria = {
+  id?: number;
+  nombre: string;
+  descripcion?: string;
+  creado_en?: Date;
+  actualizado_en?: Date;
+};
+
 export type Producto = {
   id?: number;
   nombre: string;
