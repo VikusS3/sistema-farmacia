@@ -89,7 +89,7 @@ export class VentaController {
         });
 
         // Actualizar el stock del producto
-        const stockActualizado = await ProductoModel.updateStock(
+        const stockActualizado = await ProductoModel.updateStockVenta(
           detalle.producto_id,
           detalle.cantidad
         );

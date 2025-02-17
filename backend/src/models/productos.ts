@@ -55,7 +55,10 @@ export const ProductoModel = {
     return result.affectedRows > 0;
   },
 
-  async updateStock(productoId: number, cantidad: number): Promise<boolean> {
+  async updateStockVenta(
+    productoId: number,
+    cantidad: number
+  ): Promise<boolean> {
     const [result] = await pool.query<any>(
       "UPDATE productos SET stock = stock - ? WHERE id = ? AND stock >= ?",
       [cantidad, productoId, cantidad]
