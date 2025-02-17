@@ -71,6 +71,17 @@ CREATE TABLE IF NOT EXISTS compras (
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
 
+CREATE TABLE detalle_compras (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        compra_id INT NOT NULL,
+        producto_id INT NOT NULL,
+        cantidad NULL,
+        precio_unitario DECIMAL(10, 2)  NULL,
+        subtotal DECIMAL(10, 2)  NULL,
+        FOREIGN KEY (compra_id) REFERENCES compras(id),
+        FOREIGN KEY (producto_id) REFERENCES productos(id)
+);
+
 CREATE TABLE IF NOT EXISTS ventas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     cliente_id INT,
