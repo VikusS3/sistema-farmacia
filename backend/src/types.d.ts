@@ -27,7 +27,6 @@ export type Producto = {
   unidad_medida: string;
   conversion: number;
   categoria_id: number;
-  categoria?: string;
   fecha_vencimiento?: string;
   creado_en?: Date;
   actualizado_en?: Date;
