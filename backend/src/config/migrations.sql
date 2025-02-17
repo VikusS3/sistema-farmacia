@@ -120,3 +120,23 @@ CREATE TABLE IF NOT EXISTS resumen_ventas (
     creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+DELIMITER $$
+
+CREATE TRIGGER actualizar_resumen_ventas
+AFTER INSERT ON ventas
+FOR EACH ROW
+BEGIN
+    -- Intenta actualizar el total del día en resumen_ventas
+    IF EXISTS (SELECT * FROM resumen_ventas WHERE fecha = NEW.fecha) THEN
+        UPDATE resumen_ventas
+        SET total_dia = total_dia + NEW.total
+        WHERE fecha = NEW.fecha;
+    ELSE
+        -- Si no existe un resumen para ese día, crea un nuevo registro
+        INSERT INTO resumen_ventas (fecha, total_dia)
+        VALUES (NEW.fecha, NEW.total);
+    END IF;
+END$$
+
+DELIMITER ;
