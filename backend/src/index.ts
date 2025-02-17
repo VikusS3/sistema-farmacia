@@ -20,7 +20,7 @@ app.use(express.json());
 //Rutas
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/productos", productoRoutes);
-app.use("/api/proovedores", proveedoresRoutes);
+app.use("/api/proveedores", proveedoresRoutes);
 app.use("/api/clientes", clientesRoutes);
 app.use("/api/compras", comprasRoutes);
 app.use("/api/ventas", ventasRoutes);
