@@ -18,14 +18,27 @@ export const VentasModel = {
 
   //funcion para obtener los datos de una venta junto con los productos que se vendieron
   async findVenta(id: number): Promise<any> {
-    const [rows] = await pool.query<RowDataPacket[]>(
+    const [ventaRows] = await pool.query<RowDataPacket[]>(
+      "SELECT * FROM ventas WHERE id = ?",
+      [id]
+    );
+
+    if (ventaRows.length === 0) {
+      return null;
+    }
+
+    const [productoRows] = await pool.query<RowDataPacket[]>(
       `SELECT dv.*, p.nombre AS producto_nombre
        FROM detalle_ventas dv
        INNER JOIN productos p ON dv.producto_id = p.id
        WHERE dv.venta_id = ?`,
       [id]
     );
-    return rows;
+
+    return {
+      venta: ventaRows[0],
+      productos: productoRows,
+    };
   },
 
   async create(ventas: Ventas): Promise<number> {
