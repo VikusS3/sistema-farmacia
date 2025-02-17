@@ -62,6 +62,15 @@ export type Compras = {
   actualizado_en?: Date;
 };
 
+export type DetalleCompra = {
+  id: number;
+  compra_id?: number;
+  producto_id: number;
+  cantidad: number;
+  precio_unitario: number;
+  subtotal: number;
+};
+
 export type Ventas = {
   id?: number;
   cliente_id: number;
