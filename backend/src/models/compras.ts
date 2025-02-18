@@ -16,6 +16,14 @@ export const ComprasModel = {
     return rows[0] as Compras | null;
   },
 
+  async findProductosCompra(id: number): Promise<any[]> {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      "SELECT * FROM detalle_compras WHERE compra_id = ?",
+      [id]
+    );
+    return rows;
+  },
+
   async create(compra: Compras): Promise<number> {
     const { proveedor_id, usuario_id, fecha, total } = compra;
     const [result] = await pool.query<any>(

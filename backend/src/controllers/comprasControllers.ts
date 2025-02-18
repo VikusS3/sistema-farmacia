@@ -31,6 +31,21 @@ export class ComprasController {
     }
   };
 
+  static findProductosCompra: RequestHandler = async (
+    req: Request,
+    res: Response
+  ) => {
+    try {
+      const { id } = req.params;
+      const productos = await ComprasModel.findProductosCompra(parseInt(id));
+      res.json(productos);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ error: "Error al obtener los productos de la compra" });
+    }
+  };
+
   // static create: RequestHandler = async (req: Request, res: Response) => {
   //   try {
   //     const validatedData = createComprasSchema.parse(req.body);
