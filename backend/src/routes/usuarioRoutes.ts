@@ -4,6 +4,7 @@ import { UsuarioController } from "../controllers/usuarioControllers";
 const router = express.Router();
 
 router.get("/", UsuarioController.getAll);
+router.post("/login", UsuarioController.login);
 router.get("/:id", UsuarioController.getById);
 router.post("/", UsuarioController.create);
 router.put("/:id", UsuarioController.update);

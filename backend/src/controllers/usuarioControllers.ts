@@ -29,6 +29,20 @@ export class UsuarioController {
     }
   };
 
+  static login: RequestHandler = async (req: Request, res: Response) => {
+    try {
+      const { email, password } = req.body;
+      const { usuario, token } = await UsuarioModel.login(email, password);
+      if (!usuario) {
+        res.status(401).json({ message: "Credenciales incorrectas" });
+        return;
+      }
+      res.json({ usuario, token });
+    } catch (error) {
+      res.status(500).json({ error: "Error al iniciar sesión" });
+    }
+  };
+
   static create: RequestHandler = async (req: Request, res: Response) => {
     try {
       const validatedData = createUsuarioSchema.parse(req.body);
