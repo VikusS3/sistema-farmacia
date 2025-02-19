@@ -8,7 +8,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <SideNav />
 
       {/* Main content */}
-      <main className="flex-1 bg-gray-100 p-4">{children}</main>
+      <main className="flex-1 bg-background-secondary p-4">{children}</main>
     </div>
   );
 }

@@ -20,16 +20,22 @@ const links = [
     icon: LayoutDashboard,
   },
   {
+    name: "Ventas",
+    href: "/dashboard/ventas",
+    label: "Ventas",
+    icon: ShoppingBag,
+  },
+  {
+    name: "Productos",
+    href: "/dashboard/productos",
+    label: "Productos",
+    icon: PackageSearch,
+  },
+  {
     name: "Clientes",
     href: "/dashboard/clientes",
     label: "Clientes",
     icon: Contact,
-  },
-  {
-    name: "Categorias",
-    href: "/dashboard/categorias",
-    label: "Categorias",
-    icon: ChartColumnStacked,
   },
   {
     name: "Proveedores",
@@ -38,16 +44,10 @@ const links = [
     icon: Truck,
   },
   {
-    name: "usuarios",
-    href: "/dashboard/usuarios",
-    label: "Usuarios",
-    icon: UserCog,
-  },
-  {
-    name: "Ventas",
-    href: "/dashboard/ventas",
-    label: "Ventas",
-    icon: ShoppingBag,
+    name: "Categorias",
+    href: "/dashboard/categorias",
+    label: "Categorias",
+    icon: ChartColumnStacked,
   },
   {
     name: "Reportes",
@@ -56,24 +56,24 @@ const links = [
     icon: ClipboardCheck,
   },
   {
-    name: "Productos",
-    href: "/dashboard/productos",
-    label: "Productos",
-    icon: PackageSearch,
+    name: "Usuarios",
+    href: "/dashboard/usuarios",
+    label: "Usuarios",
+    icon: UserCog,
   },
 ];
 export default function NavLinks() {
   const pathname = usePathname();
   return (
-    <nav className="flex flex-col space-x-4">
+    <nav className="flex flex-col space-y-4">
       {links.map((link) => (
         <Link
           key={link.name}
           href={link.href}
           className={
             pathname === link.href
-              ? "bg-gray-900 text-white"
-              : "text-gray-300 hover:bg-gray-700"
+              ? "bg-gray-900 text-white flex items-center space-x-2 p-2 rounded"
+              : "text-gray-300 hover:bg-gray-700 flex items-center space-x-2 p-2 rounded"
           }
           aria-label={link.label}
         >

@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import api from "../lib/axiosConfig";
+import api from "@/app/lib/axiosConfig";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-import { Usuario } from "../types";
+import { Usuario } from "@/app/types";
 
 export const useAuth = () => {
   const [usuarioData, setUsuarioData] = useState<Usuario | null>(null);

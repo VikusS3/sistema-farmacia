@@ -4,11 +4,12 @@ export interface Login {
 }
 
 export interface Usuario {
-  actualizado_en: Date;
-  creado_en: Date;
-  email: string;
   id: number;
   nombres: string;
+  email: string;
   password: string;
   rol: string;
+  actualizado_en?: Date;
+  creado_en?: Date;
+  estado: 1 | 0;
 }

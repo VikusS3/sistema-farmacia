@@ -52,7 +52,7 @@ export const UsuarioModel = {
 
   async delete(id: number): Promise<boolean> {
     const [result] = await pool.query<any>(
-      "DELETE FROM usuarios WHERE id = ?",
+      "UPDATE usuarios SET estado = 0 WHERE id = ?",
       [id]
     );
     return result.affectedRows > 0;
