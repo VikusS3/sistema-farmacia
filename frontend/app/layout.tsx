@@ -16,7 +16,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Sistema Farmacia",
   description: "Sistema de Farmacia",
-  authors: [{ name: "Sauldev" }],
 };
 
 export default function RootLayout({
