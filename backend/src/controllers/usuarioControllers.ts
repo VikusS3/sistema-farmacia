@@ -48,10 +48,14 @@ export class UsuarioController {
       const validatedData = createUsuarioSchema.parse(req.body);
       const id = await UsuarioModel.create(validatedData);
       res.status(201).json({ id, message: "Usuario creado exitosamente" });
-    } catch (error) {
-      res.status(400).json({
-        error: (error as any).errors || "Error al crear el usuario",
-      });
+    } catch (error: any) {
+      if (error.code === "ER_DUP_ENTRY") {
+        res.status(409).json({ error: "El email ya está registrado" });
+      } else {
+        res.status(400).json({
+          error: (error as any).errors || "Error al crear el usuario",
+        });
+      }
     }
   };
 

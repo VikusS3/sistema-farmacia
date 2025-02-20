@@ -3,7 +3,7 @@ import { z } from "zod";
 export const createUsuarioSchema = z.object({
   nombres: z
     .string()
-    .min(3)
+    .min(3, "El nombre debe tener al menos 3 caracteres")
     .max(255, "El nombre debe tener menos de 255 caracteres"),
   email: z.string().email("El email no es válido"),
   password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
@@ -13,7 +13,7 @@ export const createUsuarioSchema = z.object({
 export const updateUsuarioSchema = z.object({
   nombres: z
     .string()
-    .min(3)
+    .min(3, "El nombre debe tener al menos 3 caracteres")
     .max(255, "El nombre debe tener menos de 255 caracteres")
     .optional(),
   email: z.string().email("El email no es válido").optional(),

@@ -1,9 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
-import api from "@/app/lib/axiosConfig";
 import { Usuario } from "@/app/types";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import {
+  createUser,
+  deleteUser,
+  fetchUser,
+  fetchUsuarios,
+  updateUser,
+} from "@/app/services/usuarioServices";
+import { extractErrorMessage } from "@/app/utils/errorHandler";
 
 export const useUsuarios = () => {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
@@ -11,28 +18,11 @@ export const useUsuarios = () => {
   const [error, setError] = useState("");
   const MySwal = withReactContent(Swal);
 
-  const fetchUsuarios = async () => {
-    setLoading(true);
-    setError("");
+  const loadUsuarios = async () => {
     try {
-      const response = await api.get("/usuarios");
-      setUsuarios(response.data);
-    } catch (error: any) {
-      setError(error?.response?.data?.message || "Ocurrió un error");
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchUser = async (id: number) => {
-    setLoading(true);
-    setError("");
-    try {
-      const response = await api.get(`/usuarios/${id}`);
-      return response.data;
-    } catch (error: any) {
-      setError(error?.response?.data?.message || "Ocurrió un error");
+      const response = await fetchUsuarios();
+      setUsuarios(Array.isArray(response) ? response : []);
+    } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
@@ -44,29 +34,19 @@ export const useUsuarios = () => {
     setError("");
 
     try {
-      await api.post("/usuarios", usuario);
-      MySwal.fire({
-        icon: "success",
-        title: "Usuario agregado",
-        text: `${usuario.nombres} se ha agregado correctamente.`,
-      });
-      fetchUsuarios();
+      await createUser(usuario);
+      loadUsuarios();
     } catch (error: any) {
-      console.error("Error completo:", error);
       // Extraer el mensaje de error de la estructura del backend
-      const mensajeError =
-        error?.response?.data?.error?.[0]?.message ||
-        error?.message ||
-        "Ocurrió un error inesperado";
+      const mensajeError = extractErrorMessage(error);
 
       setError(mensajeError);
 
       MySwal.fire({
         icon: "error",
-        title: "Error al agregar usuario",
+        title: "Error al crear usuario",
         text: mensajeError,
       });
-      return null;
     } finally {
       setLoading(false);
     }
@@ -75,22 +55,19 @@ export const useUsuarios = () => {
   const updateUsuario = async (id: number, usuario: Partial<Usuario>) => {
     setLoading(true);
     setError("");
+
     try {
-      await api.put(`/usuarios/${id}`, usuario);
-      fetchUsuarios();
+      await updateUser(id, usuario);
+      loadUsuarios();
     } catch (error: any) {
-      console.error("Error completo:", error);
       // Extraer el mensaje de error de la estructura del backend
-      const mensajeError =
-        error?.response?.data?.error?.[0]?.message ||
-        error?.message ||
-        "Ocurrió un error inesperado";
+      const mensajeError = extractErrorMessage(error);
 
       setError(mensajeError);
 
       MySwal.fire({
         icon: "error",
-        title: "Error al agregar usuario",
+        title: "Error al actualizar usuario",
         text: mensajeError,
       });
     } finally {
@@ -101,19 +78,28 @@ export const useUsuarios = () => {
   const deleteUsuario = async (id: number) => {
     setLoading(true);
     setError("");
+
     try {
-      await api.delete(`/usuarios/${id}`);
-      fetchUsuarios();
+      await deleteUser(id);
+      loadUsuarios();
     } catch (error: any) {
-      setError(error?.response?.data?.message || "Ocurrió un error");
-      console.error(error);
+      // Extraer el mensaje de error de la estructura del backend
+      const mensajeError = extractErrorMessage(error);
+
+      setError(mensajeError);
+
+      MySwal.fire({
+        icon: "error",
+        title: "Error al eliminar usuario",
+        text: mensajeError,
+      });
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchUsuarios();
+    loadUsuarios();
   }, []);
 
   return {
