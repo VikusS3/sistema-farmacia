@@ -80,8 +80,23 @@ export const useUsuarios = () => {
     setError("");
 
     try {
-      await deleteUser(id);
-      loadUsuarios();
+      const result = await MySwal.fire({
+        title: "¿Estás seguro?",
+        text: "No podrás revertir esto",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar",
+      });
+
+      if (result.isConfirmed) {
+        await deleteUser(id);
+        loadUsuarios();
+
+        MySwal.fire("Eliminado", "El usuario ha sido eliminado.", "success");
+      }
     } catch (error: any) {
       // Extraer el mensaje de error de la estructura del backend
       const mensajeError = extractErrorMessage(error);

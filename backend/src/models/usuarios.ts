@@ -5,7 +5,9 @@ import crypto from "crypto";
 
 export const UsuarioModel = {
   async findAll(): Promise<Usuario[]> {
-    const [rows] = await pool.query<RowDataPacket[]>("SELECT * FROM usuarios");
+    const [rows] = await pool.query<RowDataPacket[]>(
+      "SELECT * FROM usuarios WHERE estado = 1"
+    );
     return rows as Usuario[];
   },
 

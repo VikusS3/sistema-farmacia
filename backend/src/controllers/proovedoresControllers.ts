@@ -66,6 +66,7 @@ export class ProovedoresController {
         res.status(404).json({ message: "Proovedor no encontrado" });
         return;
       }
+      res.json({ message: "Proovedor eliminado exitosamente" });
     } catch (error) {
       res.status(500).json({ error: "Error al eliminar el proovedor" });
     }

@@ -13,3 +13,13 @@ export interface Usuario {
   creado_en?: Date;
   estado: 1 | 0;
 }
+
+export interface Proveedores {
+  actualizado_en: Date;
+  creado_en: Date;
+  direccion: string;
+  email: string;
+  id: number;
+  nombre: string;
+  telefono: string;
+}

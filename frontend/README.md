@@ -3,6 +3,16 @@
 [x] Hacer el crud de Usuarios - [x] Crear - [x] Leer - [x] Actualizar - [x] Eliminar
 
     # Solucionar Errores de la API
-    [x] Error al crear un usuario con un mismo email
+    [] Error al crear un usuario con un mismo email
+
+[] Hace el crud de Proveedores - [x] Crear - [x] Leer - [x] Actualizar - [x] Eliminar
+
+[] Hacer el crud de Productos - [x] Crear - [x] Leer - [x] Actualizar - [x] Eliminar
+
+[] Hacer el crud de Ventas - [x] Crear - [x] Leer - [x] Actualizar - [x] Eliminar
+
+[] Hacer el crud de Compras - [x] Crear - [x] Leer - [x] Actualizar - [x] Eliminar
+
+[] Hacer el crud de Categorias - [x] Crear - [x] Leer - [x] Actualizar - [x] Eliminar
 
 [] Obtener el nombre del que ingresa
