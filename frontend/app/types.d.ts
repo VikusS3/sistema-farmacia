@@ -23,3 +23,13 @@ export interface Proveedores {
   nombre: string;
   telefono: string;
 }
+
+export interface Clientes {
+  actualizado_en: Date;
+  creado_en: Date;
+  direccion: string;
+  email: string;
+  id: number;
+  nombre: string;
+  telefono: string;
+}
