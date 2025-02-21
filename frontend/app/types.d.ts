@@ -33,3 +33,11 @@ export interface Clientes {
   nombre: string;
   telefono: string;
 }
+
+export interface Categoria {
+  actualizado_en: Date;
+  creado_en: Date;
+  descripcion: string;
+  id: number;
+  nombre: string;
+}
