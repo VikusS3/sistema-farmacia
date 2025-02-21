@@ -9,15 +9,13 @@
 
 [x] Hacer el crud de clientes - [x] Crear - [x] Leer - [x] Actualizar - [x] Eliminar
 
-[] Asegurar las rutas de entrada (usar el token paar que pueda ver la pagina )
+[] Hacer el crud de Categorias - [x] Crear - [x] Leer - [x] Actualizar - [x] Eliminar
 
 [] Hacer el crud de Productos - [x] Crear - [x] Leer - [x] Actualizar - [x] Eliminar
 
 [] Hacer el crud de Ventas - [x] Crear - [x] Leer - [x] Actualizar - [x] Eliminar
 
 [] Hacer el crud de Compras - [x] Crear - [x] Leer - [x] Actualizar - [x] Eliminar
-
-[] Hacer el crud de Categorias - [x] Crear - [x] Leer - [x] Actualizar - [x] Eliminar
 
 [] Obtener el nombre del que ingresa
 

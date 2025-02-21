@@ -41,3 +41,19 @@ export interface Categoria {
   id: number;
   nombre: string;
 }
+
+export interface Productos {
+  actualizado_en: Date;
+  categoria_id: number;
+  creado_en: Date;
+  conversion: number;
+  descripcion: string;
+  fecha_vencimiento: string; //!capaz cambiar a string
+  id: number;
+  nombre: string;
+  precio_compra: number;
+  precio_venta: number;
+  stock: number;
+  stock_minimo: number;
+  unidad_medida: string;
+}

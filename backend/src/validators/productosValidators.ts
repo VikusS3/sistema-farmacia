@@ -30,7 +30,7 @@ export const updateProductoSchema = z.object({
     .max(255, "La descripción debe tener menos de 255 caracteres"),
   precio_compra: z.number().min(0, "El precio de compra no puede ser negativo"),
   precio_venta: z.number().min(0, "El precio de venta no puede ser negativo"),
-  cantidad: z.number().min(0, "La cantidad no puede ser negativa"),
+  stock: z.number().min(0, "La cantidad no puede ser negativa"),
   stock_minimo: z.number().min(0, "El stock mínimo no puede ser negativo"),
   unidad_medida: z.string().min(1).max(255, "La unidad de medida es requerida"),
   conversion: z.number().min(0, "La conversión no puede ser negativa"),
