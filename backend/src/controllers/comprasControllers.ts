@@ -46,18 +46,6 @@ export class ComprasController {
     }
   };
 
-  // static create: RequestHandler = async (req: Request, res: Response) => {
-  //   try {
-  //     const validatedData = createComprasSchema.parse(req.body);
-  //     const id = await ComprasModel.create(validatedData);
-  //     res.status(201).json({ id, message: "Compra creada exitosamente" });
-  //   } catch (error) {
-  //     res.status(400).json({
-  //       error: (error as any).errors || "Error al crear la compra",
-  //     });
-  //   }
-  // };
-
   static create: RequestHandler = async (req: Request, res: Response) => {
     try {
       const validatedData = createComprasSchema.parse(req.body);
@@ -100,10 +88,17 @@ export class ComprasController {
   static update: RequestHandler = async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
-      const validatedData = updateComprasSchema.parse(req.body);
-      const updated = await ComprasModel.update(id, validatedData);
+      const { detalle_compra, ...compraData } = req.body;
+
+      const updated = await ComprasModel.update(id, {
+        ...compraData,
+        detalle_compra,
+      });
+
       if (!updated) {
-        res.status(404).json({ message: "Compra no encontrada" });
+        res
+          .status(404)
+          .json({ message: "Compra no encontrada o no se pudo actualizar" });
         return;
       }
       res.json({ message: "Compra actualizada exitosamente" });

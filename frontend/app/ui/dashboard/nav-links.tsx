@@ -26,6 +26,12 @@ const links = [
     icon: ShoppingBag,
   },
   {
+    name: "Compras",
+    href: "/dashboard/compras",
+    label: "Compras",
+    icon: ShoppingBag,
+  },
+  {
     name: "Productos",
     href: "/dashboard/productos",
     label: "Productos",

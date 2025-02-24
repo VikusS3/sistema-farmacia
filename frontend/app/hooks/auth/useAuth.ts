@@ -31,6 +31,7 @@ export const useAuth = () => {
         "user",
         JSON.stringify(response.data.usuario.nombres)
       );
+      localStorage.setItem("usuario_id", response.data.usuario.id);
       localStorage.setItem("token", response.data.token);
 
       MySwal.fire({

@@ -57,3 +57,49 @@ export interface Productos {
   stock_minimo: number;
   unidad_medida: string;
 }
+
+export interface Compra {
+  id: number;
+  proveedor_id: number;
+  usuario_id: number;
+  fecha: string; // Puede convertirse a Date si es necesario
+  total: number; // Si total debería ser un número, conviértelo a `number`
+  creado_en: string;
+  actualizado_en: string;
+  detalle_compra: DetalleCompra[];
+}
+
+export interface DetalleCompra {
+  id?: number; // Opcional si lo genera la BD
+  compra_id?: number; // Opcional si se asigna después
+  producto_id: number;
+  cantidad: number;
+  precio_unitario: number;
+  subtotal: number;
+}
+
+export interface CompraProducto {
+  compra: Compra;
+  productos: Producto[];
+}
+
+export interface Compra {
+  actualizado_en: Date;
+  creado_en: Date;
+  fecha: Date;
+  id: number;
+  proveedor_id: number;
+  proveedor_nombre: string;
+  total: string;
+  usuario_id: number;
+}
+
+export interface Producto {
+  cantidad: number;
+  compra_id: number;
+  id: number;
+  precio_unitario: string;
+  producto_id: number;
+  producto_nombre: string;
+  subtotal: string;
+}
