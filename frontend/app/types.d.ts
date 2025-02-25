@@ -81,6 +81,7 @@ export interface DetalleCompra {
 export interface CompraProducto {
   compra: Compra;
   productos: Producto[];
+  total?: number;
 }
 
 export interface Compra {

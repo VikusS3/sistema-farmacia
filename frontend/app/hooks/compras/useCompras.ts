@@ -59,13 +59,17 @@ export const useCompras = () => {
     }
   };
 
-  const actualizarCompra = async (id: number, compra: Partial<Compra>) => {
+  const actualizarCompra = async (
+    id: number,
+    compra: Partial<Compra> & { detalle_compra?: DetalleCompra[] }
+  ) => {
     setLoading(true);
     setError("");
 
     try {
       await updateCompra(id, compra);
       loadCompras();
+      MySwal.fire("Actualizado", "La compra ha sido actualizada", "success");
     } catch (error: any) {
       const mensajeError = extractErrorMessage(error);
 
@@ -123,5 +127,6 @@ export const useCompras = () => {
     actualizarCompra,
     fetchComprasConProductos,
     eliminarCompra,
+    fetchCompras,
   };
 };

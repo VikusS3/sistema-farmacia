@@ -22,9 +22,20 @@ export default function ComprasPage() {
     proveedores,
     registrarCompra,
     setModalOpen,
+    handleActualizarCompra,
     total,
   } = useCompraForm();
 
+  const [modalEdicionOpen, setModalEdicionOpen] = useState(false);
+  const [compraEditando, setCompraEditando] = useState<CompraProducto | null>(
+    null
+  );
+
+  const handleEditingCompra = async (compraId: number) => {
+    const compra = await fetchComprasConProductos(compraId);
+    setCompraEditando(compra);
+    setModalEdicionOpen(true);
+  };
   const [compraSeleccionada, setCompraSeleccionada] =
     useState<CompraProducto | null>(null);
 
@@ -167,6 +178,12 @@ export default function ComprasPage() {
             </p>
             <div className="flex space-x-2">
               <button
+                onClick={() => handleEditingCompra(compras[0].id)}
+                className="p-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+              >
+                Editar
+              </button>
+              <button
                 onClick={() => handleVerProductosCompra(compra.id)}
                 className="p-1 bg-blue-500 text-white rounded hover:bg-blue-600"
               >
@@ -216,6 +233,67 @@ export default function ComprasPage() {
             className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
             Cerrar
+          </button>
+        </Modal>
+      )}
+
+      {compraEditando && (
+        <Modal
+          isOpen={modalEdicionOpen}
+          onClose={() => setModalEdicionOpen(false)}
+          title="Editar Compra"
+        >
+          <label className="block font-semibold mb-2">Proveedor:</label>
+          <select
+            value={compraEditando.compra.proveedor_id}
+            onChange={(e) =>
+              setCompraEditando({
+                ...compraEditando,
+                compra: {
+                  ...compraEditando.compra,
+                  proveedor_id: Number(e.target.value),
+                },
+              })
+            }
+            className="p-2 border border-gray-300 rounded mb-5 w-full text-black"
+          >
+            <option value={0}>Selecciona un proveedor</option>
+            {proveedores.map((proveedor) => (
+              <option key={proveedor.id} value={proveedor.id}>
+                {proveedor.nombre}
+              </option>
+            ))}
+          </select>
+
+          <h3 className="text-lg font-semibold mb-3">Modificar Cantidad</h3>
+          {compraEditando.productos.map((producto, index) => (
+            <div key={producto.producto_id} className="mb-3">
+              <p>{producto.producto_nombre}</p>
+              <input
+                type="number"
+                min="1"
+                value={producto.cantidad}
+                onChange={(e) => {
+                  const nuevaCantidad = Number(e.target.value);
+                  const nuevosProductos = [...compraEditando.productos];
+                  nuevosProductos[index].cantidad = nuevaCantidad;
+                  setCompraEditando({
+                    ...compraEditando,
+                    productos: nuevosProductos,
+                  });
+                }}
+                className="w-16 p-1 border border-gray-300 rounded text-black"
+              />
+            </div>
+          ))}
+
+          <button
+            onClick={() => {
+              handleActualizarCompra(compraEditando);
+            }}
+            className="p-2 bg-green-500 text-white rounded hover:bg-green-600"
+          >
+            Guardar Cambios
           </button>
         </Modal>
       )}

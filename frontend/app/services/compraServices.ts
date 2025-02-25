@@ -18,7 +18,6 @@ export const fetchComprasConProductos = async (
 ): Promise<CompraProducto> => {
   try {
     const response = await api.get(`/compras/${id}/productos`);
-    console.log(response.data);
     return response.data;
   } catch (error) {
     const mensajeError = extractErrorMessage(error);
@@ -50,7 +49,7 @@ export const createCompra = async (
 
 export const updateCompra = async (
   id: number,
-  compra: Partial<Compra>
+  compra: Partial<Compra> & { detalle_compra?: DetalleCompra[] }
 ): Promise<void> => {
   try {
     await api.put(`/compras/${id}`, compra);

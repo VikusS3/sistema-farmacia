@@ -66,8 +66,6 @@ export const ComprasModel = {
 
       if (detalle_compra) {
         for (const item of detalle_compra) {
-          console.log("Procesando producto:", item);
-
           if (item.id) {
             // Si el producto ya existe, actualizarlo
             await connection.query(
