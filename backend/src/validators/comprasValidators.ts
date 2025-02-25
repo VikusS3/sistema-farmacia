@@ -12,4 +12,15 @@ export const updateComprasSchema = z.object({
   usuario_id: z.number().optional(),
   fecha: z.string().optional(),
   total: z.number().optional(),
+
+  detalle_compra: z
+    .array(
+      z.object({
+        producto_id: z.number(),
+        cantidad: z.number(),
+        precio_unitario: z.number(),
+        subtotal: z.number(),
+      })
+    )
+    .optional(),
 });

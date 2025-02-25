@@ -178,7 +178,7 @@ export default function ComprasPage() {
             </p>
             <div className="flex space-x-2">
               <button
-                onClick={() => handleEditingCompra(compras[0].id)}
+                onClick={() => handleEditingCompra(compra.id)}
                 className="p-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
               >
                 Editar

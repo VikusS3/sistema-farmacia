@@ -59,12 +59,45 @@ export const VentasModel = {
     return result.insertId;
   },
 
-  async update(id: number, ventas: Partial<Ventas>): Promise<boolean> {
-    const [result] = await pool.query<any>("UPDATE ventas SET ? WHERE id = ?", [
-      ventas,
-      id,
-    ]);
-    return result.affectedRows > 0;
+  async update(
+    id: number,
+    ventas: Partial<Ventas & { detalle_venta: any[] }>
+  ): Promise<boolean> {
+    const connection = await pool.getConnection();
+    try {
+      await connection.beginTransaction();
+
+      const { detalle_venta, ...ventasData } = ventas;
+
+      const [result]: any = await connection.query(
+        "UPDATE ventas SET ? WHERE id = ?",
+        [ventasData, id]
+      );
+
+      if (detalle_venta) {
+        for (const detalle of detalle_venta) {
+          if (detalle.id) {
+            await connection.query("UPDATE detalle_ventas SET ? WHERE id = ?", [
+              detalle,
+              detalle.id,
+            ]);
+          } else {
+            await connection.query("INSERT INTO detalle_ventas SET ?", {
+              ...detalle,
+              venta_id: id,
+            });
+          }
+        }
+      }
+
+      await connection.commit();
+      return result.affectedRows > 0;
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
   },
 
   async delete(id: number): Promise<boolean> {
