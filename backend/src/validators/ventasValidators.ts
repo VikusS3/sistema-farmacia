@@ -37,4 +37,15 @@ export const updateVentaSchema = z.object({
   descuento: z.number().nonnegative().optional(),
   adicional: z.number().nonnegative().optional(),
   metodo_pago: z.enum(["efectivo", "tarjeta", "transferencia"]).optional(),
+  detalle_venta: z.array(
+    z.object({
+      id: z.number().int().optional(),
+      producto_id: z.number().int(),
+      cantidad: z.number().positive(),
+      precio_unitario: z.number().positive(),
+      descuento: z.number().nonnegative(),
+      adicional: z.number().nonnegative(),
+      subtotal: z.number().positive(),
+    })
+  ),
 });

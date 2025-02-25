@@ -61,6 +61,8 @@ export type Compras = {
   total: number;
   creado_en?: Date;
   actualizado_en?: Date;
+
+  detalle_compra?: DetalleCompra[];
 };
 
 export type DetalleCompra = {

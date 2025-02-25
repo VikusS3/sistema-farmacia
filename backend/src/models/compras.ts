@@ -59,39 +59,32 @@ export const ComprasModel = {
 
       const { detalle_compra, ...compraData } = compra;
 
-      const [result]: any = await connection.query(
-        "UPDATE compras SET ? WHERE id = ?",
-        [compraData, id]
+      // 1️⃣ Actualizar compra (si hay datos para actualizar)
+      if (Object.keys(compraData).length) {
+        await connection.query("UPDATE compras SET ? WHERE id = ?", [
+          compraData,
+          id,
+        ]);
+      }
+
+      // 2️⃣ Obtener cantidades originales antes de actualizar
+      const cantidadesOriginales = await this.getCantidadesOriginales(
+        connection,
+        id
       );
 
+      // 3️⃣ Procesar actualización de productos
       if (detalle_compra) {
-        const updatePromises = detalle_compra.map(async (item) => {
-          if (item.id) {
-            // Si el producto ya existe, actualizarlo
-            return connection.query(
-              "UPDATE detalle_compras SET cantidad = ?, precio_unitario = ?, subtotal = ? WHERE id = ? AND compra_id = ?",
-              [item.cantidad, item.precio_unitario, item.subtotal, item.id, id]
-            );
-          } else {
-            // Si no existe, insertarlo
-            return connection.query(
-              "INSERT INTO detalle_compras (compra_id, producto_id, cantidad, precio_unitario, subtotal) VALUES (?, ?, ?, ?, ?)",
-              [
-                id,
-                item.producto_id,
-                item.cantidad,
-                item.precio_unitario,
-                item.subtotal,
-              ]
-            );
-          }
-        });
-
-        await Promise.all(updatePromises);
+        await this.actualizarDetalleCompra(
+          connection,
+          id,
+          detalle_compra,
+          cantidadesOriginales
+        );
       }
 
       await connection.commit();
-      return result.affectedRows > 0;
+      return true;
     } catch (error) {
       await connection.rollback();
       console.error("Error al actualizar la compra:", error);
@@ -106,5 +99,67 @@ export const ComprasModel = {
       id,
     ]);
     return result.affectedRows > 0;
+  },
+
+  /** 🔹 Obtener cantidades originales antes de actualizar */
+  async getCantidadesOriginales(
+    connection: any,
+    compraId: number
+  ): Promise<Map<number, number>> {
+    const [originalDetalles] = await connection.query(
+      "SELECT producto_id, cantidad FROM detalle_compras WHERE compra_id = ?",
+      [compraId]
+    );
+    return new Map(
+      originalDetalles.map((item: any) => [item.producto_id, item.cantidad])
+    );
+  },
+
+  /** 🔹 Actualizar detalle de compra y stock de productos */
+  async actualizarDetalleCompra(
+    connection: any,
+    compraId: number,
+    detalle_compra: any[],
+    cantidadesOriginales: Map<number, number>
+  ) {
+    const updatePromises = detalle_compra.map(async (item) => {
+      const cantidadAnterior = cantidadesOriginales.get(item.producto_id) || 0;
+      const diferencia = item.cantidad - cantidadAnterior;
+
+      // Ajustar stock si hubo cambio
+      if (diferencia !== 0) {
+        await connection.query(
+          "UPDATE productos SET stock = stock + ? WHERE id = ?",
+          [diferencia, item.producto_id]
+        );
+      }
+
+      // Actualizar si ya existe, insertar si es nuevo
+      if (item.id) {
+        return connection.query(
+          "UPDATE detalle_compras SET cantidad = ?, precio_unitario = ?, subtotal = ? WHERE id = ? AND compra_id = ?",
+          [
+            item.cantidad,
+            item.precio_unitario,
+            item.subtotal,
+            item.id,
+            compraId,
+          ]
+        );
+      } else {
+        return connection.query(
+          "INSERT INTO detalle_compras (compra_id, producto_id, cantidad, precio_unitario, subtotal) VALUES (?, ?, ?, ?, ?)",
+          [
+            compraId,
+            item.producto_id,
+            item.cantidad,
+            item.precio_unitario,
+            item.subtotal,
+          ]
+        );
+      }
+    });
+
+    await Promise.all(updatePromises);
   },
 };

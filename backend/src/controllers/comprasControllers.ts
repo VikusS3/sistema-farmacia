@@ -1,14 +1,11 @@
 import { Request, Response, RequestHandler } from "express";
 import { ComprasModel } from "../models/compras";
-import {
-  createComprasSchema,
-  updateComprasSchema,
-} from "../validators/comprasValidators";
+import { createComprasSchema } from "../validators/comprasValidators";
 import { ProductoModel } from "../models/productos";
 import { DetalleCompraModel } from "../models/detalleCompra";
 
 export class ComprasController {
-  static getAll: RequestHandler = async (req: Request, res: Response) => {
+  static getAll: RequestHandler = async (_req: Request, res: Response) => {
     try {
       const compras = await ComprasModel.findAll();
       res.json(compras);
@@ -88,8 +85,7 @@ export class ComprasController {
   static update: RequestHandler = async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
-      const validatedData = updateComprasSchema.parse(req.body);
-      const { detalle_compra, ...compraData } = validatedData;
+      const { detalle_compra, ...compraData } = req.body;
 
       const updated = await ComprasModel.update(id, {
         ...compraData,
