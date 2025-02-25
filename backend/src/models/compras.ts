@@ -65,16 +65,16 @@ export const ComprasModel = {
       );
 
       if (detalle_compra) {
-        for (const item of detalle_compra) {
+        const updatePromises = detalle_compra.map(async (item) => {
           if (item.id) {
             // Si el producto ya existe, actualizarlo
-            await connection.query(
+            return connection.query(
               "UPDATE detalle_compras SET cantidad = ?, precio_unitario = ?, subtotal = ? WHERE id = ? AND compra_id = ?",
               [item.cantidad, item.precio_unitario, item.subtotal, item.id, id]
             );
           } else {
             // Si no existe, insertarlo
-            await connection.query(
+            return connection.query(
               "INSERT INTO detalle_compras (compra_id, producto_id, cantidad, precio_unitario, subtotal) VALUES (?, ?, ?, ?, ?)",
               [
                 id,
@@ -85,7 +85,9 @@ export const ComprasModel = {
               ]
             );
           }
-        }
+        });
+
+        await Promise.all(updatePromises);
       }
 
       await connection.commit();
