@@ -88,18 +88,18 @@ export class VentaController {
           subtotal: detalle.subtotal,
         });
 
-        // Actualizar el stock del producto
-        const stockActualizado = await ProductoModel.updateStockVenta(
-          detalle.producto_id,
-          detalle.cantidad
-        );
+        // // Actualizar el stock del producto
+        // const stockActualizado = await ProductoModel.updateStockVenta(
+        //   detalle.producto_id,
+        //   detalle.cantidad
+        // );
 
-        if (!stockActualizado) {
-          res.status(400).json({
-            message: `Error al actualizar el stock para el producto ID ${detalle.producto_id}`,
-          });
-          return; // Termina la función si hay un error
-        }
+        // if (!stockActualizado) {
+        //   res.status(400).json({
+        //     message: `Error al actualizar el stock para el producto ID ${detalle.producto_id}`,
+        //   });
+        //   return; // Termina la función si hay un error
+        // }
       }
 
       res.status(201).json({
@@ -117,13 +117,25 @@ export class VentaController {
   static update: RequestHandler = async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
-      const validatedData = updateVentaSchema.parse(req.body);
-      const updated = await VentasModel.update(id, validatedData);
-      if (!updated) {
+      const { detalle_venta, ...ventaData } = req.body;
+      const ventaExistente = await VentasModel.findById(id);
+      if (!ventaExistente) {
         res.status(404).json({ message: "Venta no encontrada" });
         return;
       }
-      res.json({ message: "Venta actualizada correctamente" });
+
+      const updated = await VentasModel.update(id, {
+        ...ventaData,
+        detalle_venta,
+      });
+
+      if (!updated) {
+        res
+          .status(404)
+          .json({ message: "Venta no encontrada o no se pudo actualizar" });
+        return;
+      }
+      res.json({ message: "Venta actualizada exitosamente" });
     } catch (error) {
       res.status(400).json({
         error: (error as any).errors || "Error actualizando la venta",
