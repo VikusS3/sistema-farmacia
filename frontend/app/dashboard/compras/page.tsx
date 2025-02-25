@@ -288,6 +288,12 @@ export default function ComprasPage() {
           ))}
 
           <button
+            onClick={() => setModalEdicionOpen(false)}
+            className="p-2 bg-red-500 text-white rounded hover:bg-red-600"
+          >
+            Cancelar
+          </button>
+          <button
             onClick={() => {
               handleActualizarCompra(compraEditando);
             }}
