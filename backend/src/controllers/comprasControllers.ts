@@ -88,7 +88,8 @@ export class ComprasController {
   static update: RequestHandler = async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
-      const { detalle_compra, ...compraData } = req.body;
+      const validatedData = updateComprasSchema.parse(req.body);
+      const { detalle_compra, ...compraData } = validatedData;
 
       const updated = await ComprasModel.update(id, {
         ...compraData,

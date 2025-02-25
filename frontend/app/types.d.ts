@@ -104,3 +104,36 @@ export interface Producto {
   producto_nombre: string;
   subtotal: string;
 }
+
+//Tipos para las ventas
+export interface VentaProducto {
+  productos: ProductoV[];
+  venta: VentaV;
+}
+
+export interface ProductoV {
+  actualizado_en: Date;
+  adicional: string;
+  cantidad: number;
+  creado_en: Date;
+  descuento: string;
+  id: number;
+  precio_unitario: string;
+  producto_id: number;
+  producto_nombre: string;
+  subtotal: string;
+  venta_id: number;
+}
+
+export interface VentaV {
+  actualizado_en: Date;
+  adicional: string;
+  cliente_id: number;
+  creado_en: Date;
+  descuento: string;
+  fecha: Date;
+  id: number;
+  metodo_pago: string;
+  total: string;
+  usuario_id: number;
+}
