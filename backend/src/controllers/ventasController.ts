@@ -137,6 +137,7 @@ export class VentaController {
       }
       res.json({ message: "Venta actualizada exitosamente" });
     } catch (error) {
+      console.error(error);
       res.status(400).json({
         error: (error as any).errors || "Error actualizando la venta",
       });

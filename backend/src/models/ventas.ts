@@ -19,7 +19,10 @@ export const VentasModel = {
   //funcion para obtener los datos de una venta junto con los productos que se vendieron
   async findVenta(id: number): Promise<any> {
     const [ventaRows] = await pool.query<RowDataPacket[]>(
-      "SELECT * FROM ventas WHERE id = ?",
+      `SELECT v.*, c.nombre AS cliente_nombre
+       FROM ventas v
+       INNER JOIN clientes c ON v.cliente_id = c.id
+       WHERE v.id = ?`,
       [id]
     );
 

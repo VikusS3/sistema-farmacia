@@ -58,17 +58,6 @@ export interface Productos {
   unidad_medida: string;
 }
 
-export interface Compra {
-  id: number;
-  proveedor_id: number;
-  usuario_id: number;
-  fecha: string; // Puede convertirse a Date si es necesario
-  total: number; // Si total debería ser un número, conviértelo a `number`
-  creado_en: string;
-  actualizado_en: string;
-  detalle_compra: DetalleCompra[];
-}
-
 export interface DetalleCompra {
   id?: number; // Opcional si lo genera la BD
   compra_id?: number; // Opcional si se asigna después
@@ -87,31 +76,16 @@ export interface CompraProducto {
 export interface Compra {
   actualizado_en: Date;
   creado_en: Date;
-  fecha: Date;
+  fecha: string;
   id: number;
   proveedor_id: number;
   proveedor_nombre: string;
-  total: string;
+  total: number;
   usuario_id: number;
+  detalle_compra: DetalleCompra[];
 }
 
 export interface Producto {
-  cantidad: number;
-  compra_id: number;
-  id: number;
-  precio_unitario: string;
-  producto_id: number;
-  producto_nombre: string;
-  subtotal: string;
-}
-
-//Tipos para las ventas
-export interface VentaProducto {
-  productos: ProductoV[];
-  venta: VentaV;
-}
-
-export interface ProductoV {
   actualizado_en: Date;
   adicional: string;
   cantidad: number;
@@ -125,7 +99,27 @@ export interface ProductoV {
   venta_id: number;
 }
 
-export interface VentaV {
+//Tipos para las Compra
+export interface CompraProductoC {
+  productos: ProductoP[];
+  venta: VentaP;
+}
+
+export interface ProductoP {
+  actualizado_en: Date;
+  adicional: string;
+  cantidad: number;
+  creado_en: Date;
+  descuento: string;
+  id: number;
+  precio_unitario: string;
+  producto_id: number;
+  producto_nombre: string;
+  subtotal: string;
+  venta_id: number;
+}
+
+export interface CompraP {
   actualizado_en: Date;
   adicional: string;
   cliente_id: number;
@@ -136,4 +130,44 @@ export interface VentaV {
   metodo_pago: string;
   total: string;
   usuario_id: number;
+}
+
+//interfazes para las ventas
+export interface Venta {
+  actualizado_en: Date;
+  adicional: number;
+  cliente_id: number;
+  creado_en: Date;
+  descuento: number;
+  fecha: string;
+  id: number;
+  cliente_nombre: string;
+  metodo_pago: string;
+  total: number;
+  usuario_id: number;
+  detalle_venta: DetalleVenta[];
+}
+
+export interface VentaV {
+  productos: Producto[];
+  venta: Venta;
+}
+
+export interface DetalleVenta {
+  id?: number;
+  venta_id?: number;
+  producto_id: number;
+  cantidad: number;
+  precio_unitario: number;
+  descuento?: string;
+  adicional?: string;
+  subtotal: number;
+  creado_en?: Date;
+  actualizado_en?: Date;
+}
+
+export interface VentaProducto {
+  venta: Venta;
+  productos: Producto[];
+  total?: number;
 }

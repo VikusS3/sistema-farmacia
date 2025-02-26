@@ -15,9 +15,15 @@
 
 [] Hacer el crud de Compras - [x] Crear - [x] Leer - [x] Actualizar - [x] Eliminar
 
-    [] Manejar el error si no seleciona un proveedor- o indicar al usuario que lo seleecione
+    [] Manejar el error si no seleciona un proveedor - o indicar al usuario que lo seleecione
+    [] lograr agregar un producto en el de editar
 
 [] Hacer el crud de Ventas - [x] Crear - [x] Leer - [x] Actualizar - [x] Eliminar
+[] Manejar el error si no seleciona un cliente - o indicar al usuario que lo seleecione
+[] lograr agregar un producto en el de editar
+[] Hacer que se refleje el total en la venta si se agrega descuento o adicionales osea que sea dinamico
+[] agregar la forma de descuento y adicionales
+[] agregar la forma de pago
 
 [] Obtener el nombre del que ingresa
 

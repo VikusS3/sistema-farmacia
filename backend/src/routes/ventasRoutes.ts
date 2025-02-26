@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get("/", VentaController.getAll);
 router.get("/:id", VentaController.getById);
-router.get("/venta/:id", VentaController.getVenta);
+router.get("/venta/:id/productos", VentaController.getVenta);
 router.post("/", VentaController.create);
 router.put("/:id", VentaController.update);
 router.delete("/:id", VentaController.delete);
