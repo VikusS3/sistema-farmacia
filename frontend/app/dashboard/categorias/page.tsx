@@ -1,9 +1,8 @@
 "use client";
 import { useCategoria } from "@/app/hooks/categorias/useCategoria";
-import { useHookForm } from "@/app/hooks/useHookForm";
 import Modal from "@/app/components/Modal";
 import CategoriaForm from "@/app/components/categorias/CategoriasForm";
-import { useState } from "react";
+import { useCrudForm } from "@/app/hooks/useCrudForm";
 
 export default function CategoriasPage() {
   const {
@@ -16,77 +15,48 @@ export default function CategoriasPage() {
     fetchCategoria,
   } = useCategoria();
 
-  const [editingCategoriaId, setEditingCategoriaId] = useState<number | null>(
-    null
-  );
-  const [modalOpen, setModalOpen] = useState(false);
-
-  const { handleChange, handleSubmit, reset, setValues, values } = useHookForm({
+  const form = useCrudForm({
     initialValues: {
       nombre: "",
       descripcion: "",
     },
-    onSubmit: async (values) => {
-      if (editingCategoriaId) {
-        await actualizarCategoria(editingCategoriaId, values);
-      } else {
-        await addCategoria(values);
-      }
-      reset();
-      setEditingCategoriaId(null);
-      setModalOpen(false);
-    },
+    add: addCategoria,
+    update: actualizarCategoria,
+    fetchById: fetchCategoria,
   });
-
-  const handleEdit = async (id: number) => {
-    const categoria = await fetchCategoria(id);
-    setValues(categoria);
-    setEditingCategoriaId(id);
-    setModalOpen(true);
-  };
-
-  const openModalForCreate = () => {
-    reset();
-    setEditingCategoriaId(null);
-    setModalOpen(true);
-  };
-
-  const closeModal = () => {
-    reset();
-    setEditingCategoriaId(null);
-    setModalOpen(false);
-  };
   return (
     <div>
       <h1>Categorias</h1>
       {loading && <p>Cargando...</p>}
       {error && <p>{error}</p>}
       <button
-        onClick={openModalForCreate}
+        onClick={form.openModalForCreate}
         className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
       >
         Agregar Categoria
       </button>
 
       <Modal
-        title={editingCategoriaId ? "Editar Categoria" : "Agregar"}
-        isOpen={modalOpen}
-        onClose={closeModal}
+        title={form.editingId ? "Editar Categoria" : "Agregar"}
+        isOpen={form.modalOpen}
+        onClose={form.closeModal}
       >
         <CategoriaForm
-          values={values}
-          handleChange={handleChange}
-          handleSubmit={handleSubmit}
+          values={form.values}
+          handleChange={form.handleChange}
+          handleSubmit={form.handleSubmit}
           loading={loading}
-          editingCategoriaId={editingCategoriaId}
-          closeModal={closeModal}
+          editingCategoriaId={form.editingId}
+          closeModal={form.closeModal}
         />
       </Modal>
       <ul>
         {categorias.map((categoria) => (
           <li key={categoria.id}>
             {categoria.nombre} -{categoria.descripcion}
-            <button onClick={() => handleEdit(categoria.id)}>Editar</button>
+            <button onClick={() => form.handleEdit(categoria.id)}>
+              Editar
+            </button>
             <button onClick={() => borrarCategoria(categoria.id)}>
               Borrar
             </button>

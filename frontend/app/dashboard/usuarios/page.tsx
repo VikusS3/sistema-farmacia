@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useUsuarios } from "@/app/hooks/usuarios/useUsuarios";
-import { useUsuarioForm } from "@/app/hooks/usuarios/useUsuarioForm";
 import { useState } from "react";
 import Modal from "@/app/components/Modal";
 import UsuarioForm from "@/app/components/usuario/UsuarioForm";
+import { useHookForm } from "@/app/hooks/useHookForm";
 
 export default function UsuariosPage() {
   const {
@@ -20,25 +20,24 @@ export default function UsuariosPage() {
   const [editingUserId, setEditingUserId] = useState<number | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const { values, setValues, handleChange, handleSubmit, reset } =
-    useUsuarioForm({
-      initialValues: {
-        nombres: "",
-        email: "",
-        password: "",
-        rol: "",
-      },
-      onSubmit: async (values) => {
-        if (editingUserId) {
-          await updateUsuario(editingUserId, values);
-        } else {
-          await addUsuario(values);
-        }
-        reset();
-        setEditingUserId(null);
-        setModalOpen(false); // ⬅️ Cierra el modal después de agregar o editar
-      },
-    });
+  const { values, setValues, handleChange, handleSubmit, reset } = useHookForm({
+    initialValues: {
+      nombres: "",
+      email: "",
+      password: "",
+      rol: "",
+    },
+    onSubmit: async (values) => {
+      if (editingUserId) {
+        await updateUsuario(editingUserId, values);
+      } else {
+        await addUsuario(values);
+      }
+      reset();
+      setEditingUserId(null);
+      setModalOpen(false); // ⬅️ Cierra el modal después de agregar o editar
+    },
+  });
 
   const handleEdit = async (id: number) => {
     const user = await fetchUser(id);

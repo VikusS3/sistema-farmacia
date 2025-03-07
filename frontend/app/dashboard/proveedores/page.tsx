@@ -1,9 +1,8 @@
 "use client";
 import { useProveedores } from "@/app/hooks/proveedores/useProveedores";
-import { useHookForm } from "@/app/hooks/useHookForm";
-import { useState } from "react";
 import Modal from "@/app/components/Modal";
 import ProveedorForm from "@/app/components/proveedores/ProveedoresForm";
+import { useCrudForm } from "@/app/hooks/useCrudForm";
 
 export default function ProovedoresPage() {
   const {
@@ -16,48 +15,17 @@ export default function ProovedoresPage() {
     actualizarProveedor,
   } = useProveedores();
 
-  const [editingProveedorId, setEditingProveedorId] = useState<number | null>(
-    null
-  );
-  const [modalOpen, setModalOpen] = useState(false);
-
-  const { handleChange, handleSubmit, reset, setValues, values } = useHookForm({
+  const form = useCrudForm({
     initialValues: {
       nombre: "",
       email: "",
       direccion: "",
       telefono: "",
     },
-    onSubmit: async (values) => {
-      if (editingProveedorId) {
-        await actualizarProveedor(editingProveedorId, values);
-      } else {
-        await addProveedor(values);
-      }
-      reset();
-      setEditingProveedorId(null);
-      setModalOpen(false);
-    },
+    add: addProveedor,
+    update: actualizarProveedor,
+    fetchById: fetchProveedor,
   });
-
-  const handleEdit = async (id: number) => {
-    const proveedor = await fetchProveedor(id);
-    setValues(proveedor);
-    setEditingProveedorId(id);
-    setModalOpen(true);
-  };
-
-  const openModalForCreate = () => {
-    reset();
-    setEditingProveedorId(null);
-    setModalOpen(true);
-  };
-
-  const closeModal = () => {
-    reset();
-    setEditingProveedorId(null);
-    setModalOpen(false);
-  };
 
   return (
     <div>
@@ -65,24 +33,24 @@ export default function ProovedoresPage() {
       {loading && <p>Cargando...</p>}
       {error && <p>{error}</p>}
       <button
-        onClick={openModalForCreate}
+        onClick={form.openModalForCreate}
         className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
       >
         Agregar Proveedor
       </button>
 
       <Modal
-        title={editingProveedorId ? "Editar Proveedor" : "Agregar Proveedor"}
-        isOpen={modalOpen}
-        onClose={closeModal}
+        title={form.editingId ? "Editar Proveedor" : "Agregar Proveedor"}
+        isOpen={form.modalOpen}
+        onClose={form.closeModal}
       >
         <ProveedorForm
-          values={values}
-          handleChange={handleChange}
-          handleSubmit={handleSubmit}
+          values={form.values}
+          handleChange={form.handleChange}
+          handleSubmit={form.handleSubmit}
           loading={loading}
-          editingProveedorId={editingProveedorId}
-          closeModal={closeModal}
+          editingProveedorId={form.editingId}
+          closeModal={form.closeModal}
         />
       </Modal>
 
@@ -98,7 +66,7 @@ export default function ProovedoresPage() {
             <p>{proveedor.telefono}</p>
             <div>
               <button
-                onClick={() => handleEdit(proveedor.id)}
+                onClick={() => form.handleEdit(proveedor.id)}
                 className="bg-yellow-600 text-white py-1 px-2 rounded hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 mr-2"
               >
                 Editar

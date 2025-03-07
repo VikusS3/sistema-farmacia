@@ -1,9 +1,8 @@
 "use client";
 import { useClientes } from "@/app/hooks/clientes/useClientes";
-import { useHookForm } from "@/app/hooks/useHookForm";
-import { useState } from "react";
 import Modal from "@/app/components/Modal";
 import ClienteForm from "@/app/components/clientes/ClientesForm";
+import { useCrudForm } from "@/app/hooks/useCrudForm";
 
 export default function ClientesPage() {
   const {
@@ -16,46 +15,17 @@ export default function ClientesPage() {
     fetchCliente,
   } = useClientes();
 
-  const [editingClienteId, setEditingClienteId] = useState<number | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
-
-  const { handleChange, handleSubmit, reset, setValues, values } = useHookForm({
+  const form = useCrudForm({
     initialValues: {
       nombre: "",
       email: "",
-      telefono: "",
       direccion: "",
+      telefono: "",
     },
-    onSubmit: async (values) => {
-      if (editingClienteId) {
-        await actualizarCliente(editingClienteId, values);
-      } else {
-        await addCliente(values);
-      }
-      reset();
-      setEditingClienteId(null);
-      setModalOpen(false);
-    },
+    add: addCliente,
+    update: actualizarCliente,
+    fetchById: fetchCliente,
   });
-
-  const handleEdit = async (id: number) => {
-    const cliente = await fetchCliente(id);
-    setValues(cliente);
-    setEditingClienteId(id);
-    setModalOpen(true);
-  };
-
-  const openModalForCreate = () => {
-    reset();
-    setEditingClienteId(null);
-    setModalOpen(true);
-  };
-
-  const closeModal = () => {
-    reset();
-    setEditingClienteId(null);
-    setModalOpen(false);
-  };
 
   return (
     <div>
@@ -63,24 +33,24 @@ export default function ClientesPage() {
       {loading && <p>Cargando...</p>}
       {error && <p>{error}</p>}
       <button
-        onClick={openModalForCreate}
+        onClick={form.openModalForCreate}
         className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
       >
         Agregar Cliente
       </button>
 
       <Modal
-        title={editingClienteId ? "Editar Cliente" : "Agregar Cliente"}
-        isOpen={modalOpen}
-        onClose={closeModal}
+        title={form.editingId ? "Editar Cliente" : "Agregar Cliente"}
+        isOpen={form.modalOpen}
+        onClose={form.closeModal}
       >
         <ClienteForm
-          values={values}
-          handleChange={handleChange}
-          handleSubmit={handleSubmit}
+          values={form.values}
+          handleChange={form.handleChange}
+          handleSubmit={form.handleSubmit}
           loading={loading}
-          editingClienteId={editingClienteId}
-          closeModal={closeModal}
+          editingClienteId={form.editingId}
+          closeModal={form.closeModal}
         />
       </Modal>
 
@@ -96,7 +66,7 @@ export default function ClientesPage() {
             <p>{cliente.telefono}</p>
             <div>
               <button
-                onClick={() => handleEdit(cliente.id)}
+                onClick={() => form.handleEdit(cliente.id)}
                 className="bg-yellow-600 text-white py-1 px-2 rounded hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 mr-2"
               >
                 Editar
