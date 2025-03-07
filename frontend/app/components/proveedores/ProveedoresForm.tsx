@@ -21,9 +21,10 @@ export default function ProveedoresForm({
   closeModal,
 }: ProveedoresFormProps) {
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="nombre" className="block text-white mb-2">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Nombre */}
+      <div className="flex flex-col">
+        <label htmlFor="nombre" className="text-white font-medium">
           Nombre:
         </label>
         <input
@@ -32,33 +33,51 @@ export default function ProveedoresForm({
           name="nombre"
           value={values.nombre}
           onChange={handleChange}
-          className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Ingresa el nombre"
           required
         />
-        <label htmlFor="email">Correo Electrónico:</label>
+      </div>
+
+      {/* Correo Electrónico */}
+      <div className="flex flex-col">
+        <label htmlFor="email" className="text-white font-medium">
+          Correo Electrónico:
+        </label>
         <input
           type="email"
           id="email"
           name="email"
           value={values.email}
           onChange={handleChange}
-          className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Ingresa el correo electrónico"
           required
         />
-        <label htmlFor="direccion">Dirección:</label>
+      </div>
+
+      {/* Dirección */}
+      <div className="flex flex-col">
+        <label htmlFor="direccion" className="text-white font-medium">
+          Dirección:
+        </label>
         <input
           type="text"
           id="direccion"
           name="direccion"
           value={values.direccion}
           onChange={handleChange}
-          className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Ingresa la dirección"
           required
         />
-        <label htmlFor="telefono">Teléfono:</label>
+      </div>
+
+      {/* Teléfono */}
+      <div className="flex flex-col">
+        <label htmlFor="telefono" className="text-white font-medium">
+          Teléfono:
+        </label>
         <input
           type="text"
           id="telefono"
@@ -66,26 +85,37 @@ export default function ProveedoresForm({
           maxLength={9}
           value={values.telefono}
           onChange={handleChange}
-          className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Ingresa el teléfono"
           required
         />
       </div>
 
-      <div>
+      {/* Botones */}
+      <div className="flex justify-end gap-3 mt-3">
+        {closeModal && (
+          <button
+            type="button"
+            onClick={closeModal}
+            className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+          >
+            Cancelar
+          </button>
+        )}
         <button
           type="submit"
-          className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          onClick={closeModal}
-        >
-          Cancelar
-        </button>
-        <button
-          type="submit"
-          className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
           disabled={loading}
+          className={`py-2 px-4 rounded-md text-white ${
+            loading
+              ? "bg-gray-500 cursor-not-allowed"
+              : "bg-green-600 hover:bg-green-700 focus:ring-2 focus:ring-green-500"
+          }`}
         >
-          {editingProveedorId ? "Editar" : "Agregar"}
+          {loading
+            ? "Guardando..."
+            : editingProveedorId
+            ? "Actualizar"
+            : "Agregar"}
         </button>
       </div>
     </form>

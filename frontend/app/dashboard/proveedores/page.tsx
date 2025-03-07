@@ -3,6 +3,7 @@ import { useProveedores } from "@/app/hooks/proveedores/useProveedores";
 import Modal from "@/app/components/Modal";
 import ProveedorForm from "@/app/components/proveedores/ProveedoresForm";
 import { useCrudForm } from "@/app/hooks/useCrudForm";
+import ProovedoresList from "@/app/components/proveedores/ProveedoresList";
 
 export default function ProovedoresPage() {
   const {
@@ -28,16 +29,18 @@ export default function ProovedoresPage() {
   });
 
   return (
-    <div>
-      <h1>Proovedores</h1>
-      {loading && <p>Cargando...</p>}
-      {error && <p>{error}</p>}
-      <button
-        onClick={form.openModalForCreate}
-        className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-      >
-        Agregar Proveedor
-      </button>
+    <div className="p-6 bg-background-100 text-text-100 rounded-lg shadow-lg">
+      <h1 className="text-2xl font-bold mb-4 text-primary-200">Proveedores</h1>
+      {loading && <p className="text-primary-300">Cargando...</p>}
+      {error && <p className="text-accent-100">{error}</p>}
+      <div className="mb-4">
+        <button
+          onClick={form.openModalForCreate}
+          className="bg-primary-100 text-text-100 py-2 px-4 rounded-md hover:bg-primary-200 transition-all focus:outline-none focus:ring-2 focus:ring-primary-300"
+        >
+          + Agregar Usuarios
+        </button>
+      </div>
 
       <Modal
         title={form.editingId ? "Editar Proveedor" : "Agregar Proveedor"}
@@ -54,33 +57,11 @@ export default function ProovedoresPage() {
         />
       </Modal>
 
-      <ul>
-        {proveedores.map((proveedor) => (
-          <li
-            key={proveedor.id}
-            className="mt-4 border-2 rounded-lg border-white w-fit"
-          >
-            <p>{proveedor.nombre}</p>
-            <p>{proveedor.email}</p>
-            <p>{proveedor.direccion}</p>
-            <p>{proveedor.telefono}</p>
-            <div>
-              <button
-                onClick={() => form.handleEdit(proveedor.id)}
-                className="bg-yellow-600 text-white py-1 px-2 rounded hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 mr-2"
-              >
-                Editar
-              </button>
-              <button
-                onClick={() => eliminarProveedor(proveedor.id)}
-                className="bg-red-600 text-white py-1 px-2 rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
-              >
-                Eliminar
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <ProovedoresList
+        proveedores={proveedores}
+        handleEdit={form.handleEdit}
+        borrarProovedor={eliminarProveedor}
+      />
     </div>
   );
 }
