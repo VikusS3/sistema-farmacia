@@ -4,6 +4,7 @@ import { useUsuarios } from "@/app/hooks/usuarios/useUsuarios";
 import Modal from "@/app/components/Modal";
 import UsuarioForm from "@/app/components/usuario/UsuarioForm";
 import { useCrudForm } from "@/app/hooks/useCrudForm";
+import UsuarioList from "@/app/components/usuario/UsuarioList";
 
 export default function UsuariosPage() {
   const {
@@ -21,6 +22,7 @@ export default function UsuariosPage() {
       nombres: "",
       email: "",
       password: "",
+      rol: "",
     },
     add: addUsuario,
     update: updateUsuario,
@@ -28,17 +30,20 @@ export default function UsuariosPage() {
   });
 
   return (
-    <div>
-      <h1>Gestión de Usuarios</h1>
-      {loading && <p>Cargando...</p>}
-      {error && <p>{error}</p>}
+    <div className="p-6 bg-background-100 text-text-100 rounded-lg shadow-lg">
+      <h1 className="text-2xl font-bold mb-4 text-primary-200">Usuarios</h1>
+      {/* Mensajes de carga y error */}
+      {loading && <p className="text-primary-300">Cargando...</p>}
+      {error && <p className="text-accent-100">{error}</p>}
 
-      <button
-        onClick={form.openModalForCreate}
-        className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-      >
-        Agregar Usuario
-      </button>
+      <div className="mb-4">
+        <button
+          onClick={form.openModalForCreate}
+          className="bg-primary-100 text-text-100 py-2 px-4 rounded-md hover:bg-primary-200 transition-all focus:outline-none focus:ring-2 focus:ring-primary-300"
+        >
+          + Agregar Usuarios
+        </button>
+      </div>
 
       <Modal
         title={form.editingId ? "Editar Usuario" : "Agregar Usuario"}
@@ -55,29 +60,11 @@ export default function UsuariosPage() {
         />
       </Modal>
 
-      <ul className="mt-4">
-        {usuarios.map((usuario) => (
-          <li key={usuario.id} className="flex justify-between items-center">
-            <span>
-              {usuario.nombres} ({usuario.email})
-            </span>
-            <div>
-              <button
-                onClick={() => form.handleEdit(usuario.id)}
-                className="bg-yellow-600 text-white py-1 px-2 rounded hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 mr-2"
-              >
-                Editar
-              </button>
-              <button
-                onClick={() => deleteUsuario(usuario.id)}
-                className="bg-red-600 text-white py-1 px-2 rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
-              >
-                Eliminar
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <UsuarioList
+        usuarios={usuarios}
+        handleEdit={form.handleEdit}
+        borrarUsuario={deleteUsuario}
+      />
     </div>
   );
 }
