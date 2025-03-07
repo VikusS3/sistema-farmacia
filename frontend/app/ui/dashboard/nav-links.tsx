@@ -10,6 +10,7 @@ import {
   Contact,
   Truck,
   ChartColumnStacked,
+  Store,
 } from "lucide-react";
 
 const links = [
@@ -23,7 +24,7 @@ const links = [
     name: "Ventas",
     href: "/dashboard/ventas",
     label: "Ventas",
-    icon: ShoppingBag,
+    icon: Store,
   },
   {
     name: "Compras",
@@ -71,20 +72,26 @@ const links = [
 export default function NavLinks() {
   const pathname = usePathname();
   return (
-    <nav className="flex flex-col space-y-4">
+    <nav className="flex flex-col px-3 gap-1">
       {links.map((link) => (
         <Link
           key={link.name}
           href={link.href}
-          className={
+          className={`group flex items-center gap-3 rounded-lg p-2 transition-all ${
             pathname === link.href
-              ? "bg-gray-900 text-white flex items-center space-x-2 p-2 rounded"
-              : "text-gray-300 hover:bg-gray-700 flex items-center space-x-2 p-2 rounded"
-          }
+              ? "bg-primary-100 text-primary-300"
+              : "text-text-200 hover:bg-primary-200 hover:text-text-100"
+          }`}
           aria-label={link.label}
         >
-          <link.icon className="w-6 h-6" />
-          <p className="hidden md:block">{link.name}</p>
+          <link.icon
+            className={`h-6 w-6 transition-transform ${
+              pathname === link.href && "text-primary-300 scale-110"
+            }`}
+          />
+          <span className="hidden md:block text-sm font-medium">
+            {link.name}
+          </span>
         </Link>
       ))}
     </nav>

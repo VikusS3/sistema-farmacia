@@ -10,19 +10,24 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: {
-          DEFAULT: "#121212",
-          secondary: "#1E1E2E",
+        primary: {
+          100: "#0D6E6E",
+          200: "#4a9d9c",
+          300: "#afffff",
+        },
+        accent: {
+          100: "#FF3D3D",
+          200: "#ffe0c8",
         },
         text: {
-          primary: "#E0E0E0",
-          secondary: "#A6A6A6",
+          100: "#FFFFFF",
+          200: "#e0e0e0",
         },
-        primary: "#00ADB5",
-        success: "#4CAF50",
-        warning: "#F9A825",
-        error: "#FF5252",
-        border: "#292929",
+        background: {
+          100: "#0D1F2D",
+          200: "#1d2e3d",
+          300: "#354656",
+        },
       },
     },
   },

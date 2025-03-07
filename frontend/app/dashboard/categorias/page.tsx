@@ -3,6 +3,7 @@ import { useCategoria } from "@/app/hooks/categorias/useCategoria";
 import Modal from "@/app/components/Modal";
 import CategoriaForm from "@/app/components/categorias/CategoriasForm";
 import { useCrudForm } from "@/app/hooks/useCrudForm";
+import CategoriaList from "@/app/components/categorias/CategoriaList";
 
 export default function CategoriasPage() {
   const {
@@ -24,20 +25,29 @@ export default function CategoriasPage() {
     update: actualizarCategoria,
     fetchById: fetchCategoria,
   });
-  return (
-    <div>
-      <h1>Categorias</h1>
-      {loading && <p>Cargando...</p>}
-      {error && <p>{error}</p>}
-      <button
-        onClick={form.openModalForCreate}
-        className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-      >
-        Agregar Categoria
-      </button>
 
+  return (
+    <div className="p-6 bg-background-100 text-text-100 rounded-lg shadow-lg">
+      {/* Título */}
+      <h1 className="text-2xl font-bold mb-4 text-primary-200">Categorías</h1>
+
+      {/* Mensajes de carga y error */}
+      {loading && <p className="text-primary-300">Cargando...</p>}
+      {error && <p className="text-accent-100">{error}</p>}
+
+      {/* Botón para agregar categoría */}
+      <div className="mb-4">
+        <button
+          onClick={form.openModalForCreate}
+          className="bg-primary-100 text-text-100 py-2 px-4 rounded-md hover:bg-primary-200 transition-all focus:outline-none focus:ring-2 focus:ring-primary-300"
+        >
+          + Agregar Categoría
+        </button>
+      </div>
+
+      {/* Modal para agregar o editar categoría */}
       <Modal
-        title={form.editingId ? "Editar Categoria" : "Agregar"}
+        title={form.editingId ? "Editar Categoría" : "Agregar Categoría"}
         isOpen={form.modalOpen}
         onClose={form.closeModal}
       >
@@ -50,19 +60,13 @@ export default function CategoriasPage() {
           closeModal={form.closeModal}
         />
       </Modal>
-      <ul>
-        {categorias.map((categoria) => (
-          <li key={categoria.id}>
-            {categoria.nombre} -{categoria.descripcion}
-            <button onClick={() => form.handleEdit(categoria.id)}>
-              Editar
-            </button>
-            <button onClick={() => borrarCategoria(categoria.id)}>
-              Borrar
-            </button>
-          </li>
-        ))}
-      </ul>
+
+      {/* Lista de categorías */}
+      <CategoriaList
+        categorias={categorias}
+        handleEdit={form.handleEdit}
+        borrarCategoria={borrarCategoria}
+      />
     </div>
   );
 }

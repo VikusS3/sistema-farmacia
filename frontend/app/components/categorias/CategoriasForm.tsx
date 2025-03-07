@@ -9,6 +9,7 @@ interface CategoriaFormProps {
   editingCategoriaId?: number | null;
   closeModal?: () => void;
 }
+
 export default function CategoriaForm({
   values,
   handleChange,
@@ -18,9 +19,10 @@ export default function CategoriaForm({
   closeModal,
 }: CategoriaFormProps) {
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="nombre" className="block text-white mb-2">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Nombre */}
+      <div className="flex flex-col">
+        <label htmlFor="nombre" className="text-text-100 font-medium">
           Nombre:
         </label>
         <input
@@ -29,37 +31,48 @@ export default function CategoriaForm({
           name="nombre"
           value={values.nombre}
           onChange={handleChange}
-          className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Ingresa el nombre"
           required
         />
-        <label htmlFor="descripcion">Descripción:</label>
+      </div>
+
+      {/* Descripción */}
+      <div className="flex flex-col">
+        <label htmlFor="descripcion" className="text-text-100 font-medium">
+          Descripción:
+        </label>
         <input
           type="text"
           id="descripcion"
           name="descripcion"
           value={values.descripcion}
           onChange={handleChange}
-          className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Ingresa la descripción"
           required
         />
       </div>
 
-      <div>
+      {/* Botones */}
+      <div className="flex justify-end gap-4 mt-2">
         <button
-          type="submit"
-          className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          type="button"
+          className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
           onClick={closeModal}
         >
           Cancelar
         </button>
         <button
           type="submit"
-          className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+          className={`py-2 px-4 rounded-md text-white ${
+            loading
+              ? "bg-gray-500 cursor-not-allowed"
+              : "bg-green-600 hover:bg-green-700 focus:ring-2 focus:ring-green-500"
+          }`}
           disabled={loading}
         >
-          {editingCategoriaId ? "Editar" : "Agregar"}
+          {loading ? "Guardando..." : editingCategoriaId ? "Editar" : "Agregar"}
         </button>
       </div>
     </form>

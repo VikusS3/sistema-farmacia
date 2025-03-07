@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useUsuarios } from "@/app/hooks/usuarios/useUsuarios";
-import { useState } from "react";
 import Modal from "@/app/components/Modal";
 import UsuarioForm from "@/app/components/usuario/UsuarioForm";
-import { useHookForm } from "@/app/hooks/useHookForm";
+import { useCrudForm } from "@/app/hooks/useCrudForm";
 
 export default function UsuariosPage() {
   const {
@@ -17,46 +16,16 @@ export default function UsuariosPage() {
     updateUsuario,
   } = useUsuarios();
 
-  const [editingUserId, setEditingUserId] = useState<number | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
-
-  const { values, setValues, handleChange, handleSubmit, reset } = useHookForm({
+  const form = useCrudForm({
     initialValues: {
       nombres: "",
       email: "",
       password: "",
-      rol: "",
     },
-    onSubmit: async (values) => {
-      if (editingUserId) {
-        await updateUsuario(editingUserId, values);
-      } else {
-        await addUsuario(values);
-      }
-      reset();
-      setEditingUserId(null);
-      setModalOpen(false); // ⬅️ Cierra el modal después de agregar o editar
-    },
+    add: addUsuario,
+    update: updateUsuario,
+    fetchById: fetchUser,
   });
-
-  const handleEdit = async (id: number) => {
-    const user = await fetchUser(id);
-    setValues(user);
-    setEditingUserId(id);
-    setModalOpen(true);
-  };
-
-  const openModalForCreate = () => {
-    reset();
-    setEditingUserId(null);
-    setModalOpen(true);
-  };
-
-  const closeModal = () => {
-    reset();
-    setEditingUserId(null);
-    setModalOpen(false);
-  };
 
   return (
     <div>
@@ -65,24 +34,24 @@ export default function UsuariosPage() {
       {error && <p>{error}</p>}
 
       <button
-        onClick={openModalForCreate}
+        onClick={form.openModalForCreate}
         className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
       >
         Agregar Usuario
       </button>
 
       <Modal
-        title={editingUserId ? "Editar Usuario" : "Agregar Usuario"}
-        isOpen={modalOpen}
-        onClose={closeModal}
+        title={form.editingId ? "Editar Usuario" : "Agregar Usuario"}
+        isOpen={form.modalOpen}
+        onClose={form.closeModal}
       >
         <UsuarioForm
-          values={values}
-          handleChange={handleChange as any}
-          handleSubmit={handleSubmit}
+          values={form.values}
+          handleChange={form.handleChange as any}
+          handleSubmit={form.handleSubmit}
           loading={loading}
-          editingUserId={editingUserId}
-          closeModal={closeModal}
+          editingUserId={form.editingId}
+          closeModal={form.closeModal}
         />
       </Modal>
 
@@ -94,7 +63,7 @@ export default function UsuariosPage() {
             </span>
             <div>
               <button
-                onClick={() => handleEdit(usuario.id)}
+                onClick={() => form.handleEdit(usuario.id)}
                 className="bg-yellow-600 text-white py-1 px-2 rounded hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 mr-2"
               >
                 Editar
