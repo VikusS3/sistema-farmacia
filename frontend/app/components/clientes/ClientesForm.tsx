@@ -23,6 +23,7 @@ export default function ClienteForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
+        {/* Nombre */}
         <label htmlFor="nombre" className="block text-white mb-2">
           Nombre:
         </label>
@@ -32,33 +33,45 @@ export default function ClienteForm({
           name="nombre"
           value={values.nombre}
           onChange={handleChange}
-          className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Ingresa el nombre"
           required
         />
-        <label htmlFor="email">Correo Electrónico:</label>
+
+        {/* Correo Electrónico */}
+        <label htmlFor="email" className="block text-white mb-2">
+          Correo Electrónico:
+        </label>
         <input
           type="email"
           id="email"
           name="email"
           value={values.email}
           onChange={handleChange}
-          className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Ingresa el correo electrónico"
           required
         />
-        <label htmlFor="direccion">Dirección:</label>
+
+        {/* Dirección */}
+        <label htmlFor="direccion" className="block text-white mb-2">
+          Dirección:
+        </label>
         <input
           type="text"
           id="direccion"
           name="direccion"
           value={values.direccion}
           onChange={handleChange}
-          className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Ingresa la dirección"
           required
         />
-        <label htmlFor="telefono">Teléfono:</label>
+
+        {/* Teléfono */}
+        <label htmlFor="telefono" className="block text-white mb-2">
+          Teléfono:
+        </label>
         <input
           type="text"
           id="telefono"
@@ -66,23 +79,26 @@ export default function ClienteForm({
           maxLength={9}
           value={values.telefono}
           onChange={handleChange}
-          className="w-full px-3 py-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Ingresa el teléfono"
           required
         />
       </div>
 
-      <div>
+      {/* Botones */}
+      <div className="flex justify-end gap-3">
+        {closeModal && (
+          <button
+            type="button"
+            onClick={closeModal}
+            className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+          >
+            Cancelar
+          </button>
+        )}
         <button
           type="submit"
-          className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          onClick={closeModal}
-        >
-          Cancelar
-        </button>
-        <button
-          type="submit"
-          className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
           disabled={loading}
         >
           {editingClienteId ? "Editar" : "Agregar"}

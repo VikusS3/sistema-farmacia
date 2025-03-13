@@ -5,6 +5,7 @@ import { useState } from "react";
 import Modal from "@/app/components/Modal";
 import ProductosForm from "@/app/components/productos/ProductosForm";
 import { useCategoria } from "@/app/hooks/categorias/useCategoria";
+import ProductosList from "@/app/components/productos/ProductosList";
 export default function ProductosPage() {
   const {
     loading,
@@ -76,21 +77,24 @@ export default function ProductosPage() {
     setModalOpen(false);
   };
   return (
-    <div>
-      <h1>Productos</h1>
-      {loading && <p>Cargando...</p>}
-      {error && <p>Error: {error}</p>}
-      <button
-        onClick={openModalForCreate}
-        className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-      >
-        Agregar Producto
-      </button>
+    <div className="p-6 bg-background-100 text-text-100 rounded-lg shadow-lg">
+      <h1 className="text-2xl font-bold mb-4 text-primary-200">Productos</h1>
+      {loading && <p className="text-primary-300">Cargando...</p>}
+      {error && <p className="text-accent-100">{error}</p>}
+      <div className="mb-4">
+        <button
+          onClick={openModalForCreate}
+          className="bg-primary-100 text-text-100 py-2 px-4 rounded-md hover:bg-primary-200 transition-all focus:outline-none focus:ring-2 focus:ring-primary-300"
+        >
+          + Agregar Productos
+        </button>
+      </div>
 
       <Modal
         title={editingProductoId ? "Editar Producto" : "Agregar Producto"}
         isOpen={modalOpen}
         onClose={closeModal}
+        className="max-w-xl w-full"
       >
         <ProductosForm
           values={values}
@@ -102,25 +106,11 @@ export default function ProductosPage() {
           categorias={categorias}
         />
       </Modal>
-      <ul>
-        {productos.map((producto) => (
-          <li key={producto.id} className="flex justify-between">
-            <p>{producto.nombre}</p>
-            <p>{producto.descripcion}</p>
-            <p>{producto.precio_compra}</p>
-            <p>{producto.precio_venta}</p>
-            <p>{producto.stock}</p>
-            <p>{producto.stock_minimo}</p>
-            <p>{producto.unidad_medida}</p>
-            <p>{new Date(producto.fecha_vencimiento).toLocaleDateString()}</p>
-            <p>{producto.conversion}</p>
-            <button onClick={() => eliminarProducto(producto.id)}>
-              Eliminar
-            </button>
-            <button onClick={() => handleEdit(producto.id)}>Editar</button>
-          </li>
-        ))}
-      </ul>
+      <ProductosList
+        productos={productos}
+        handleEdit={handleEdit}
+        borrarProductos={eliminarProducto}
+      />
     </div>
   );
 }

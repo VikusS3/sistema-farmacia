@@ -3,6 +3,7 @@ import { useClientes } from "@/app/hooks/clientes/useClientes";
 import Modal from "@/app/components/Modal";
 import ClienteForm from "@/app/components/clientes/ClientesForm";
 import { useCrudForm } from "@/app/hooks/useCrudForm";
+import ClientesList from "@/app/components/clientes/ClientesList";
 
 export default function ClientesPage() {
   const {
@@ -28,16 +29,18 @@ export default function ClientesPage() {
   });
 
   return (
-    <div>
-      <h1>Proovedores</h1>
-      {loading && <p>Cargando...</p>}
-      {error && <p>{error}</p>}
-      <button
-        onClick={form.openModalForCreate}
-        className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-      >
-        Agregar Cliente
-      </button>
+    <div className="p-6 bg-background-100 text-text-100 rounded-lg shadow-lg">
+      <h1 className="text-2xl font-bold mb-4 text-primary-200">Clientes</h1>
+      {loading && <p className="text-primary-300">Cargando...</p>}
+      {error && <p className="text-accent-100">{error}</p>}
+      <div className="mb-4">
+        <button
+          onClick={form.openModalForCreate}
+          className="bg-primary-100 text-text-100 py-2 px-4 rounded-md hover:bg-primary-200 transition-all focus:outline-none focus:ring-2 focus:ring-primary-300"
+        >
+          + Agregar Cliente
+        </button>
+      </div>
 
       <Modal
         title={form.editingId ? "Editar Cliente" : "Agregar Cliente"}
@@ -54,33 +57,11 @@ export default function ClientesPage() {
         />
       </Modal>
 
-      <ul>
-        {clientes.map((cliente) => (
-          <li
-            key={cliente.id}
-            className="mt-4 border-2 rounded-lg border-white w-fit"
-          >
-            <p>{cliente.nombre}</p>
-            <p>{cliente.email}</p>
-            <p>{cliente.direccion}</p>
-            <p>{cliente.telefono}</p>
-            <div>
-              <button
-                onClick={() => form.handleEdit(cliente.id)}
-                className="bg-yellow-600 text-white py-1 px-2 rounded hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 mr-2"
-              >
-                Editar
-              </button>
-              <button
-                onClick={() => borrarCliente(cliente.id)}
-                className="bg-red-600 text-white py-1 px-2 rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
-              >
-                Eliminar
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <ClientesList
+        clientes={clientes}
+        handleEdit={form.handleEdit}
+        borrarCliente={borrarCliente}
+      />
     </div>
   );
 }

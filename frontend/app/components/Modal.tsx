@@ -7,9 +7,16 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  className?: string;
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
+const Modal: React.FC<ModalProps> = ({
+  isOpen,
+  onClose,
+  title,
+  children,
+  className,
+}) => {
   // Cerrar modal con la tecla "Esc"
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -41,7 +48,9 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -50, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-background-200 text-text-100 p-6 rounded-md shadow-lg w-96 relative"
+          className={`bg-background-200 text-text-100 p-6 rounded-md shadow-lg ${
+            className || "w-96"
+          } relative`}
         >
           {/* Botón de cierre */}
           <button
