@@ -18,13 +18,16 @@
     [] Manejar el error si no seleciona un proveedor - o indicar al usuario que lo seleecione
     [] lograr agregar un producto en el de editar
 
-[] Hacer el crud de Ventas - [x] Crear - [x] Leer - [x] Actualizar - [x] Eliminar
-[] Manejar el error si no seleciona un cliente - o indicar al usuario que lo seleecione
+[x] Hacer el crud de Ventas - [x] Crear - [x] Leer - [x] Actualizar - [x] Eliminar
+
+    [x]Error al editar la cantidad de productos en la venta el total sale NULL, revisar con el de compras que si funciona bien
+
+[x] Hacer que se refleje el total en la venta si se agrega descuento o adicionales osea que sea dinamico
+[x] agregar la forma de descuento y adicionales
+[x] agregar la forma de pago
+[] Mostar un mensaje cuando se le da a agregar
+[] mejorar los inputs que son para los precios o cantidades
 [] lograr agregar un producto en el de editar
-[] Hacer que se refleje el total en la venta si se agrega descuento o adicionales osea que sea dinamico
-[] agregar la forma de descuento y adicionales
-[] agregar la forma de pago
-
+[] Manejar el error si no seleciona un cliente - o indicar al usuario que lo seleecione
 [] Obtener el nombre del que ingresa
-
-[] Asegurar las rutas de entrada (usar el token paar que pueda ver la pagina )
+[] Asegurar las rutas de entrada (usar el token paar que pueda ver la paginas)

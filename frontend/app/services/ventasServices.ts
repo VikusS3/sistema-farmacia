@@ -36,7 +36,6 @@ export const createVenta = async (
       ...venta,
       detalle_venta: venta.detalle_venta,
     };
-    console.log("Data enviada", ventaData);
     const response = await api.post("/ventas", ventaData);
     return response.data;
   } catch (error) {

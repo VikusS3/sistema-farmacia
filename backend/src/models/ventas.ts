@@ -3,9 +3,13 @@ import { RowDataPacket } from "mysql2";
 import { Ventas } from "../types";
 
 export const VentasModel = {
-  async findAll(): Promise<Ventas[]> {
-    const [rows] = await pool.query<RowDataPacket[]>("SELECT * FROM ventas");
-    return rows as Ventas[];
+  async findAll(): Promise<any[]> {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT v.*, c.nombre AS cliente_nombre
+       FROM ventas v
+       INNER JOIN clientes c ON v.cliente_id = c.id`
+    );
+    return rows;
   },
 
   async findById(id: number): Promise<Ventas | null> {

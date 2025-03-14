@@ -3,7 +3,8 @@ import { useVentas } from "./useVentas";
 import { useProductos } from "../productos/useProductos";
 import { useClientes } from "../clientes/useClientes";
 import { VentaProducto, Productos } from "@/app/types";
-
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 export function useVentasForm() {
   const {
     actualizarVenta,
@@ -33,7 +34,7 @@ export function useVentasForm() {
       subtotal: number;
     }[]
   >([]);
-
+  const MySwal = withReactContent(Swal);
   const total = detalleVenta.reduce((acc, item) => acc + item.subtotal, 0);
 
   // Evita duplicados al agregar productos
@@ -45,6 +46,11 @@ export function useVentasForm() {
         (item) => item.producto_id === producto.id
       );
       if (existente) {
+        MySwal.fire({
+          title: "Producto Actualizado",
+          text: `Se actualizó la cantidad del producto ${producto.nombre}`,
+          icon: "success",
+        });
         return prevDetalle.map((item) =>
           item.producto_id === producto.id
             ? {
@@ -55,6 +61,11 @@ export function useVentasForm() {
             : item
         );
       } else {
+        MySwal.fire({
+          title: "Producto Agregado",
+          text: `Se agregó el producto ${producto.nombre}`,
+          icon: "success",
+        });
         return [
           ...prevDetalle,
           {
@@ -102,6 +113,11 @@ export function useVentasForm() {
       })),
     };
     await addVenta(venta);
+    MySwal.fire({
+      title: "Venta Registrada",
+      text: "La venta ha sido registrada exitosamente.",
+      icon: "success",
+    });
     resetForm();
   };
 
@@ -109,6 +125,9 @@ export function useVentasForm() {
     ventaEditando: VentaProducto | undefined
   ) => {
     if (!ventaEditando) return;
+    //Transformar los valores a números, No lo estaba haciendo y daba NaN XD
+    const adicional = parseFloat(String(ventaEditando.venta.adicional)) || 0;
+    const descuento = parseFloat(String(ventaEditando.venta.descuento)) || 0;
     const venta = {
       cliente_id: ventaEditando.venta.cliente_id,
       usuario_id: ventaEditando.venta.usuario_id,
@@ -119,22 +138,23 @@ export function useVentasForm() {
       total:
         ventaEditando.productos.reduce(
           (acc, item) =>
-            acc + Number(item.cantidad) * Number(item.precio_unitario || 0),
+            acc + Number(item.cantidad) * Number(item.precio_unitario),
           0
         ) +
-        ventaEditando.venta.adicional -
-        ventaEditando.venta.descuento,
+        adicional -
+        descuento,
 
       detalle_venta: ventaEditando.productos.map((item) => ({
         id: item.id,
         producto_id: item.producto_id,
         cantidad: item.cantidad,
-        precio_unitario: Number(item.precio_unitario),
-        subtotal: Number(item.subtotal),
+        precio_unitario: Number(item.precio_unitario) || 0,
+        subtotal: Number(item.cantidad) * Number(item.precio_unitario || 0),
       })),
     };
 
     await actualizarVenta(ventaEditando.venta.id as number, venta);
+    resetForm();
   };
 
   return {
