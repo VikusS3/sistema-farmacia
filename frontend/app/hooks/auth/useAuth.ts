@@ -53,6 +53,7 @@ export const useAuth = () => {
     setUsuarioData(null);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
+    localStorage.removeItem("usuario_id");
     router.push("/");
   };
 
