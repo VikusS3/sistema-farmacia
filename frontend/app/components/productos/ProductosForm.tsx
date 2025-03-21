@@ -14,7 +14,9 @@ interface ProductosFormProps {
     conversion: number;
     categoria_id: number;
   };
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
   handleSubmit: (e: React.FormEvent) => void;
   loading?: boolean;
   editingProductoId?: number | null;
@@ -34,7 +36,7 @@ export default function ProductosForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Campos del formulario en grid responsivo */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Nombre */}
         <div>
           <label htmlFor="nombre" className="block text-white mb-1">
@@ -48,23 +50,6 @@ export default function ProductosForm({
             onChange={handleChange}
             className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Ingresa el nombre"
-            required
-          />
-        </div>
-
-        {/* Descripción */}
-        <div>
-          <label htmlFor="descripcion" className="block text-white mb-1">
-            Descripción:
-          </label>
-          <input
-            type="text"
-            id="descripcion"
-            name="descripcion"
-            value={values.descripcion}
-            onChange={handleChange}
-            className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Ingresa la descripción"
             required
           />
         </div>
@@ -210,6 +195,21 @@ export default function ProductosForm({
             ))}
           </select>
         </div>
+      </div>
+      {/* Descripción */}
+      <div>
+        <label htmlFor="descripcion" className="block text-white mb-1">
+          Descripción:
+        </label>
+        <textarea
+          id="descripcion"
+          name="descripcion"
+          value={values.descripcion}
+          onChange={handleChange}
+          className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Ingresa la descripción"
+          required
+        />
       </div>
 
       {/* Botones */}

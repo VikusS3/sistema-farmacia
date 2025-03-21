@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useProductos } from "@/app/hooks/productos/useProductos";
 import { useHookForm } from "@/app/hooks/useHookForm";
@@ -94,11 +95,11 @@ export default function ProductosPage() {
         title={editingProductoId ? "Editar Producto" : "Agregar Producto"}
         isOpen={modalOpen}
         onClose={closeModal}
-        className="max-w-xl w-full"
+        className="max-w-2xl w-full"
       >
         <ProductosForm
           values={values}
-          handleChange={handleChange}
+          handleChange={handleChange as any}
           handleSubmit={handleSubmit}
           loading={loading}
           editingProductoId={editingProductoId}
