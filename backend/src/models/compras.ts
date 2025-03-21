@@ -4,7 +4,11 @@ import { Compras } from "../types";
 
 export const ComprasModel = {
   async findAll(): Promise<Compras[]> {
-    const [rows] = await pool.query<RowDataPacket[]>("SELECT * FROM compras");
+    const [rows] = await pool.query<
+      RowDataPacket[]
+    >(`SELECT c.*, p.nombre AS proveedor_nombre
+       FROM compras c
+       INNER JOIN proveedores p ON c.proveedor_id = p.id`);
     return rows as Compras[];
   },
 
