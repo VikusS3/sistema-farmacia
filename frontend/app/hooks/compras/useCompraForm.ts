@@ -3,6 +3,8 @@ import { useCompras } from "./useCompras";
 import { useProductos } from "../productos/useProductos";
 import { useProveedores } from "../proveedores/useProveedores";
 import { CompraProducto, Productos } from "@/app/types";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 export function useCompraForm() {
   const {
@@ -18,7 +20,7 @@ export function useCompraForm() {
   const { productos } = useProductos();
   const { proveedores } = useProveedores();
   const usuarioId = localStorage.getItem("usuario_id");
-
+  const MySwal = withReactContent(Swal);
   const [proveedorId, setProveedorId] = useState<number>(0);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [detalleCompra, setDetalleCompra] = useState<
@@ -42,6 +44,11 @@ export function useCompraForm() {
         (item) => item.producto_id === producto.id
       );
       if (existente) {
+        MySwal.fire({
+          title: "Producto Actualizado",
+          text: `Se actualizó la cantidad del producto ${producto.nombre}`,
+          icon: "success",
+        });
         return prevDetalle.map((item) =>
           item.producto_id === producto.id
             ? {
@@ -52,6 +59,11 @@ export function useCompraForm() {
             : item
         );
       } else {
+        MySwal.fire({
+          title: "Producto Agregado",
+          text: `Se agregó el producto ${producto.nombre}`,
+          icon: "success",
+        });
         return [
           ...prevDetalle,
           {
@@ -90,6 +102,11 @@ export function useCompraForm() {
       })),
     };
     await addCompra(compra);
+    MySwal.fire({
+      title: "Compra Registrada",
+      text: "La compra ha sido registrada exitosamente.",
+      icon: "success",
+    });
     resetForm();
   };
 
