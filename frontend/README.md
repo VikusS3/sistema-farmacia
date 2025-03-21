@@ -25,9 +25,10 @@
 [x] Hacer que se refleje el total en la venta si se agrega descuento o adicionales osea que sea dinamico
 [x] agregar la forma de descuento y adicionales
 [x] agregar la forma de pago
-[] Mostar un mensaje cuando se le da a agregar
+[x] Mostar un mensaje cuando se le da a agregar
 [] mejorar los inputs que son para los precios o cantidades
 [] lograr agregar un producto en el de editar
 [] Manejar el error si no seleciona un cliente - o indicar al usuario que lo seleecione
 [] Obtener el nombre del que ingresa
 [] Asegurar las rutas de entrada (usar el token paar que pueda ver la paginas)
+[] Crear un script para generar un backup de la base de datos, y usarlo desde el frontend
