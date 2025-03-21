@@ -105,11 +105,11 @@ export default function VentasPage() {
         Ver Detalle y Registrar
       </button>
 
-      {/* Modal con el detalle de la compra */}
+      {/* Modal con el detalle de la venta */}
       <Modal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        title="Detalle de la Compra"
+        title="Detalle de la Venta"
         className="max-w-2xl"
       >
         <VentaForm
