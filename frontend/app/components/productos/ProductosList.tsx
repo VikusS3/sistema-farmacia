@@ -33,7 +33,14 @@ export default function ProductosList({
       { accessorKey: "stock", header: "Stock" },
       { accessorKey: "stock_minimo", header: "Stock Minimo" },
       { accessorKey: "unidad_medida", header: "Unidad Medida" },
-      { accessorKey: "fecha_vencimiento", header: "Fecha Vencimiento" },
+      {
+        accessorKey: "fecha_vencimiento",
+        header: "Fecha Vencimiento",
+        cell: ({ cell }: { cell: any }) => {
+          const date = new Date(cell.getValue());
+          return date.toLocaleDateString();
+        },
+      },
       { accessorKey: "conversion", header: "Conversion de Unidad" },
       {
         id: "acciones",
