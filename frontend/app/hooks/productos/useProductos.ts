@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { Productos } from "@/app/types";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import {
@@ -9,45 +8,35 @@ import {
   fetchProductos,
   updateProducto,
 } from "@/app/services/productosServices";
+import { Productos } from "@/app/types";
 import { extractErrorMessage } from "@/app/utils/errorHandler";
 
 export const useProductos = () => {
-  const [productos, setProductos] = useState<Productos[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const MySwal = withReactContent(Swal);
+  const queryClient = useQueryClient();
 
-  const loadProductos = async () => {
-    try {
-      const response = await fetchProductos();
-      setProductos(Array.isArray(response) ? response : []);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    data: productos = [],
+    isLoading: loading,
+    error,
+    refetch,
+  } = useQuery<Productos[], Error>({
+    queryKey: ["productos"],
+    queryFn: fetchProductos,
+    staleTime: 1000 * 60 * 5,
+  });
 
   const addProducto = async (producto: Partial<Productos>) => {
-    setLoading(true);
-    setError("");
-
     try {
       await createProducto(producto);
-      loadProductos();
+      await queryClient.invalidateQueries({ queryKey: ["productos"] });
     } catch (error) {
-      // Extraer el mensaje de error de la estructura del backend
       const mensajeError = extractErrorMessage(error);
-
-      setError(mensajeError);
-
       MySwal.fire({
         icon: "error",
         title: "Error al crear producto",
         text: mensajeError,
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -55,24 +44,16 @@ export const useProductos = () => {
     id: number,
     producto: Partial<Productos>
   ) => {
-    setLoading(true);
-    setError("");
-
     try {
       await updateProducto(id, producto);
-      loadProductos();
+      await queryClient.invalidateQueries({ queryKey: ["productos"] });
     } catch (error) {
       const mensajeError = extractErrorMessage(error);
-
-      setError(mensajeError);
-
       MySwal.fire({
         icon: "error",
         title: "Error al actualizar producto",
         text: mensajeError,
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -89,12 +70,9 @@ export const useProductos = () => {
     if (result.isConfirmed) {
       try {
         await deleteProducto(id);
-        loadProductos();
+        await queryClient.invalidateQueries({ queryKey: ["productos"] });
       } catch (error) {
         const mensajeError = extractErrorMessage(error);
-
-        setError(mensajeError);
-
         MySwal.fire({
           icon: "error",
           title: "Error al eliminar producto",
@@ -104,17 +82,14 @@ export const useProductos = () => {
     }
   };
 
-  useEffect(() => {
-    loadProductos();
-  }, []);
-
   return {
     productos,
     loading,
-    error,
+    error: error ? error.message : "",
     addProducto,
     actualizarProducto,
     eliminarProducto,
     fetchProducto,
+    refetch, // útil si necesitas refrescar manualmente
   };
 };

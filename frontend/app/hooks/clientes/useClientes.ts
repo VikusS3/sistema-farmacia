@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Clientes } from "@/app/types";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -13,64 +12,45 @@ import {
 import { extractErrorMessage } from "@/app/utils/errorHandler";
 
 export const useClientes = () => {
-  const [clientes, setClientes] = useState<Clientes[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const MySwal = withReactContent(Swal);
+  const queryClient = useQueryClient();
 
-  const loadClientes = async () => {
-    try {
-      const response = await fetchClientes();
-      setClientes(Array.isArray(response) ? response : []);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    data: clientes = [],
+    isLoading: loading,
+    error,
+    refetch,
+  } = useQuery<Clientes[], Error>({
+    queryKey: ["clientes"],
+    queryFn: fetchClientes,
+    staleTime: 1000 * 60 * 5,
+  });
 
   const addCliente = async (cliente: Partial<Clientes>) => {
-    setLoading(true);
-    setError("");
-
     try {
       await createCliente(cliente);
-      loadClientes();
-    } catch (error: any) {
-      // Extraer el mensaje de error de la estructura del backend
+      await queryClient.invalidateQueries({ queryKey: ["clientes"] });
+    } catch (error: unknown) {
       const mensajeError = extractErrorMessage(error);
-
-      setError(mensajeError);
-
       MySwal.fire({
         icon: "error",
         title: "Error al crear cliente",
         text: mensajeError,
       });
-    } finally {
-      setLoading(false);
     }
   };
 
   const actualizarCliente = async (id: number, cliente: Partial<Clientes>) => {
-    setLoading(true);
-    setError("");
-
     try {
       await updateCliente(id, cliente);
-      loadClientes();
-    } catch (error: any) {
+      await queryClient.invalidateQueries({ queryKey: ["clientes"] });
+    } catch (error: unknown) {
       const mensajeError = extractErrorMessage(error);
-
-      setError(mensajeError);
-
       MySwal.fire({
         icon: "error",
         title: "Error al actualizar cliente",
         text: mensajeError,
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -87,40 +67,29 @@ export const useClientes = () => {
     });
 
     if (result.isConfirmed) {
-      setLoading(true);
-      setError("");
       try {
         await deleteCliente(id);
-        loadClientes();
+        await queryClient.invalidateQueries({ queryKey: ["clientes"] });
         MySwal.fire("Eliminado!", "El cliente ha sido eliminado.", "success");
-      } catch (error: any) {
-        // Extraer el mensaje de error de la estructura del backend
+      } catch (error: unknown) {
         const mensajeError = extractErrorMessage(error);
-
-        setError(mensajeError);
-
         MySwal.fire({
           icon: "error",
           title: "Error al eliminar cliente",
           text: mensajeError,
         });
-      } finally {
-        setLoading(false);
       }
     }
   };
 
-  useEffect(() => {
-    loadClientes();
-  }, []);
-
   return {
     clientes,
     loading,
-    error,
+    error: error ? error.message : "",
     addCliente,
     fetchCliente,
     actualizarCliente,
     borrarCliente,
+    refetch, // útil para refrescar manualmente si se necesita
   };
 };

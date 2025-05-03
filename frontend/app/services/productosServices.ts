@@ -2,7 +2,7 @@ import api from "../lib/axiosConfig";
 import { Productos } from "../types";
 import { extractErrorMessage } from "../utils/errorHandler";
 
-export const fetchProductos = async (): Promise<Productos> => {
+export const fetchProductos = async (): Promise<Productos[]> => {
   try {
     const response = await api.get("/productos");
     return response.data;

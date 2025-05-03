@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Categoria } from "@/app/types";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -12,38 +12,32 @@ import {
 import { extractErrorMessage } from "@/app/utils/errorHandler";
 
 export const useCategoria = () => {
-  const [categorias, setCategorias] = useState<Categoria[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const MySwal = withReactContent(Swal);
+  const queryClient = useQueryClient();
 
-  const loadCategorias = async () => {
-    try {
-      const response = await fetchCategorias();
-      setCategorias(Array.isArray(response) ? response : []);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    data: categorias = [],
+    isLoading: loading,
+    error,
+    refetch,
+  } = useQuery<Categoria[], Error>({
+    queryKey: ["categorias"],
+    queryFn: fetchCategorias,
+    staleTime: 1000 * 60 * 5,
+  });
 
   const addCategoria = async (categoria: Partial<Categoria>) => {
-    setLoading(true);
-    setError("");
     try {
       await createCategoria(categoria);
-      loadCategorias();
+      await queryClient.invalidateQueries({ queryKey: ["categorias"] });
     } catch (error: unknown) {
       const mensajeError = extractErrorMessage(error);
-      setError(mensajeError);
       MySwal.fire({
         icon: "error",
-        title: "Error al crear categoria",
+        title: "Error al crear categoría",
         text: mensajeError,
       });
-    } finally {
-      setLoading(false);
+      throw error; // opcionalmente relanzar si necesitas manejarlo afuera
     }
   };
 
@@ -51,21 +45,17 @@ export const useCategoria = () => {
     id: number,
     categoria: Partial<Categoria>
   ) => {
-    setLoading(true);
-    setError("");
     try {
       await updateCategoria(id, categoria);
-      loadCategorias();
+      await queryClient.invalidateQueries({ queryKey: ["categorias"] });
     } catch (error: unknown) {
       const mensajeError = extractErrorMessage(error);
-      setError(mensajeError);
       MySwal.fire({
         icon: "error",
-        title: "Error al actualizar categoria",
+        title: "Error al actualizar categoría",
         text: mensajeError,
       });
-    } finally {
-      setLoading(false);
+      throw error;
     }
   };
 
@@ -81,36 +71,29 @@ export const useCategoria = () => {
     });
 
     if (result.isConfirmed) {
-      setLoading(true);
-      setError("");
       try {
         await deleteCategoria(id);
-        loadCategorias();
+        await queryClient.invalidateQueries({ queryKey: ["categorias"] });
       } catch (error: unknown) {
         const mensajeError = extractErrorMessage(error);
-        setError(mensajeError);
         MySwal.fire({
           icon: "error",
-          title: "Error al borrar categoria",
+          title: "Error al borrar categoría",
           text: mensajeError,
         });
-      } finally {
-        setLoading(false);
+        throw error;
       }
     }
   };
 
-  useEffect(() => {
-    loadCategorias();
-  }, []);
-
   return {
     categorias,
     loading,
-    error,
+    error: error ? error.message : "",
     addCategoria,
     actualizarCategoria,
     borrarCategoria,
     fetchCategoria,
+    refetchCategorias: refetch,
   };
 };

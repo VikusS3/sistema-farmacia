@@ -3,7 +3,7 @@ import api from "../lib/axiosConfig";
 import { Usuario } from "../types";
 import { extractErrorMessage } from "../utils/errorHandler";
 
-export const fetchUsuarios = async (): Promise<Usuario> => {
+export const fetchUsuarios = async (): Promise<Usuario[]> => {
   try {
     const response = await api.get("/usuarios");
     return response.data;

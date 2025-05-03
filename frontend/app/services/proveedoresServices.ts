@@ -3,7 +3,7 @@ import api from "../lib/axiosConfig";
 import { Proveedores } from "../types";
 import { extractErrorMessage } from "../utils/errorHandler";
 
-export const fecthProveedores = async (): Promise<Proveedores> => {
+export const fecthProveedores = async (): Promise<Proveedores[]> => {
   try {
     const response = await api.get("/proveedores");
     return response.data;

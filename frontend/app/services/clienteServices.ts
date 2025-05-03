@@ -4,7 +4,7 @@ import api from "../lib/axiosConfig";
 import { Clientes } from "../types";
 import { extractErrorMessage } from "../utils/errorHandler";
 
-export const fetchClientes = async (): Promise<Clientes> => {
+export const fetchClientes = async (): Promise<Clientes[]> => {
   try {
     const response = await api.get("/clientes");
     return response.data;

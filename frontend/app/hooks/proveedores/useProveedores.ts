@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect } from "react";
-import { Proveedores } from "@/app/types";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import {
@@ -10,45 +8,35 @@ import {
   fetchProveedor,
   updateProveedor,
 } from "@/app/services/proveedoresServices";
+import { Proveedores } from "@/app/types";
 import { extractErrorMessage } from "@/app/utils/errorHandler";
 
 export const useProveedores = () => {
-  const [proveedores, setProveedores] = useState<Proveedores[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const MySwal = withReactContent(Swal);
+  const queryClient = useQueryClient();
 
-  const loadProveedores = async () => {
-    try {
-      const response = await fecthProveedores();
-      setProveedores(Array.isArray(response) ? response : []);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    data: proveedores = [],
+    isLoading: loading,
+    error,
+    refetch,
+  } = useQuery<Proveedores[], Error>({
+    queryKey: ["proveedores"],
+    queryFn: fecthProveedores,
+    staleTime: 1000 * 60 * 5,
+  });
 
   const addProveedor = async (proveedor: Partial<Proveedores>) => {
-    setLoading(true);
-    setError("");
-
     try {
       await createProveedor(proveedor);
-      loadProveedores();
-    } catch (error: any) {
-      // Extraer el mensaje de error de la estructura del backend
+      await queryClient.invalidateQueries({ queryKey: ["proveedores"] });
+    } catch (error) {
       const mensajeError = extractErrorMessage(error);
-
-      setError(mensajeError);
-
       MySwal.fire({
         icon: "error",
         title: "Error al crear proveedor",
         text: mensajeError,
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -56,25 +44,16 @@ export const useProveedores = () => {
     id: number,
     proveedor: Partial<Proveedores>
   ) => {
-    setLoading(true);
-    setError("");
-
     try {
       await updateProveedor(id, proveedor);
-      loadProveedores();
-    } catch (error: any) {
-      // Extraer el mensaje de error de la estructura del backend
+      await queryClient.invalidateQueries({ queryKey: ["proveedores"] });
+    } catch (error) {
       const mensajeError = extractErrorMessage(error);
-
-      setError(mensajeError);
-
       MySwal.fire({
         icon: "error",
         title: "Error al actualizar proveedor",
         text: mensajeError,
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -91,40 +70,29 @@ export const useProveedores = () => {
     });
 
     if (result.isConfirmed) {
-      setLoading(true);
-      setError("");
       try {
         await deleteProveredor(id);
-        loadProveedores();
+        await queryClient.invalidateQueries({ queryKey: ["proveedores"] });
         MySwal.fire("Eliminado!", "El proveedor ha sido eliminado.", "success");
-      } catch (error: any) {
-        // Extraer el mensaje de error de la estructura del backend
+      } catch (error) {
         const mensajeError = extractErrorMessage(error);
-
-        setError(mensajeError);
-
         MySwal.fire({
           icon: "error",
           title: "Error al eliminar proveedor",
           text: mensajeError,
         });
-      } finally {
-        setLoading(false);
       }
     }
   };
 
-  useEffect(() => {
-    loadProveedores();
-  }, []);
-
   return {
     proveedores,
     loading,
-    error,
+    error: error ? error.message : "",
     addProveedor,
     actualizarProveedor,
     eliminarProveedor,
     fetchProveedor,
+    refetch,
   };
 };

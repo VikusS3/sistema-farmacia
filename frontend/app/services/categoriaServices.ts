@@ -2,7 +2,7 @@ import api from "../lib/axiosConfig";
 import { Categoria } from "../types";
 import { extractErrorMessage } from "../utils/errorHandler";
 
-export const fetchCategorias = async (): Promise<Categoria> => {
+export const fetchCategorias = async (): Promise<Categoria[]> => {
   try {
     const response = await api.get("/categorias");
     return response.data;
