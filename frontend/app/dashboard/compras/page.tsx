@@ -30,6 +30,7 @@ export default function ComprasPage() {
     setModalOpen,
     handleActualizarCompra,
     total,
+    refetchProductos,
   } = useCompraForm();
 
   const [modalEdicionOpen, setModalEdicionOpen] = useState(false);
@@ -89,6 +90,7 @@ export default function ComprasPage() {
         <ProductosListCompra
           productos={productos}
           agregarProducto={agregarProducto}
+          refetchProductos={refetchProductos}
         />
       </Modal>
 

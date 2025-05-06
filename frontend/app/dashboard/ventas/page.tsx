@@ -36,6 +36,7 @@ export default function VentasPage() {
     setDescuento,
     metodoPago,
     setMetodoPago,
+    refetchProductos,
   } = useVentasForm();
 
   const [modalEdicionOpen, setModalEdicionOpen] = useState(false);
@@ -93,6 +94,7 @@ export default function VentasPage() {
       >
         <ProductosListVentas
           productos={productos}
+          refetchProductos={refetchProductos}
           agregarProducto={agregarProducto}
         />
       </Modal>

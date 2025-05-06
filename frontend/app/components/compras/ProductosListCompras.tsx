@@ -1,15 +1,17 @@
 import { useState, useRef } from "react";
 import { Productos } from "@/app/types";
-import { Minus, Plus, Search } from "lucide-react";
+import { Minus, Plus, RefreshCcw, Search } from "lucide-react";
 
 interface ProductosListVentasProps {
   productos: Productos[];
   agregarProducto: (producto: Productos, cantidad: number) => void;
+  refetchProductos: () => void;
 }
 
 export default function ProductosListCompra({
   productos,
   agregarProducto,
+  refetchProductos,
 }: ProductosListVentasProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const cantidadRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
@@ -19,13 +21,13 @@ export default function ProductosListCompra({
   );
 
   return (
-    <div className="p-6 bg-background-100 rounded-lg shadow-md h-full overflow-y-auto">
+    <div className="p-6 bg-background-100 rounded-xl shadow-lg h-full overflow-y-auto">
       <h2 className="text-2xl font-semibold text-primary-300 mb-4">
         Productos disponibles
       </h2>
 
       {/* Campo de búsqueda */}
-      <div className="relative mb-6">
+      <div className="relative mb-8">
         <input
           type="text"
           placeholder="Buscar producto..."
@@ -36,8 +38,17 @@ export default function ProductosListCompra({
         <Search className="absolute left-3 top-3 text-text-200" size={20} />
       </div>
 
+      <div className="flex items-center justify-between mb-4">
+        <button
+          onClick={refetchProductos}
+          className="flex items-center gap-2 px-4 py-2 bg-primary-200 text-white rounded-lg hover:bg-primary-100 transition"
+        >
+          <RefreshCcw size={18} /> Refrescar productos
+        </button>
+      </div>
+
       {/* Lista de productos */}
-      <div className="flex flex-wrap gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredProductos.length > 0 ? (
           filteredProductos.map((producto) => (
             <div

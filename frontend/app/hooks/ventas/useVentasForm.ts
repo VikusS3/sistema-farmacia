@@ -16,7 +16,7 @@ export function useVentasForm() {
     loading,
     error,
   } = useVentas();
-  const { productos } = useProductos();
+  const { productos, refetchProductos } = useProductos();
   const { clientes } = useClientes();
   const usuarioId = localStorage.getItem("usuario_id");
   const [metodoPago, setMetodoPago] = useState<string>("efectivo");
@@ -185,5 +185,6 @@ export function useVentasForm() {
     setDescuento,
     adicional,
     setAdicional,
+    refetchProductos,
   };
 }

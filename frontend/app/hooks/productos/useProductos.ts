@@ -82,6 +82,11 @@ export const useProductos = () => {
     }
   };
 
+  const refetchProductos = async () => {
+    await queryClient.invalidateQueries({ queryKey: ["productos"] });
+    await queryClient.fetchQuery({ queryKey: ["productos"] });
+  };
+
   return {
     productos,
     loading,
@@ -91,5 +96,6 @@ export const useProductos = () => {
     eliminarProducto,
     fetchProducto,
     refetch, // útil si necesitas refrescar manualmente
+    refetchProductos,
   };
 };

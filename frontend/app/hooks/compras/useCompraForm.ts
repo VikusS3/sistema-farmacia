@@ -17,7 +17,7 @@ export function useCompraForm() {
     fetchCompras,
     actualizarCompra,
   } = useCompras();
-  const { productos } = useProductos();
+  const { productos, refetchProductos } = useProductos();
   const { proveedores } = useProveedores();
   const usuarioId = localStorage.getItem("usuario_id");
   const MySwal = withReactContent(Swal);
@@ -167,5 +167,6 @@ export function useCompraForm() {
     fetchCompras,
     error,
     handleActualizarCompra,
+    refetchProductos,
   };
 }

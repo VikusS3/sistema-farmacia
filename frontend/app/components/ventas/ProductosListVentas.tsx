@@ -1,15 +1,17 @@
 import { useState, useRef } from "react";
 import { Productos } from "@/app/types";
-import { Minus, Plus, Search } from "lucide-react";
+import { Minus, Plus, Search, RefreshCcw } from "lucide-react";
 
 interface ProductosListVentasProps {
   productos: Productos[];
   agregarProducto: (producto: Productos, cantidad: number) => void;
+  refetchProductos: () => void;
 }
 
 export default function ProductosListVentas({
   productos,
   agregarProducto,
+  refetchProductos,
 }: ProductosListVentasProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const cantidadRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
@@ -19,44 +21,57 @@ export default function ProductosListVentas({
   );
 
   return (
-    <div className="p-6 bg-background-100 rounded-lg shadow-md h-full overflow-y-auto">
-      <h2 className="text-2xl font-semibold text-primary-300 mb-4">
+    <div className="p-6 bg-background-100 rounded-xl shadow-lg h-full overflow-y-auto">
+      <h2 className="text-3xl font-bold text-primary-400 mb-6">
         Productos disponibles
       </h2>
 
       {/* Campo de búsqueda */}
-      <div className="relative mb-6">
+      <div className="relative mb-8">
         <input
           type="text"
           placeholder="Buscar producto..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full p-3 pl-10 border border-background-300 rounded-lg bg-background-200 text-text-100 focus:outline-none focus:ring-2 focus:ring-primary-300"
+          className="w-full p-3 pl-12 border border-background-300 rounded-lg bg-background-200 text-text-100 placeholder-text-200 focus:outline-none focus:ring-2 focus:ring-primary-300"
         />
-        <Search className="absolute left-3 top-3 text-text-200" size={20} />
+        <Search className="absolute left-4 top-3.5 text-text-300" size={20} />
+      </div>
+
+      <div className="flex items-center justify-between mb-4">
+        <button
+          onClick={refetchProductos}
+          className="flex items-center gap-2 px-4 py-2 bg-primary-200 text-white rounded-lg hover:bg-primary-100 transition"
+        >
+          <RefreshCcw size={18} /> Refrescar productos
+        </button>
       </div>
 
       {/* Lista de productos */}
-      <div className="flex flex-wrap gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredProductos.length > 0 ? (
           filteredProductos.map((producto) => (
             <div
               key={producto.id}
-              className="p-4 border border-background-300 rounded-lg bg-background-200 shadow-sm flex flex-col justify-between w-64"
+              className="flex flex-col justify-between p-5 border border-background-300 rounded-xl bg-background-200 shadow-md hover:shadow-lg transition"
             >
-              <div>
-                <p className="font-semibold text-primary-300">
+              <div className="space-y-1 mb-4">
+                <h3 className="text-lg font-semibold text-primary-300">
                   {producto.nombre}
+                </h3>
+                <p className="text-sm text-text-200">
+                  <strong>Precio:</strong> ${producto.precio_venta}
                 </p>
                 <p className="text-sm text-text-200">
-                  Precio: ${producto.precio_venta}
+                  <strong>Descripción:</strong> {producto.descripcion}
                 </p>
                 <p className="text-sm text-text-200">
-                  Descripcion: ${producto.descripcion}
+                  <strong>Stock:</strong> {producto.stock}
                 </p>
               </div>
 
-              <div className="flex items-center mt-3 gap-2">
+              {/* Selector de cantidad */}
+              <div className="flex items-center justify-center gap-2 mb-4">
                 <button
                   onClick={() => {
                     const input = cantidadRefs.current[producto.id];
@@ -64,7 +79,7 @@ export default function ProductosListVentas({
                       input.value = String(Number(input.value) - 1);
                     }
                   }}
-                  className="p-2 bg-primary-200 rounded hover:bg-primary-300 transition"
+                  className="p-2 bg-primary-100 text-white rounded hover:bg-primary-200 transition"
                 >
                   <Minus size={16} />
                 </button>
@@ -86,7 +101,7 @@ export default function ProductosListVentas({
                       input.value = String(Number(input.value) + 1);
                     }
                   }}
-                  className="p-2 bg-primary-200 rounded hover:bg-primary-300 transition"
+                  className="p-2 bg-primary-100 text-white rounded hover:bg-primary-200 transition"
                 >
                   <Plus size={16} />
                 </button>
@@ -99,14 +114,14 @@ export default function ProductosListVentas({
                   );
                   agregarProducto(producto, cantidad);
                 }}
-                className="mt-3 w-full p-2 bg-primary-100 text-text-100 font-semibold rounded-lg hover:bg-primary-200 transition"
+                className="w-full py-2 bg-primary-300 text-white font-semibold rounded-lg hover:bg-primary-400 transition"
               >
                 Agregar al carrito
               </button>
             </div>
           ))
         ) : (
-          <p className="text-accent-100 col-span-2 text-center py-6">
+          <p className="col-span-full text-center text-accent-100 py-6">
             No se encontraron productos.
           </p>
         )}
