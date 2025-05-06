@@ -77,7 +77,7 @@ export default function ComprasPage() {
         onClick={showModalProductos}
         className="w-full p-3 bg-primary-100 text-white rounded-lg hover:bg-primary-200 transition-all font-semibold mb-5"
       >
-        Agrega productos a la venta
+        Agrega productos a la compra
       </button>
 
       <Modal
@@ -97,7 +97,7 @@ export default function ComprasPage() {
         onClick={() => setModalOpen(true)}
         className="w-full p-3 bg-primary-100 text-white rounded-lg hover:bg-primary-200 transition-all font-semibold"
       >
-        Ver Detalle y Registrar
+        Ver Detalle de la compra y Registrar
       </button>
 
       {/* Modal con el detalle de la compra */}
