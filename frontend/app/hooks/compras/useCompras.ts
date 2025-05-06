@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect } from "react";
-import { Compra, DetalleCompra } from "@/app/types";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import {
@@ -10,30 +8,25 @@ import {
   fetchComprasConProductos,
   updateCompra,
 } from "@/app/services/compraServices";
+import { Compra, DetalleCompra } from "@/app/types";
 import { extractErrorMessage } from "@/app/utils/errorHandler";
 
 export const useCompras = () => {
-  const [compras, setCompras] = useState<Compra[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const MySwal = withReactContent(Swal);
+  const queryClient = useQueryClient();
 
-  const loadCompras = async () => {
-    setLoading(true);
-    try {
-      const response = await fetchCompras();
-      setCompras(Array.isArray(response) ? response : []);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    data: compras = [],
+    isLoading: loading,
+    error,
+    refetch,
+  } = useQuery<Compra[], Error>({
+    queryKey: ["compras"],
+    queryFn: fetchCompras,
+    staleTime: 1000 * 60 * 5, // 5 minutos de caché
+  });
 
   const addCompra = async (compra: Partial<Compra>) => {
-    setLoading(true);
-    setError("");
-
     try {
       const compraData = {
         ...compra,
@@ -41,21 +34,18 @@ export const useCompras = () => {
       } as Omit<Compra, "id" | "creado_en" | "actualizado_en"> & {
         detalle_compra: Omit<DetalleCompra, "id" | "compra_id">[];
       };
+
       await createCompra(compraData);
-      loadCompras();
-    } catch (error: any) {
-      // Extraer el mensaje de error de la estructura del backend
+      await queryClient.invalidateQueries({
+        queryKey: ["compras"],
+      });
+    } catch (error) {
       const mensajeError = extractErrorMessage(error);
-
-      setError(mensajeError);
-
       MySwal.fire({
         icon: "error",
         title: "Error al crear compra",
         text: mensajeError,
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -63,25 +53,20 @@ export const useCompras = () => {
     id: number,
     compra: Partial<Compra> & { detalle_compra?: DetalleCompra[] }
   ) => {
-    setLoading(true);
-    setError("");
-
     try {
       await updateCompra(id, compra);
-      loadCompras();
+      await queryClient.invalidateQueries({
+        queryKey: ["compras"],
+      });
+
       MySwal.fire("Actualizado", "La compra ha sido actualizada", "success");
-    } catch (error: any) {
+    } catch (error) {
       const mensajeError = extractErrorMessage(error);
-
-      setError(mensajeError);
-
       MySwal.fire({
         icon: "error",
         title: "Error al actualizar compra",
         text: mensajeError,
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -95,17 +80,17 @@ export const useCompras = () => {
       cancelButtonColor: "#d33",
       confirmButtonText: "Sí, eliminar",
     });
+
     if (result.isConfirmed) {
       try {
         await deleteCompra(id);
-        loadCompras();
+        await queryClient.invalidateQueries({
+          queryKey: ["compras"],
+        });
 
         MySwal.fire("Eliminado", "La compra ha sido eliminada", "success");
-      } catch (error: any) {
+      } catch (error) {
         const mensajeError = extractErrorMessage(error);
-
-        setError(mensajeError);
-
         MySwal.fire({
           icon: "error",
           title: "Error al eliminar compra",
@@ -115,18 +100,15 @@ export const useCompras = () => {
     }
   };
 
-  useEffect(() => {
-    loadCompras();
-  }, []);
-
   return {
     compras,
     loading,
-    error,
+    error: error ? error.message : "",
     addCompra,
     actualizarCompra,
-    fetchComprasConProductos,
     eliminarCompra,
+    fetchComprasConProductos,
     fetchCompras,
+    refetch,
   };
 };
