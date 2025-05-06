@@ -88,3 +88,7 @@ Considera agregar un campo para identificar a los clientes o proveedores de mane
 ### Métodos de pago en detalle
 
 En la tabla `ventas`, el campo `metodo_pago` es útil, pero podrías considerar agregar una tabla `pagos` para manejar pagos parciales o múltiples métodos de pago en una misma venta.
+
+### Correcciones de mensajes de errores del backend para el frontend
+
+[] Cuando la venta el producto no tiene stock sufieciente mandar el mensaje, de igual manera con la actualizacion de la venta para corregir la cantidad de productos

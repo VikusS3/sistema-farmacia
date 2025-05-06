@@ -16,7 +16,6 @@ const MySwal = withReactContent(Swal);
 export const useVentas = () => {
   const queryClient = useQueryClient();
 
-  // Fetch ventas
   const {
     data: ventas = [],
     isLoading: loading,
@@ -39,6 +38,7 @@ export const useVentas = () => {
 
       await createVenta(ventaData);
       await queryClient.invalidateQueries({ queryKey: ["ventas"] });
+
       MySwal.fire({
         icon: "success",
         title: "Venta registrada",
@@ -49,7 +49,7 @@ export const useVentas = () => {
       MySwal.fire({
         icon: "error",
         title: "Error al registrar venta",
-        text: mensaje,
+        text: `Error: ${mensaje}`,
       });
     }
   };
@@ -61,6 +61,7 @@ export const useVentas = () => {
     try {
       await updateVenta(id, venta);
       await queryClient.invalidateQueries({ queryKey: ["ventas"] });
+
       MySwal.fire({
         icon: "success",
         title: "Venta actualizada",

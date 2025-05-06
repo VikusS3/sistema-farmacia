@@ -88,18 +88,18 @@ export class VentaController {
           subtotal: detalle.subtotal,
         });
 
-        // // Actualizar el stock del producto
-        // const stockActualizado = await ProductoModel.updateStockVenta(
-        //   detalle.producto_id,
-        //   detalle.cantidad
-        // );
+        // Actualizar el stock del producto
+        const stockActualizado = await ProductoModel.updateStockVenta(
+          detalle.producto_id,
+          detalle.cantidad
+        );
 
-        // if (!stockActualizado) {
-        //   res.status(400).json({
-        //     message: `Error al actualizar el stock para el producto ID ${detalle.producto_id}`,
-        //   });
-        //   return; // Termina la función si hay un error
-        // }
+        if (!stockActualizado) {
+          res.status(400).json({
+            message: `Error al actualizar el stock para el producto ID ${detalle.producto_id}`,
+          });
+          return; // Termina la función si hay un error
+        }
       }
 
       res.status(201).json({
@@ -122,6 +122,23 @@ export class VentaController {
       if (!ventaExistente) {
         res.status(404).json({ message: "Venta no encontrada" });
         return;
+      }
+
+      // Verificar si hay stock suficiente para cada producto
+      for (const detalle of detalle_venta) {
+        const producto = await ProductoModel.findById(detalle.producto_id);
+        if (!producto) {
+          res.status(404).json({
+            message: `Producto con ID ${detalle.producto_id} no encontrado`,
+          });
+          return; // Asegúrate de que la función termina aquí
+        }
+        if (producto.stock < detalle.cantidad) {
+          res.status(400).json({
+            message: `Stock insuficiente para el producto ${producto.nombre}. Disponible: ${producto.stock}, solicitado: ${detalle.cantidad}`,
+          });
+          return; // Termina la función si hay un error
+        }
       }
 
       const updated = await VentasModel.update(id, {

@@ -114,7 +114,7 @@ export default function ProductosListVentas({
                   );
                   agregarProducto(producto, cantidad);
                 }}
-                className="w-full py-2 bg-primary-300 text-white font-semibold rounded-lg hover:bg-primary-400 transition"
+                className="w-full py-2 bg-primary-100 text-white font-semibold rounded-lg hover:bg-primary-400 transition"
               >
                 Agregar al carrito
               </button>

@@ -30,18 +30,20 @@ export const createVenta = async (
   venta: Omit<Venta, "id" | "creado_en" | "actualizado_en"> & {
     detalle_venta: Omit<DetalleVenta, "id" | "venta_id">[];
   }
-): Promise<Venta> => {
+): Promise<void> => {
+  const ventaData = {
+    ...venta,
+    detalle_venta: venta.detalle_venta,
+  };
+
   try {
-    const ventaData = {
-      ...venta,
-      detalle_venta: venta.detalle_venta,
-    };
-    const response = await api.post("/ventas", ventaData);
-    return response.data;
+    await api.post("/ventas", ventaData);
   } catch (error) {
-    console.error(error);
-    console.error(extractErrorMessage(error));
-    throw error;
+    const mensajeError = extractErrorMessage(error);
+    console.error("Error lanzado desde createVenta:", mensajeError);
+
+    // Lanzamos un error real que pueda ser capturado
+    throw new Error(mensajeError);
   }
 };
 
@@ -52,10 +54,9 @@ export const updateVenta = async (
   try {
     await api.put(`/ventas/${id}`, venta);
   } catch (error) {
-    console.error(error);
     const mensajeError = extractErrorMessage(error);
     console.error(mensajeError);
-    throw error;
+    throw new Error(mensajeError);
   }
 };
 
