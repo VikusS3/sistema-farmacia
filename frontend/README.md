@@ -16,7 +16,6 @@
 [] Hacer el crud de Compras - [x] Crear - [x] Leer - [x] Actualizar - [x] Eliminar
 
     [] Manejar el error si no seleciona un proveedor - o indicar al usuario que lo seleecione
-    [] lograr agregar un producto en el de editar
 
 [x] Hacer el crud de Ventas - [x] Crear - [x] Leer - [x] Actualizar - [x] Eliminar
 
@@ -26,8 +25,11 @@
 [x] agregar la forma de descuento y adicionales
 [x] agregar la forma de pago
 [x] Mostar un mensaje cuando se le da a agregar
+[] Considerar agregar abertura y cierre de caja
+[] Hacer que el buscador que esta por descripcion busque por otros campos
 [] mejorar los inputs que son para los precios o cantidades
-[] lograr agregar un producto en el de editar
+[] Borrar los botnes de editar de la venta y compra
+[] Borrar los botones de eliminar de la venta y compra
 [] Manejar el error si no seleciona un cliente - o indicar al usuario que lo seleecione
 [] Obtener el nombre del que ingresa
 [] Asegurar las rutas de entrada (usar el token paar que pueda ver la paginas)
