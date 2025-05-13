@@ -27,10 +27,10 @@
 [x] Mostar un mensaje cuando se le da a agregar
 [x] Hacer que el buscador que esta por descripcion busque por otros campos
 [x] Mejorar el componente de la lista de productos
+[x] Borrar los botnes de editar de la venta y compra
+[x] Borrar los botones de eliminar de la venta y compra
 [] Considerar agregar abertura y cierre de caja
 [] mejorar los inputs que son para los precios o cantidades
-[] Borrar los botnes de editar de la venta y compra
-[] Borrar los botones de eliminar de la venta y compra
 [] Ver como manejar la cantidad de la tabla productos es decir la converseion como sera el precio de venta y esas cosas
 [] Agregar la boleta de un compra como reporte
 [] Manejar el error si no seleciona un cliente - o indicar al usuario que lo seleecione
