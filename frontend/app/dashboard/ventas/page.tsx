@@ -90,7 +90,7 @@ export default function VentasPage() {
         isOpen={modalProductoOpen}
         onClose={() => setModalProductoOpen(false)}
         title="Agregar Productos"
-        className="max-w-6xl"
+        className="max-w-6xl w-full"
       >
         <ProductosListVentas
           productos={productos}

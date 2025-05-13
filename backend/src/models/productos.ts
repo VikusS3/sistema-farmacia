@@ -95,4 +95,6 @@ export const ProductoModel = {
     );
     return result.affectedRows > 0;
   },
+
+  //consulata para verificar si se esta acerando a la fecha de vencimiento
 };
