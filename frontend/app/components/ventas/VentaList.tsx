@@ -17,8 +17,6 @@ interface VentaListProps {
 }
 export default function VentaList({
   ventas,
-  handleEdit,
-  borrarVenta,
   handleVerProductosVenta,
 }: VentaListProps) {
   const [globalFilter, setGlobalFilter] = useState(""); // Estado para la búsqueda
@@ -48,7 +46,7 @@ export default function VentaList({
             >
               Ver productos
             </button>
-            <button
+            {/* <button
               onClick={() => handleEdit(row.original.id)}
               className="bg-primary-200 text-white py-2 px-4 rounded-md shadow-sm hover:bg-primary-400 transition-all duration-200 focus:ring-2 focus:ring-primary-100 focus:outline-none"
               aria-label="Editar categoría"
@@ -61,12 +59,12 @@ export default function VentaList({
               aria-label="Borrar categoría"
             >
               Borrar
-            </button>
+            </button> */}
           </div>
         ),
       },
     ],
-    [handleEdit, borrarVenta, handleVerProductosVenta]
+    [handleVerProductosVenta]
   );
 
   const table = useReactTable({
