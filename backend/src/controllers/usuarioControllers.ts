@@ -37,7 +37,10 @@ export class UsuarioController {
         res.status(401).json({ message: "Credenciales incorrectas" });
         return;
       }
-      res.json({ usuario, token });
+      // Ocultar la contraseña en la respuesta
+      const { password: _, ...usuarioSinPassword } = usuario;
+
+      res.json({ usuario: usuarioSinPassword, token });
     } catch (error) {
       res.status(500).json({ error: "Error al iniciar sesión" });
     }

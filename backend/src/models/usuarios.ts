@@ -2,6 +2,8 @@ import pool from "../config/db";
 import { RowDataPacket } from "mysql2";
 import { Usuario } from "../types";
 import crypto from "crypto";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export const UsuarioModel = {
   async findAll(): Promise<Usuario[]> {
@@ -24,23 +26,36 @@ export const UsuarioModel = {
     password: string
   ): Promise<{ usuario: Usuario | null; token: string | null }> {
     const [rows] = await pool.query<RowDataPacket[]>(
-      "SELECT * FROM usuarios WHERE email = ? AND password = ?",
-      [email, password]
+      "SELECT * FROM usuarios WHERE email = ?",
+      [email]
     );
     const usuario = rows[0] as Usuario | null;
-    if (usuario) {
-      const token = crypto.randomBytes(16).toString("hex");
-      return { usuario, token };
-    }
-    return { usuario: null, token: null };
+    if (!usuario) return { usuario: null, token: null };
+
+    //Comparar las contraseñas ingresadas con la contraseña almacenada
+    const esCorrecta = await bcrypt.compare(password, usuario.password);
+    if (!esCorrecta) return { usuario: null, token: null };
+
+    // Crear el token
+    const token = jwt.sign(
+      { id: usuario.id, email: usuario.email },
+      process.env.JWT_SECRET!,
+      { expiresIn: "2h" }
+    );
+
+    return { usuario, token };
   },
 
   async create(usuario: Usuario): Promise<number> {
     const { nombres, email, password, rol } = usuario;
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
     const [result] = await pool.query<any>(
       "INSERT INTO usuarios (nombres, email, password, rol) VALUES (?, ?, ?, ?)",
-      [nombres, email, password, rol || "empleado"]
+      [nombres, email, hashedPassword, rol || "empleado"]
     );
+
     return result.insertId;
   },
 
