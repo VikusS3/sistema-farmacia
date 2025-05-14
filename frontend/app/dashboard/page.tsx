@@ -1,14 +1,14 @@
 "use client";
 
 import { useAuth } from "../hooks/auth/useAuth";
+import ProtectedRoute from "../components/ProtectedRoute";
 
-export default function DashboardPage() {
-  const { logout } = useAuth();
+function DashboardContent() {
+  const { handleLogout } = useAuth();
   return (
     <div>
       <h1>Dashboard</h1>
-      {/*Botn de prueba para hacer el backUp de la base de datos*/}
-
+      {/*Botón de prueba para hacer el backUp de la base de datos*/}
       <button
         className="bg-blue-500 text-white px-4 py-2 rounded"
         onClick={async () => {
@@ -24,7 +24,15 @@ export default function DashboardPage() {
       >
         Crear Backup
       </button>
-      <button onClick={logout}>Logout</button>
+      <button onClick={handleLogout}>Logout</button>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <ProtectedRoute>
+      <DashboardContent />
+    </ProtectedRoute>
   );
 }
