@@ -39,6 +39,12 @@ export const useAuth = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setError(error.response?.data?.message || "Error de login");
+      MySwal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.response?.data?.message || "Error de login",
+        confirmButtonText: "Aceptar",
+      });
     } finally {
       setLoading(false);
     }
