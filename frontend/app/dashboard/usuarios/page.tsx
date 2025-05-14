@@ -5,8 +5,9 @@ import Modal from "@/app/components/Modal";
 import UsuarioForm from "@/app/components/usuario/UsuarioForm";
 import { useCrudForm } from "@/app/hooks/useCrudForm";
 import UsuarioList from "@/app/components/usuario/UsuarioList";
+import ProtectedRoute from "@/app/components/ProtectedRoute";
 
-export default function UsuariosPage() {
+function UsuariosPage() {
   const {
     error,
     loading,
@@ -66,5 +67,13 @@ export default function UsuariosPage() {
         borrarUsuario={deleteUsuario}
       />
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <ProtectedRoute>
+      <UsuariosPage />
+    </ProtectedRoute>
   );
 }

@@ -4,8 +4,9 @@ import Modal from "@/app/components/Modal";
 import CategoriaForm from "@/app/components/categorias/CategoriasForm";
 import { useCrudForm } from "@/app/hooks/useCrudForm";
 import CategoriaList from "@/app/components/categorias/CategoriaList";
+import ProtectedRoute from "@/app/components/ProtectedRoute";
 
-export default function CategoriasPage() {
+function CategoriasPage() {
   const {
     loading,
     error,
@@ -68,5 +69,13 @@ export default function CategoriasPage() {
         borrarCategoria={borrarCategoria}
       />
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <ProtectedRoute>
+      <CategoriasPage />
+    </ProtectedRoute>
   );
 }

@@ -10,8 +10,9 @@ import VentaSeleccionada from "@/app/components/ventas/VentaSeleccionada";
 import { useVentasForm } from "@/app/hooks/ventas/useVentasForm";
 import { VentaProducto } from "@/app/types";
 import { useState } from "react";
+import ProtectedRoute from "@/app/components/ProtectedRoute";
 
-export default function VentasPage() {
+function VentasPage() {
   const {
     agregarProducto,
     ventas,
@@ -177,5 +178,13 @@ export default function VentasPage() {
         </Modal>
       )}
     </div>
+  );
+}
+
+export default function VentasPageWrapper() {
+  return (
+    <ProtectedRoute>
+      <VentasPage />
+    </ProtectedRoute>
   );
 }

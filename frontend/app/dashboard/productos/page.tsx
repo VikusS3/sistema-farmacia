@@ -7,7 +7,9 @@ import Modal from "@/app/components/Modal";
 import ProductosForm from "@/app/components/productos/ProductosForm";
 import { useCategoria } from "@/app/hooks/categorias/useCategoria";
 import ProductosList from "@/app/components/productos/ProductosList";
-export default function ProductosPage() {
+import ProtectedRoute from "@/app/components/ProtectedRoute";
+
+function ProductosPage() {
   const {
     loading,
     eliminarProducto,
@@ -113,5 +115,13 @@ export default function ProductosPage() {
         borrarProductos={eliminarProducto}
       />
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <ProtectedRoute>
+      <ProductosPage />
+    </ProtectedRoute>
   );
 }

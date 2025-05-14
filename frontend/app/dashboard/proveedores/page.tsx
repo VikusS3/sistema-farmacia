@@ -4,8 +4,9 @@ import Modal from "@/app/components/Modal";
 import ProveedorForm from "@/app/components/proveedores/ProveedoresForm";
 import { useCrudForm } from "@/app/hooks/useCrudForm";
 import ProovedoresList from "@/app/components/proveedores/ProveedoresList";
+import ProtectedRoute from "@/app/components/ProtectedRoute";
 
-export default function ProovedoresPage() {
+function ProovedoresPage() {
   const {
     loading,
     error,
@@ -63,5 +64,13 @@ export default function ProovedoresPage() {
         borrarProovedor={eliminarProveedor}
       />
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <ProtectedRoute>
+      <ProovedoresPage />
+    </ProtectedRoute>
   );
 }

@@ -10,8 +10,9 @@ import Modal from "@/app/components/Modal";
 import { useCompraForm } from "@/app/hooks/compras/useCompraForm";
 import { CompraProducto } from "@/app/types";
 import { useState } from "react";
+import ProtectedRoute from "@/app/components/ProtectedRoute";
 
-export default function ComprasPage() {
+function ComprasPage() {
   const {
     agregarProducto,
     compras,
@@ -162,5 +163,13 @@ export default function ComprasPage() {
         </Modal>
       )}
     </div>
+  );
+}
+
+export default function ComprasPageWrapper() {
+  return (
+    <ProtectedRoute>
+      <ComprasPage />
+    </ProtectedRoute>
   );
 }

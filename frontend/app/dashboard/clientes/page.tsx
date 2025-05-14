@@ -3,9 +3,10 @@ import { useClientes } from "@/app/hooks/clientes/useClientes";
 import Modal from "@/app/components/Modal";
 import ClienteForm from "@/app/components/clientes/ClientesForm";
 import { useCrudForm } from "@/app/hooks/useCrudForm";
+import ProtectedRoute from "@/app/components/ProtectedRoute";
 import ClientesList from "@/app/components/clientes/ClientesList";
 
-export default function ClientesPage() {
+function ClientesPage() {
   const {
     loading,
     error,
@@ -63,5 +64,13 @@ export default function ClientesPage() {
         borrarCliente={borrarCliente}
       />
     </div>
+  );
+}
+
+export default function ClientesPageWrapper() {
+  return (
+    <ProtectedRoute>
+      <ClientesPage />
+    </ProtectedRoute>
   );
 }
