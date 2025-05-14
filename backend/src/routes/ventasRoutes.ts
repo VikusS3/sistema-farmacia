@@ -1,13 +1,14 @@
 import express from "express";
 import { VentaController } from "../controllers/ventasController";
+import { authMiddleware } from "../middlewares/authMiddleware";
 
 const router = express.Router();
 
-router.get("/", VentaController.getAll);
-router.get("/:id", VentaController.getById);
-router.get("/venta/:id/productos", VentaController.getVenta);
-router.post("/", VentaController.create);
-router.put("/:id", VentaController.update);
-router.delete("/:id", VentaController.delete);
+router.get("/", authMiddleware, VentaController.getAll);
+router.get("/:id", authMiddleware, VentaController.getById);
+router.get("/venta/:id/productos", authMiddleware, VentaController.getVenta);
+router.post("/", authMiddleware, VentaController.create);
+router.put("/:id", authMiddleware, VentaController.update);
+router.delete("/:id", authMiddleware, VentaController.delete);
 
 export default router;

@@ -1,12 +1,13 @@
 import express from "express";
 import { CategoriaController } from "../controllers/categoriaControllers";
+import { authMiddleware } from "../middlewares/authMiddleware";
 
 const router = express.Router();
 
-router.get("/", CategoriaController.getAll);
-router.get("/:id", CategoriaController.getById);
-router.post("/", CategoriaController.create);
-router.put("/:id", CategoriaController.update);
-router.delete("/:id", CategoriaController.delete);
+router.get("/", authMiddleware, CategoriaController.getAll);
+router.get("/:id", authMiddleware, CategoriaController.getById);
+router.post("/", authMiddleware, CategoriaController.create);
+router.put("/:id", authMiddleware, CategoriaController.update);
+router.delete("/:id", authMiddleware, CategoriaController.delete);
 
 export default router;

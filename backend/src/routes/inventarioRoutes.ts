@@ -1,11 +1,20 @@
 import express from "express";
 import { InventarioController } from "../controllers/inventarioControllers";
+import { authMiddleware } from "../middlewares/authMiddleware";
 
 const router = express.Router();
 
-router.get("/", InventarioController.getAll);
-router.get("/:id", InventarioController.getById);
-router.post("/registrar", InventarioController.registrarMovimiento);
-router.post("/verificar-stock", InventarioController.verificarStock);
+router.get("/", authMiddleware, InventarioController.getAll);
+router.get("/:id", authMiddleware, InventarioController.getById);
+router.post(
+  "/registrar",
+  authMiddleware,
+  InventarioController.registrarMovimiento
+);
+router.post(
+  "/verificar-stock",
+  authMiddleware,
+  InventarioController.verificarStock
+);
 
 export default router;
