@@ -2,10 +2,8 @@ import { Request, Response, RequestHandler } from "express";
 import { VentasModel } from "../models/ventas";
 import { DetalleVentaModel } from "../models/detalleVenta";
 import { ProductoModel } from "../models/productos";
-import {
-  createVentaSchema,
-  updateVentaSchema,
-} from "../validators/ventasValidators";
+import { createVentaSchema } from "../validators/ventasValidators";
+import { generarTicketPDF } from "../utils/ticketGenerator";
 
 export class VentaController {
   static getAll: RequestHandler = async (req: Request, res: Response) => {
@@ -172,6 +170,27 @@ export class VentaController {
       res.json({ message: "Venta deleted successfully" });
     } catch (error) {
       res.status(500).json({ error: "Error deleting the sale" });
+    }
+  };
+
+  static generarTicket: RequestHandler = async (
+    req: Request,
+    res: Response
+  ) => {
+    const id = Number(req.params.id);
+
+    try {
+      const data = await VentasModel.findVenta(id);
+
+      if (!data) {
+        res.status(404).json({ message: "Venta no encontrada" });
+        return;
+      }
+
+      generarTicketPDF(res, data.venta, data.productos);
+    } catch (error) {
+      console.error("Error al generar ticket:", error);
+      res.status(500).json({ message: "Error al generar ticket de venta" });
     }
   };
 }

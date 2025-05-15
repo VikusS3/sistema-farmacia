@@ -74,19 +74,6 @@ export type DetalleCompra = {
   subtotal: number;
 };
 
-export type Ventas = {
-  id?: number;
-  cliente_id: number;
-  usuario_id: number;
-  fecha: string;
-  total: number;
-  descuento?: number;
-  adicional?: number;
-  metodo_pago?: string;
-  creado_en?: Date;
-  actualizado_en?: Date;
-};
-
 export type DetalleVenta = {
   id?: number;
   venta_id: number;
@@ -115,6 +102,33 @@ export type ResumenVentas = {
   id?: number;
   fecha: string;
   total_diario: number;
+  creado_en?: Date;
+  actualizado_en?: Date;
+};
+
+export interface VentaTicket {
+  actualizado_en: Date;
+  adicional: string;
+  cliente_id: number;
+  cliente_nombre: string;
+  creado_en: Date;
+  descuento: string;
+  fecha: Date;
+  id: number;
+  metodo_pago: string;
+  total: string;
+  usuario_id: number;
+}
+
+export type Ventas = {
+  id?: number;
+  cliente_id: number;
+  usuario_id: number;
+  fecha: string;
+  total: number;
+  descuento?: number;
+  adicional?: number;
+  metodo_pago?: string;
   creado_en?: Date;
   actualizado_en?: Date;
 };

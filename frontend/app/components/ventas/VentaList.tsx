@@ -8,6 +8,10 @@ import {
   flexRender,
 } from "@tanstack/react-table";
 import { Venta } from "@/app/types";
+import { Printer } from "lucide-react";
+import { fetchVentaTicket } from "@/app/services/ventasServices";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 interface VentaListProps {
   ventas: Venta[];
@@ -19,8 +23,27 @@ export default function VentaList({
   ventas,
   handleVerProductosVenta,
 }: VentaListProps) {
+  const MySwal = withReactContent(Swal);
   const [globalFilter, setGlobalFilter] = useState(""); // Estado para la búsqueda
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 5 }); // Paginación
+
+  const handleVerTicket = React.useCallback(
+    async (id: number) => {
+      try {
+        const blob = await fetchVentaTicket(id);
+        const url = URL.createObjectURL(blob);
+        window.open(url, "_blank");
+      } catch (error) {
+        console.error("Error al generar ticket:", error);
+        MySwal.fire({
+          icon: "error",
+          title: "Error al generar ticket",
+          text: "No se pudo generar el ticket. Por favor, inténtelo de nuevo más tarde.",
+        });
+      }
+    },
+    [MySwal]
+  );
 
   const columns = useMemo(
     () => [
@@ -46,14 +69,16 @@ export default function VentaList({
             >
               Ver productos
             </button>
-            {/* <button
-              onClick={() => handleEdit(row.original.id)}
-              className="bg-primary-200 text-white py-2 px-4 rounded-md shadow-sm hover:bg-primary-400 transition-all duration-200 focus:ring-2 focus:ring-primary-100 focus:outline-none"
-              aria-label="Editar categoría"
-            >
-              Editar
-            </button>
             <button
+              onClick={() => handleVerTicket(row.original.id)}
+              className=" flex items-center gap-2 bg-blue-600 text-white py-2 px-4 rounded-md shadow-sm hover:bg-blue-700 transition-all duration-200 focus:ring-2 focus:ring-blue-300 focus:outline-none"
+              aria-label="Ver boleta de venta"
+            >
+              <Printer size={16} />
+              Ver boleta
+            </button>
+
+            {/* <button
               onClick={() => borrarVenta(row.original.id)}
               className="bg-red-500 text-white py-2 px-4 rounded-md shadow-sm hover:bg-red-600 transition-all duration-200 focus:ring-2 focus:ring-red-400 focus:outline-none"
               aria-label="Borrar categoría"
@@ -64,7 +89,7 @@ export default function VentaList({
         ),
       },
     ],
-    [handleVerProductosVenta]
+    [handleVerProductosVenta, handleVerTicket]
   );
 
   const table = useReactTable({

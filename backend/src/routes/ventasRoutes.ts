@@ -10,5 +10,6 @@ router.get("/venta/:id/productos", authMiddleware, VentaController.getVenta);
 router.post("/", authMiddleware, VentaController.create);
 router.put("/:id", authMiddleware, VentaController.update);
 router.delete("/:id", authMiddleware, VentaController.delete);
+router.get("/venta/:id/ticket", authMiddleware, VentaController.generarTicket);
 
 export default router;
