@@ -9,6 +9,16 @@ export const generarTicketPDF = (
 ) => {
   const doc = new PDFDocument({ size: [250, 600], margin: 10 });
 
+  const fechaFormateada = new Date(venta.creado_en).toLocaleString("es-PE", {
+    timeZone: "America/Lima",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+
   // Configura headers para enviar PDF al navegador
   res.setHeader("Content-Type", "application/pdf");
   res.setHeader("Content-Disposition", "inline; filename=boleta.pdf");
@@ -19,29 +29,32 @@ export const generarTicketPDF = (
   doc.fontSize(10).text("FARMACIA MI SALUD", { align: "center" });
   doc.text("RUC: 999999998", { align: "center" });
   doc.text("Av. Salud N° 123 Comas", { align: "center" });
-  doc.text("----------------------------------------");
+
+  doc.text("----------------------------------------", {
+    align: "center",
+  });
 
   doc.text(`Boleta N°: ${venta.id}`);
-  doc.text(`Fecha: ${venta.fecha}`);
+  doc.text(`Fecha: ${fechaFormateada}`);
   doc.text(`Cliente: ${venta.cliente_nombre}`);
-  doc.text("----------------------------------------");
+  if (venta.metodo_pago) {
+    doc.font("Helvetica").text(`Método de pago: ${venta.metodo_pago}`);
+  }
+  doc.text("----------------------------------------", { align: "center" });
 
   // Detalle de productos
   productos.forEach((prod: any) => {
     doc
       .font("Helvetica-Bold")
-      .text(`${prod.producto_nombre} x${prod.cantidad}`, { continued: true })
+      .text(`${prod.producto_nombre} x ${prod.cantidad}`, { continued: true })
       .font("Helvetica")
       .text(`  S/. ${prod.subtotal}`, { align: "right" });
   });
 
-  doc.text("----------------------------------------");
+  doc.text("----------------------------------------", { align: "center" });
 
   // Totales
   doc.font("Helvetica-Bold").text(`Total: S/. ${venta.total}`);
-  if (venta.metodo_pago) {
-    doc.font("Helvetica").text(`Método de pago: ${venta.metodo_pago}`);
-  }
 
   doc.moveDown();
   doc.text("¡Gracias por su compra!", { align: "center" });
