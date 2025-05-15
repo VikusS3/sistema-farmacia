@@ -12,9 +12,9 @@ export default function VentaForm({
   setMetodoPago,
   descuento,
   setDescuento,
-  adicional,
-  setAdicional,
-}: VentaFormProps) {
+}: //adicional,
+//setAdicional,
+VentaFormProps) {
   return (
     <div className="mb-5">
       {/* Método de pago */}
@@ -31,7 +31,7 @@ export default function VentaForm({
 
       {/* Descuento y Adicional en la misma fila */}
       <div className="flex gap-4">
-        <div className="w-1/2">
+        <div className="w-full">
           <label className="block font-semibold mb-2">Descuento:</label>
           <input
             type="number"
@@ -41,7 +41,7 @@ export default function VentaForm({
           />
         </div>
 
-        <div className="w-1/2">
+        {/* <div className="w-1/2">
           <label className="block font-semibold mb-2">Adicional:</label>
           <input
             type="number"
@@ -49,7 +49,7 @@ export default function VentaForm({
             onChange={(e) => setAdicional(Number(e.target.value))}
             className="p-2 border border-gray-300 rounded w-full text-black"
           />
-        </div>
+        </div> */}
       </div>
     </div>
   );
