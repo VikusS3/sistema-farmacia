@@ -27,6 +27,7 @@ export const useAuth = () => {
 
       localStorage.setItem("token", token);
       localStorage.setItem("usuario_id", response.data.usuario.id);
+      localStorage.setItem("usuario", response.data.usuario.nombres);
 
       MySwal.fire({
         icon: "success",
@@ -54,6 +55,7 @@ export const useAuth = () => {
     logout(); // Usar el contexto para cambiar el estado de autenticación
     localStorage.removeItem("token");
     localStorage.removeItem("usuario_id");
+    localStorage.removeItem("usuario");
     router.push("/");
   };
 
