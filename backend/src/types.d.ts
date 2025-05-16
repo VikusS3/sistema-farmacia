@@ -132,3 +132,15 @@ export type Ventas = {
   creado_en?: Date;
   actualizado_en?: Date;
 };
+
+export type Caja = {
+  id?: number;
+  usuario_id: number;
+  fecha_apertura: string;
+  monto_apertura: number;
+  fecha_cierre: string;
+  monto_cierre: number;
+  estado: "abierta" | "cerrada";
+  creado_en?: Date;
+  actualizado_en?: Date;
+};
