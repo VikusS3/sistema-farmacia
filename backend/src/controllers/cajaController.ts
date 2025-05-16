@@ -122,13 +122,16 @@ export class CajaController {
       }
       res
         .status(200)
-        .json({ id: caja.id, message: "Caja cerrada exitosamente" });
+        .json({
+          id: caja.id,
+          message: "Hay una caja abierta actualmente para este usuario",
+        });
     } catch (error) {
       if (error instanceof ZodError) {
         res.status(400).json({ error: error.errors });
         return;
       }
-      res.status(500).json({ error: "Error al cerrar la caja" });
+      res.status(500).json({ error: "Error al obtener la caja activa" });
       return;
     }
   };
