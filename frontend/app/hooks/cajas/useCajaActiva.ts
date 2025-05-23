@@ -31,8 +31,10 @@ export const useCajaActiva = (usuarioId: number) => {
   // ✅ Mutación para abrir caja
   const abrirCajaMutation = useMutation({
     mutationFn: abrirCaja,
-    onSuccess: () => {
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["caja-activa", usuarioId] });
+    },
+    onSuccess: () => {
       MySwal.fire("Éxito", "Caja abierta correctamente", "success");
     },
     onError: (error) => {
@@ -52,8 +54,10 @@ export const useCajaActiva = (usuarioId: number) => {
       fecha_cierre?: string;
       monto_cierre: number;
     }) => cerrarCaja({ id, fecha_cierre: fecha_cierre || "", monto_cierre }),
-    onSuccess: () => {
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["caja-activa", usuarioId] });
+    },
+    onSuccess: () => {
       MySwal.fire("Éxito", "Caja cerrada correctamente", "success");
     },
     onError: (error) => {

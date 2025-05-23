@@ -97,7 +97,10 @@ export class CajaController {
         return;
       }
 
-      res.status(200).json({ message: "Caja cerrada exitosamente" });
+      // Volver a buscar la caja actualizada:
+      const cajaActualizada = await CajaModel.findById(id);
+
+      res.status(200).json(cajaActualizada);
       return;
     } catch (error) {
       if (error instanceof ZodError) {

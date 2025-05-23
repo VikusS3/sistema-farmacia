@@ -37,13 +37,11 @@ export const abrirCaja = async (
   }
 };
 
-export const cerrarCaja = async (
-  data: CerrarCajaInput
-): Promise<{ affectedRows: number }> => {
+export const cerrarCaja = async (data: CerrarCajaInput): Promise<Caja> => {
   try {
-    //aca posiblemente deba agregar el ID
     const response = await api.put(`/cajas/cerrar`, data);
-    return response.data;
+    console.log(response.data);
+    return response.data; // caja actualizada completa
   } catch (error) {
     const mensajeError = extractErrorMessage(error);
     console.error(mensajeError);

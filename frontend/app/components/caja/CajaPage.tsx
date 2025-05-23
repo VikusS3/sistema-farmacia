@@ -4,17 +4,17 @@ import React, { useEffect, useState } from "react";
 import { useCajaActiva } from "@/app/hooks/cajas/useCajaActiva";
 import { CajaInfo } from "./CajaInfo";
 import { CajaVacia } from "./CajaVacia";
-import dayjs from "@/app/lib/dayjsConfig"; // <- con tz configurado
+import dayjs from "@/app/lib/dayjsConfig";
 
 export default function CajaPage() {
   const [usuarioId, setUsuarioId] = useState<number | null>(null);
 
-  // ⚠️ SSR safe localStorage access
   useEffect(() => {
     const id = localStorage.getItem("usuario_id");
     if (id) setUsuarioId(Number(id));
   }, []);
 
+  // Evitar llamar hook con id 0 o null
   const {
     cajaActiva,
     isLoading,
@@ -61,11 +61,15 @@ export default function CajaPage() {
         </p>
       </header>
 
-      {cajaActiva ? (
+      {cajaActiva && cajaActiva.estado === "abierta" ? (
         <CajaInfo
           fechaApertura={cajaActiva.fecha_apertura}
           montoApertura={cajaActiva.monto_apertura}
+          fechaCierre={cajaActiva.fecha_cierre}
+          montoCierre={cajaActiva.monto_cierre}
+          onAbrirCaja={handleAbrirCaja}
           onCerrarCaja={handleCerrarCaja}
+          loadingAbrir={abrirCajaLoading}
           loadingCerrar={cerrarCajaLoading}
         />
       ) : (

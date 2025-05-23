@@ -6,23 +6,35 @@ interface CajaVaciaProps {
 }
 
 export function CajaVacia({ onAbrirCaja, loadingAbrir }: CajaVaciaProps) {
-  const [montoApertura, setMontoApertura] = useState<number | "">(0);
+  const [montoApertura, setMontoApertura] = useState<number | string>("");
+  const [error, setError] = React.useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    if (val === "") setMontoApertura("");
-    else {
-      const num = Number(val);
-      if (!isNaN(num)) setMontoApertura(num);
+    if (val === "") {
+      setMontoApertura("");
+      setError(null);
+      return;
+    }
+
+    const num = Number(val);
+    if (!isNaN(num)) {
+      setMontoApertura(num);
+      setError(num > 0 ? null : "Debe ser un monto mayor a 0.");
     }
   };
 
   const handleAbrir = () => {
-    if (montoApertura === "" || montoApertura <= 0) {
-      alert("Por favor ingresa un monto de apertura válido.");
+    if (loadingAbrir) return; // evitar doble click
+    if (
+      montoApertura === "" ||
+      (typeof montoApertura === "number" && montoApertura <= 0)
+    ) {
+      setError("Por favor ingresa un monto de apertura válido.");
       return;
     }
-    onAbrirCaja(montoApertura);
+    setError(null);
+    onAbrirCaja(Number(montoApertura));
   };
 
   return (
@@ -39,19 +51,33 @@ export function CajaVacia({ onAbrirCaja, loadingAbrir }: CajaVaciaProps) {
         <input
           id="montoApertura"
           type="number"
-          min={0}
+          min={0.01}
           step="0.01"
           value={montoApertura}
           onChange={handleChange}
           disabled={loadingAbrir}
           placeholder="Ingrese monto de apertura"
-          className={`w-full px-3 py-2 rounded bg-background-200 border border-primary-200 text-white focus:outline-none focus:ring-2 focus:ring-primary-100`}
+          aria-invalid={!!error}
+          aria-describedby="error-monto-apertura"
+          className={`w-full px-3 py-2 rounded bg-background-200 border ${
+            error ? "border-accent-100" : "border-primary-200"
+          } text-white focus:outline-none focus:ring-2 focus:ring-primary-100`}
         />
+        {error && (
+          <p
+            id="error-monto-apertura"
+            className="mt-1 text-sm text-accent-100"
+            role="alert"
+          >
+            {error}
+          </p>
+        )}
       </div>
 
       <button
         onClick={handleAbrir}
         disabled={loadingAbrir}
+        aria-busy={loadingAbrir}
         className={`w-full py-2 px-4 rounded font-semibold text-white transition ${
           loadingAbrir
             ? "bg-gray-500 cursor-not-allowed"
@@ -64,6 +90,7 @@ export function CajaVacia({ onAbrirCaja, loadingAbrir }: CajaVaciaProps) {
               className="animate-spin h-4 w-4 text-white"
               fill="none"
               viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
             >
               <circle
                 className="opacity-25"
