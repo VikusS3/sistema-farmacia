@@ -120,12 +120,16 @@ export class CajaController {
         res.status(404).json({ error: "Caja no encontrada" });
         return;
       }
-      res
-        .status(200)
-        .json({
-          id: caja.id,
-          message: "Hay una caja abierta actualmente para este usuario",
-        });
+      res.status(200).json({
+        id: caja.id,
+        message: "Hay una caja abierta actualmente para este usuario",
+        fecha_apertura: caja.fecha_apertura,
+        monto_apertura: caja.monto_apertura,
+        fecha_cierre: caja.fecha_cierre,
+        monto_cierre: caja.monto_cierre,
+        estado: caja.estado,
+        usuario_id: caja.usuario_id,
+      });
     } catch (error) {
       if (error instanceof ZodError) {
         res.status(400).json({ error: error.errors });

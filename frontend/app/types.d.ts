@@ -171,3 +171,28 @@ export interface VentaProducto {
   productos: Producto[];
   total?: number;
 }
+
+export interface Caja {
+  actualizado_en: Date;
+  creado_en: Date;
+  estado: string;
+  fecha_apertura: string;
+  fecha_cierre: string;
+  id: number;
+  monto_apertura: number;
+  monto_cierre: number;
+  usuario_id: number;
+}
+
+// cajaServices.ts o en un archivo de tipos aparte
+export type AbrirCajaInput = {
+  usuario_id: number;
+  fecha_apertura: string;
+  monto_apertura: number;
+};
+
+export type CerrarCajaInput = {
+  id: number;
+  fecha_cierre: string;
+  monto_cierre: number;
+};

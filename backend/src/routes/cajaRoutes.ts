@@ -7,7 +7,7 @@ const router = express.Router();
 router.get("/", authMiddleware, CajaController.getAll);
 router.get("/:id", authMiddleware, CajaController.getById);
 router.post("/abrir", authMiddleware, CajaController.abrirCaja);
-router.put("/cerrar/:id", authMiddleware, CajaController.cerrarCaja);
+router.put("/cerrar", authMiddleware, CajaController.cerrarCaja);
 router.get(
   "/activa/usuario/:id",
   authMiddleware,

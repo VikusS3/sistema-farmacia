@@ -11,6 +11,7 @@ import {
   Truck,
   ChartColumnStacked,
   Store,
+  PackageOpen,
 } from "lucide-react";
 
 const links = [
@@ -19,6 +20,12 @@ const links = [
     href: "/dashboard",
     label: "Dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    name: "Caja",
+    href: "/dashboard/caja",
+    label: " Caja",
+    icon: PackageOpen,
   },
   {
     name: "Ventas",
