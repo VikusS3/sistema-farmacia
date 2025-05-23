@@ -1,8 +1,8 @@
-// src/context/AuthContext.tsx
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 interface AuthContextType {
   isAuthenticated: boolean;
+  loading: boolean;
   login: (token: string) => void;
   logout: () => void;
 }
@@ -15,12 +15,14 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true); // Nuevo estado loading
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       setIsAuthenticated(true);
     }
+    setLoading(false); // Termina la verificación
   }, []);
 
   const login = (token: string) => {
@@ -34,7 +36,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

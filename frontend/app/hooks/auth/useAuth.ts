@@ -7,14 +7,12 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
 export const useAuth = () => {
-  const { login, logout, isAuthenticated } = useAuthContext();
-  const [loading, setLoading] = useState(false);
+  const { login, logout, isAuthenticated, loading } = useAuthContext();
   const [error, setError] = useState("");
   const MySwal = withReactContent(Swal);
   const router = useRouter();
 
   const handleLogin = async (email: string, password: string) => {
-    setLoading(true);
     setError("");
     try {
       const response = await api.post("/usuarios/login", {
@@ -46,8 +44,6 @@ export const useAuth = () => {
         text: error.response?.data?.message || "Error de login",
         confirmButtonText: "Aceptar",
       });
-    } finally {
-      setLoading(false);
     }
   };
 

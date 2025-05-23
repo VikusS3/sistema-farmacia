@@ -1,4 +1,3 @@
-// src/components/ProtectedRoute.tsx
 "use client";
 
 import { useAuth } from "../context/AuthContext";
@@ -10,17 +9,21 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/"); // Redirigir a login si no está autenticado
+    if (!loading && !isAuthenticated) {
+      router.push("/"); // Solo redirige si NO está cargando y NO autenticado
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, loading, router]);
+
+  if (loading) {
+    return <div>Loading...</div>; // Mostrar mientras verificamos el token
+  }
 
   if (!isAuthenticated) {
-    return <div>Loading...</div>; // Mostrar un "loading" mientras se verifica la autenticación
+    return null; // Evitar renderizar contenido protegido mientras redirige
   }
 
   return <>{children}</>;
