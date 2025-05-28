@@ -1,5 +1,12 @@
+import axios from "axios";
 import api from "../lib/axiosConfig";
-import { Caja, AbrirCajaInput, CerrarCajaInput } from "../types";
+import {
+  Caja,
+  AbrirCajaInput,
+  CerrarCajaInput,
+  AbrirCajaResponse,
+  CajaActivaResponse,
+} from "../types";
 import { extractErrorMessage } from "../utils/errorHandler";
 
 export const fetchCajas = async (): Promise<Caja[]> => {
@@ -17,7 +24,7 @@ export const fetchCaja = async (id: number): Promise<Caja> => {
   try {
     const response = await api.get(`/cajas/${id}`);
     return response.data;
-  } catch (error) {
+  } catch (error: unknown) {
     const mensajeError = extractErrorMessage(error);
     console.error(mensajeError);
     throw error;
@@ -26,11 +33,11 @@ export const fetchCaja = async (id: number): Promise<Caja> => {
 
 export const abrirCaja = async (
   data: AbrirCajaInput
-): Promise<{ insertId: number }> => {
+): Promise<AbrirCajaResponse> => {
   try {
     const response = await api.post("/cajas/abrir", data);
     return response.data;
-  } catch (error) {
+  } catch (error: unknown) {
     const mensajeError = extractErrorMessage(error);
     console.error(mensajeError);
     throw error;
@@ -42,7 +49,7 @@ export const cerrarCaja = async (data: CerrarCajaInput): Promise<Caja> => {
     const response = await api.put(`/cajas/cerrar`, data);
     console.log(response.data);
     return response.data; // caja actualizada completa
-  } catch (error) {
+  } catch (error: unknown) {
     const mensajeError = extractErrorMessage(error);
     console.error(mensajeError);
     throw error;
@@ -51,13 +58,18 @@ export const cerrarCaja = async (data: CerrarCajaInput): Promise<Caja> => {
 
 export const getCajaActivaByUser = async (
   usuario_id: number
-): Promise<Caja | null> => {
+): Promise<CajaActivaResponse | null> => {
   try {
-    const response = await api.get(`/cajas/activa/usuario/${usuario_id}`);
+    const response = await api.get<CajaActivaResponse>(
+      `/cajas/activa/usuario/${usuario_id}`
+    );
     return response.data;
-  } catch (error) {
+  } catch (error: unknown) {
     const mensajeError = extractErrorMessage(error);
-    console.error(mensajeError);
+    console.error("Error al obtener caja activa:", mensajeError);
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      return null;
+    }
     throw error;
   }
 };

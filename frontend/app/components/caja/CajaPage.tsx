@@ -14,14 +14,14 @@ export default function CajaPage() {
     if (id) setUsuarioId(Number(id));
   }, []);
 
-  // Evitar llamar hook con id 0 o null
   const {
     cajaActiva,
-    isLoading,
+    isCajaLoading,
     abrirCaja,
     cerrarCaja,
     abrirCajaLoading,
     cerrarCajaLoading,
+    isCajaError,
   } = useCajaActiva(usuarioId ?? 0);
 
   const handleAbrirCaja = (montoApertura: number) => {
@@ -42,10 +42,18 @@ export default function CajaPage() {
     });
   };
 
-  if (usuarioId === null || isLoading) {
+  if (usuarioId === null || isCajaLoading) {
     return (
       <div className="flex items-center justify-center h-[60vh] text-text-200">
         <span className="animate-pulse text-lg">Cargando caja...</span>
+      </div>
+    );
+  }
+
+  if (isCajaError) {
+    return (
+      <div className="flex items-center justify-center h-[60vh] text-text-200">
+        <span className="animate-pulse text-lg">Error al cargar caja</span>
       </div>
     );
   }

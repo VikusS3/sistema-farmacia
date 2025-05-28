@@ -173,26 +173,42 @@ export interface VentaProducto {
 }
 
 export interface Caja {
-  actualizado_en: Date;
-  creado_en: Date;
-  estado: string;
+  actualizado_en: string;
+  creado_en: string;
+  estado: "abierta" | "cerrada";
   fecha_apertura: string;
-  fecha_cierre: string;
+  fecha_cierre: string | null;
   id: number;
   monto_apertura: number;
-  monto_cierre: number;
+  monto_cierre: number | null;
   usuario_id: number;
 }
 
 // cajaServices.ts o en un archivo de tipos aparte
 export type AbrirCajaInput = {
   usuario_id: number;
-  fecha_apertura: string;
   monto_apertura: number;
+  fecha_apertura?: string;
 };
 
 export type CerrarCajaInput = {
   id: number;
-  fecha_cierre: string;
+  fecha_cierre?: string;
   monto_cierre: number;
 };
+
+export type AbrirCajaResponse = {
+  id: number;
+  message: string;
+};
+
+export interface CajaActivaResponse {
+  id: number;
+  message: string;
+  fecha_apertura: string;
+  monto_apertura: number;
+  fecha_cierre: string | null;
+  monto_cierre: number | null;
+  estado: "abierta" | "cerrada";
+  usuario_id: number;
+}

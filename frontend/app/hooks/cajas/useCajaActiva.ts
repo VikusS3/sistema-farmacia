@@ -4,7 +4,12 @@ import {
   abrirCaja,
   cerrarCaja,
 } from "@/app/services/cajaServices";
-import { Caja } from "@/app/types";
+import {
+  Caja,
+  AbrirCajaInput,
+  CerrarCajaInput,
+  CajaActivaResponse,
+} from "@/app/types"; // 👈 Importar CajaActivaResponse
 import { extractErrorMessage } from "@/app/utils/errorHandler";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -14,22 +19,27 @@ const MySwal = withReactContent(Swal);
 export const useCajaActiva = (usuarioId: number) => {
   const queryClient = useQueryClient();
 
-  // ✅ Obtener la caja activa del usuario
   const {
     data: cajaActiva,
     isLoading,
     error,
     refetch,
-  } = useQuery<Caja | null, Error>({
+    isError,
+  } = useQuery<CajaActivaResponse | null, Error>({
     queryKey: ["caja-activa", usuarioId],
     queryFn: () => getCajaActivaByUser(usuarioId),
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: true, //ver si cambiarlo a false a futuro
+    enabled: !!usuarioId,
   });
 
   // ✅ Mutación para abrir caja
-  const abrirCajaMutation = useMutation({
+  const abrirCajaMutation = useMutation<
+    { id: number; message: string },
+    Error,
+    AbrirCajaInput
+  >({
     mutationFn: abrirCaja,
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["caja-activa", usuarioId] });
@@ -44,16 +54,8 @@ export const useCajaActiva = (usuarioId: number) => {
   });
 
   // ✅ Mutación para cerrar caja
-  const cerrarCajaMutation = useMutation({
-    mutationFn: ({
-      id,
-      fecha_cierre,
-      monto_cierre,
-    }: {
-      id: number;
-      fecha_cierre?: string;
-      monto_cierre: number;
-    }) => cerrarCaja({ id, fecha_cierre: fecha_cierre || "", monto_cierre }),
+  const cerrarCajaMutation = useMutation<Caja, Error, CerrarCajaInput>({
+    mutationFn: cerrarCaja,
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["caja-activa", usuarioId] });
     },
@@ -68,12 +70,20 @@ export const useCajaActiva = (usuarioId: number) => {
 
   return {
     cajaActiva,
-    isLoading,
-    error,
-    refetch,
+    isCajaLoading: isLoading,
+    isCajaError: isError,
+    cajaError: error,
+    refetchCaja: refetch,
+
     abrirCaja: abrirCajaMutation.mutate,
     cerrarCaja: cerrarCajaMutation.mutate,
+
     abrirCajaLoading: abrirCajaMutation.isPending,
+    abrirCajaSuccess: abrirCajaMutation.isSuccess,
+    abrirCajaError: abrirCajaMutation.isError,
+
     cerrarCajaLoading: cerrarCajaMutation.isPending,
+    cerrarCajaSuccess: cerrarCajaMutation.isSuccess,
+    cerrarCajaError: cerrarCajaMutation.isError,
   };
 };
