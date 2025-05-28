@@ -68,7 +68,7 @@ export default function DetalleCompra({
         onClick={registrarCompra}
         className="px-4 py-2 bg-primary-100 text-white font-semibold rounded-md hover:bg-primary-200 transition-all hover:scale-105"
       >
-        Confirmar Venta
+        Confirmar Compra
       </button>
     </div>
   );
