@@ -29,11 +29,12 @@
 [x] Mejorar el componente de la lista de productos
 [x] Borrar los botnes de editar de la venta y compra
 [x] Borrar los botones de eliminar de la venta y compra
-[] Considerar agregar abertura y cierre de caja
+[x] Considerar agregar abertura y cierre de caja
 [] mejorar los inputs que son para los precios o cantidades
 [] Ver como manejar la cantidad de la tabla productos es decir la converseion como sera el precio de venta y esas cosas
 [x] Agregar la boleta de un compra como reporte
 [] Manejar el error si no seleciona un cliente - o indicar al usuario que lo seleecione
 [] Obtener el nombre del que ingresa
-[] Asegurar las rutas de entrada (usar el token paar que pueda ver la paginas)
-[] Crear un script para generar un backup de la base de datos, y usarlo desde el frontend
+[x] Asegurar las rutas de entrada (usar el token paar que pueda ver la paginas)
+[x] Crear un script para generar un backup de la base de datos, y usarlo desde el frontend
+[] Ver como arreglar ese mini movimiento de las tablas
