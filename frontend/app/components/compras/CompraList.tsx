@@ -8,6 +8,7 @@ import {
   flexRender,
 } from "@tanstack/react-table";
 import { Compra } from "@/app/types";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface CompraListProps {
   compras: Compra[];
@@ -15,12 +16,13 @@ interface CompraListProps {
   borrarCompra: (id: number) => void;
   handleVerProductosCompra: (id: number) => void;
 }
+
 export default function CompraList({
   compras,
   handleVerProductosCompra,
 }: CompraListProps) {
-  const [globalFilter, setGlobalFilter] = useState(""); // Estado para la búsqueda
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 5 }); // Paginación
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 5 });
 
   const columns = useMemo(
     () => [
@@ -33,33 +35,23 @@ export default function CompraList({
           return date.toLocaleDateString();
         },
       },
-      { accessorKey: "total", header: "Total" },
+      {
+        accessorKey: "total",
+        header: "Total",
+        cell: ({ cell }: { cell: any }) =>
+          `S/ ${parseFloat(cell.getValue()).toFixed(2)}`,
+      },
       {
         id: "acciones",
         header: "Acciones",
         cell: ({ row }: { row: any }) => (
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             <button
               onClick={() => handleVerProductosCompra(row.original.id)}
-              className="bg-primary-200 text-white py-2 px-4 rounded-md shadow-sm hover:bg-primary-100 transition-all duration-200 focus:ring-2 focus:ring-primary-300 focus:outline-none"
-              aria-label="Ver productos"
+              className="px-3 py-1.5 bg-primary-200 text-white rounded-xl shadow hover:bg-primary-100 transition duration-200 text-sm"
             >
               Ver productos
             </button>
-            {/* <button
-              onClick={() => handleEdit(row.original.id)}
-              className="bg-primary-200 text-white py-2 px-4 rounded-md shadow-sm hover:bg-primary-400 transition-all duration-200 focus:ring-2 focus:ring-primary-100 focus:outline-none"
-              aria-label="Editar categoría"
-            >
-              Editar
-            </button>
-            <button
-              onClick={() => borrarCompra(row.original.id)}
-              className="bg-red-500 text-white py-2 px-4 rounded-md shadow-sm hover:bg-red-600 transition-all duration-200 focus:ring-2 focus:ring-red-400 focus:outline-none"
-              aria-label="Borrar categoría"
-            >
-              Borrar
-            </button> */}
           </div>
         ),
       },
@@ -78,29 +70,28 @@ export default function CompraList({
   });
 
   return (
-    <div className="p-6 bg-background-300 rounded-xl shadow-lg text-text-100 mt-5">
+    <div className="p-6 bg-background-200 rounded-2xl shadow-xl text-text-100">
       {/* Búsqueda global */}
-      <input
-        type="text"
-        placeholder="Buscar cliente..."
-        value={globalFilter}
-        onChange={(e) => setGlobalFilter(e.target.value)}
-        className="w-full p-3 mb-5 border border-background-100 rounded-lg bg-background-200 text-text-100 focus:outline-none focus:ring-2 focus:ring-primary-200 transition-all"
-      />
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Buscar compra..."
+          value={globalFilter}
+          onChange={(e) => setGlobalFilter(e.target.value)}
+          className="w-full p-3 border border-background-300 rounded-xl bg-background-100 text-text-100 placeholder:text-text-200 focus:outline-none focus:ring-2 focus:ring-primary-200 transition"
+        />
+      </div>
 
       {/* Tabla */}
-      <div className="overflow-x-auto rounded-lg border border-background-100">
+      <div className="overflow-x-auto rounded-xl border border-background-300">
         <table className="w-full text-left">
-          <thead className="bg-background-200 text-text-100">
+          <thead className="bg-primary-100 text-white shadow">
             {table.getHeaderGroups().map((headerGroup) => (
-              <tr
-                key={headerGroup.id}
-                className="border-b border-background-400"
-              >
+              <tr key={headerGroup.id}>
                 {headerGroup.headers.map((column) => (
                   <th
                     key={column.id}
-                    className="p-4 font-semibold uppercase tracking-wide"
+                    className="p-3 text-sm font-semibold uppercase tracking-wide"
                   >
                     {flexRender(
                       column.column.columnDef.header,
@@ -112,32 +103,44 @@ export default function CompraList({
             ))}
           </thead>
           <tbody>
-            {table.getRowModel().rows.length > 0 ? (
-              table.getRowModel().rows.map((row) => (
-                <tr
-                  key={row.id}
-                  className="border-b border-background-100 hover:bg-background-100 transition-all duration-200"
+            <AnimatePresence>
+              {table.getRowModel().rows.length > 0 ? (
+                table.getRowModel().rows.map((row, idx) => (
+                  <motion.tr
+                    key={row.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{ duration: 0.1 }}
+                    className={`border-t border-background-300 transition-all ${
+                      idx % 2 === 0 ? "bg-background-100" : "bg-background-200"
+                    } hover:bg-background-300`}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <td key={cell.id} className="p-3 text-sm">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </td>
+                    ))}
+                  </motion.tr>
+                ))
+              ) : (
+                <motion.tr
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="p-4">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan={columns.length}
-                  className="text-center p-6 text-text-300"
-                >
-                  No hay ventas disponibles.
-                </td>
-              </tr>
-            )}
+                  <td
+                    colSpan={columns.length}
+                    className="text-center p-5 text-text-200 italic"
+                  >
+                    No hay compras disponibles.
+                  </td>
+                </motion.tr>
+              )}
+            </AnimatePresence>
           </tbody>
         </table>
       </div>
@@ -147,17 +150,17 @@ export default function CompraList({
         <button
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
-          className="px-5 py-2 bg-background-100 text-text-200 rounded-lg disabled:opacity-50 hover:bg-primary-200 transition-all duration-200"
+          className="px-4 py-2 bg-primary-100 text-white rounded-lg disabled:opacity-50 hover:bg-primary-200 transition"
         >
           Anterior
         </button>
-        <span className="text-text-200 font-medium">
+        <span className="text-sm text-text-200">
           Página {pagination.pageIndex + 1} de {table.getPageCount()}
         </span>
         <button
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
-          className="px-5 py-2 bg-background-100 text-text-200 rounded-lg disabled:opacity-50 hover:bg-primary-200 transition-all duration-200"
+          className="px-4 py-2 bg-primary-100 text-white rounded-lg disabled:opacity-50 hover:bg-primary-200 transition"
         >
           Siguiente
         </button>
