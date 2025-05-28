@@ -12,6 +12,7 @@ import {
   ChartColumnStacked,
   Store,
   PackageOpen,
+  Boxes,
 } from "lucide-react";
 
 const links = [
@@ -68,6 +69,12 @@ const links = [
     href: "/dashboard/reportes",
     label: "Reportes",
     icon: ClipboardCheck,
+  },
+  {
+    name: "Gestion de Cajas",
+    href: "/dashboard/gestion-cajas",
+    label: "Gestion de Cajas",
+    icon: Boxes,
   },
   {
     name: "Usuarios",
