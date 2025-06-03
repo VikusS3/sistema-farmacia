@@ -33,7 +33,7 @@
 [] mejorar los inputs que son para los precios o cantidades
 [] Ver como manejar la cantidad de la tabla productos es decir la converseion como sera el precio de venta y esas cosas
 [x] Agregar la boleta de un compra como reporte
-[] Manejar el error si no seleciona un cliente - o indicar al usuario que lo seleecione
+[] Manejar el error si no seleciona un cliente - o indicar al usuario que lo seleecione (mandar un mensaje de error)
 [] Obtener el nombre del que ingresa
 [x] Asegurar las rutas de entrada (usar el token paar que pueda ver la paginas)
 [x] Crear un script para generar un backup de la base de datos, y usarlo desde el frontend
