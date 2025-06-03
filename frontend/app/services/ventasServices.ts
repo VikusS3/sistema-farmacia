@@ -41,8 +41,6 @@ export const createVenta = async (
   } catch (error) {
     const mensajeError = extractErrorMessage(error);
     console.error("Error lanzado desde createVenta:", mensajeError);
-
-    // Lanzamos un error real que pueda ser capturado
     throw new Error(mensajeError);
   }
 };
