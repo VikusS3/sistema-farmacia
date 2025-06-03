@@ -5,8 +5,7 @@ import { useCajas } from "@/app/hooks/cajas/useCajas";
 import { RefreshCcw } from "lucide-react";
 
 export default function GestionCajasPage() {
-  const { cajas, isCajasLoading, isCajasError, cajasError, refetchCajas } =
-    useCajas();
+  const { cajas, isCajasLoading, isCajasError, cajasError } = useCajas();
 
   if (isCajasLoading) return <div>Loading...</div>;
   if (isCajasError) return <div>Error: {cajasError?.message}</div>;
@@ -17,7 +16,8 @@ export default function GestionCajasPage() {
 
         <button
           className="bg-primary-200 text-white py-2 px-4 rounded-lg hover:bg-primary-100 transition-all focus:ring-2 focus:ring-primary-300 mb-2 flex items-center gap-2"
-          onClick={() => refetchCajas()}
+          // onClick={() => refetchCajas()} esto da error se conjela la aplicacion
+          onClick={() => window.location.reload()}
         >
           <RefreshCcw className="w-4 h-4 mr-2" />
           Actualizar
