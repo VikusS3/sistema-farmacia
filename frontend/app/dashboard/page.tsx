@@ -16,7 +16,12 @@ function DashboardContent() {
       >
         Crear Backup
       </button>
-      <button onClick={handleLogout}>Logout</button>
+      <button
+        className="bg-red-500 text-white px-4 py-2 rounded"
+        onClick={handleLogout}
+      >
+        Logout
+      </button>
     </div>
   );
 }
