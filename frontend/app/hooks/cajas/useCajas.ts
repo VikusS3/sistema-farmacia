@@ -20,14 +20,13 @@ export const useCajas = () => {
     data: cajas,
     isLoading: isCajasLoading,
     error: cajasError,
-    refetch: refetchCajas,
     isError: isCajasError,
   } = useQuery<Caja[], Error>({
     queryKey: ["cajas"],
     queryFn: fetchCajas,
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
-    refetchOnMount: true,
+    refetchOnMount: false,
   });
 
   // ✅ Mutación para abrir caja
@@ -67,6 +66,12 @@ export const useCajas = () => {
       MySwal.fire("Error", message, "error");
     },
   });
+
+  const refetchCajas = () => {
+    queryClient.invalidateQueries({ queryKey: ["cajas"] });
+    // Refetch to ensure we have the latest data
+    queryClient.refetchQueries({ queryKey: ["cajas"] });
+  };
 
   return {
     cajas,
