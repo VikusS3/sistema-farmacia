@@ -72,4 +72,20 @@ export class ProductoController {
       res.status(500).json({ error: "Error al eliminar el producto" });
     }
   };
+
+  static findAllWithExpired: RequestHandler = async (
+    req: Request,
+    res: Response
+  ) => {
+    try {
+      const productos = await ProductoModel.findAllWithExpiration();
+      if (!productos || productos.length === 0) {
+        res.status(404).json({ message: "No hay productos vencidos" });
+        return;
+      }
+      res.json(productos);
+    } catch (error) {
+      res.status(500).json({ error: "Error al obtener productos vencidos" });
+    }
+  };
 }

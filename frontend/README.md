@@ -38,5 +38,5 @@
 [x] Asegurar las rutas de entrada (usar el token paar que pueda ver la paginas)
 [x] Crear un script para generar un backup de la base de datos, y usarlo desde el frontend
 [] Ver como arreglar ese mini movimiento de las tablas DISEÑO
-[] Ver una tabla para los vencimientos de los productos
+[x] Ver una tabla para los vencimientos de los productos
 []Quitar el precio de compra de la tabla

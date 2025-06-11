@@ -96,5 +96,11 @@ export const ProductoModel = {
     return result.affectedRows > 0;
   },
 
-  //consulata para verificar si se esta acerando a la fecha de vencimiento
+  //consulata para traer los productos con su fecha de vencimiento
+  async findAllWithExpiration(): Promise<Producto[]> {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      "SELECT p.nombre,p.fecha_vencimiento FROM productos as p WHERE fecha_vencimiento IS NOT NULL"
+    );
+    return rows as Producto[];
+  },
 };

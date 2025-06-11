@@ -13,6 +13,7 @@ import {
   Store,
   PackageOpen,
   Boxes,
+  CalendarSearch,
 } from "lucide-react";
 
 const links = [
@@ -75,6 +76,12 @@ const links = [
     href: "/dashboard/gestion-cajas",
     label: "Gestion de Cajas",
     icon: Boxes,
+  },
+  {
+    name: "Productos Vencidos",
+    href: "/dashboard/vencimiento",
+    label: "Productos Vencidos",
+    icon: CalendarSearch,
   },
   {
     name: "Usuarios",

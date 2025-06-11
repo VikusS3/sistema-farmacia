@@ -65,3 +65,14 @@ export const deleteProducto = async (id: number): Promise<void> => {
     throw error;
   }
 };
+
+export const getProductosWithExpired = async (): Promise<Productos[]> => {
+  try {
+    const response = await api.get("/productos/vencimiento/with-experied");
+    return response.data;
+  } catch (error) {
+    const mensajeError = extractErrorMessage(error);
+    console.error(mensajeError);
+    throw error;
+  }
+};
