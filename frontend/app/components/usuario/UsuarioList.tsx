@@ -42,14 +42,14 @@ export default function UsuarioList({
           <div className="flex gap-2">
             <button
               onClick={() => handleEdit(row.original.id)}
-              className="bg-primary-200 text-white py-1 px-3 rounded-lg hover:bg-primary-100 transition-all focus:ring-2 focus:ring-primary-300"
+              className="bg-primary-100 text-white py-1 px-3 rounded-lg hover:bg-primary-200 transition-all focus:ring-2 focus:ring-primary-300"
               aria-label="Editar usuario"
             >
               Editar
             </button>
             <button
               onClick={() => borrarUsuario(row.original.id)}
-              className="bg-accent-100 text-white py-1 px-3 rounded-lg hover:bg-red-700 transition-all focus:ring-2 focus:ring-red-400"
+              className="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-700 transition-all focus:ring-2 focus:ring-red-400"
               aria-label="Borrar usuario"
             >
               Borrar
@@ -72,7 +72,7 @@ export default function UsuarioList({
   });
 
   return (
-    <div className="p-6 bg-background-200 rounded-2xl shadow-xl text-text-100">
+    <div className="p-6 bg-zinc-50 rounded-2xl shadow-xl text-text-100">
       {/* Búsqueda global */}
       <div className="mb-4">
         <input

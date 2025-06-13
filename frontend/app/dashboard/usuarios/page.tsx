@@ -32,7 +32,7 @@ function UsuariosPage() {
 
   return (
     <div className="p-6 bg-background-100 text-text-100 rounded-lg shadow-lg">
-      <h1 className="text-2xl font-bold mb-4 text-primary-200">Usuarios</h1>
+      <h1 className="text-2xl font-bold mb-4 text-text-100">Usuarios</h1>
       {/* Mensajes de carga y error */}
       {loading && <p className="text-primary-300">Cargando...</p>}
       {error && <p className="text-accent-100">{error}</p>}
@@ -40,7 +40,7 @@ function UsuariosPage() {
       <div className="mb-4">
         <button
           onClick={form.openModalForCreate}
-          className="bg-primary-100 text-text-100 py-2 px-4 rounded-md hover:bg-primary-200 transition-all focus:outline-none focus:ring-2 focus:ring-primary-300"
+          className="bg-primary-100 text-white py-2 px-4 rounded-md hover:bg-primary-200 transition-all focus:outline-none focus:ring-2 focus:ring-primary-300"
         >
           + Agregar Usuarios
         </button>

@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 import React, { useMemo, useState } from "react";
 import {
   useReactTable,
@@ -12,36 +11,22 @@ import { Caja } from "@/app/types";
 import dayjs from "dayjs";
 import { CheckCircle, XCircle } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+
 interface CajaListProps {
   cajas: Caja[];
 }
 
 export default function CajaList({ cajas }: CajaListProps) {
-  const [globalFilter, setGlobalFilter] = useState(""); // Estado para la búsqueda
+  const [globalFilter, setGlobalFilter] = useState(""); // Búsqueda
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 }); // Paginación
 
   const columns = useMemo(
     () => [
-      {
-        accessorKey: "id",
-        header: "ID",
-      },
-      {
-        accessorKey: "monto_apertura",
-        header: "Monto Apertura",
-      },
-      {
-        accessorKey: "fecha_apertura",
-        header: "Fecha Apertura",
-      },
-      {
-        accessorKey: "monto_cierre",
-        header: "Monto Cierre",
-      },
-      {
-        accessorKey: "fecha_cierre",
-        header: "Fecha Cierre",
-      },
+      { accessorKey: "id", header: "ID" },
+      { accessorKey: "monto_apertura", header: "Monto Apertura" },
+      { accessorKey: "fecha_apertura", header: "Fecha Apertura" },
+      { accessorKey: "monto_cierre", header: "Monto Cierre" },
+      { accessorKey: "fecha_cierre", header: "Fecha Cierre" },
       {
         accessorKey: "estado",
         header: "Estado",
@@ -67,14 +52,19 @@ export default function CajaList({ cajas }: CajaListProps) {
     []
   );
 
-  const table = useReactTable({
-    data: cajas.map((caja) => ({
+  // ✅ Procesar cajas solo una vez con useMemo
+  const tableData = useMemo(() => {
+    return cajas.map((caja) => ({
       ...caja,
       fecha_apertura: dayjs(caja.fecha_apertura).format("DD/MM/YYYY HH:mm"),
       fecha_cierre: caja.fecha_cierre
         ? dayjs(caja.fecha_cierre).format("DD/MM/YYYY HH:mm")
         : "",
-    })),
+    }));
+  }, [cajas]);
+
+  const table = useReactTable({
+    data: tableData,
     columns,
     state: { globalFilter, pagination },
     onPaginationChange: setPagination,
@@ -82,9 +72,10 @@ export default function CajaList({ cajas }: CajaListProps) {
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
+
   return (
     <div className="p-6 bg-background-200 rounded-2xl shadow-xl text-text-100">
-      {/* Búsqueda global */}
+      {/* Búsqueda */}
       <div className="mb-4">
         <input
           type="text"

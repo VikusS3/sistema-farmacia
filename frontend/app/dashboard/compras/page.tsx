@@ -86,7 +86,7 @@ function ComprasPage() {
         isOpen={modalProductoOpen}
         onClose={() => setModalProductoOpen(false)}
         title="Agregar Productos"
-        className="max-w-6xl"
+        className="max-w-6xl w-full"
       >
         <ProductosListCompra
           productos={productos}

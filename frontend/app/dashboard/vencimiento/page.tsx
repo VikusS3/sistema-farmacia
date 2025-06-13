@@ -20,7 +20,7 @@ export default function GestionProductosVencimiento() {
         </h1>
 
         <button
-          className="bg-primary-200 text-white py-2 px-4 rounded-lg hover:bg-primary-100 transition-all focus:ring-2 focus:ring-primary-300 mb-2 flex items-center gap-2"
+          className="bg-primary-100 text-white py-2 px-4 rounded-lg hover:bg-primary-200 transition-all focus:ring-2 focus:ring-primary-300 mb-2 flex items-center gap-2"
           // onClick={() => refetchCajas()} esto da error se conjela la aplicacion
           onClick={() => refetchProductos()}
         >

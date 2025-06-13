@@ -100,19 +100,17 @@ export default function NavLinks() {
           href={link.href}
           className={`group flex items-center gap-3 rounded-lg p-2 transition-all ${
             pathname === link.href
-              ? "bg-primary-100 text-primary-300"
-              : "text-text-200 hover:bg-primary-200 hover:text-text-100"
+              ? "bg-primary-100 text-background-100 font-bold"
+              : "text-text-200 hover:bg-primary-200 hover:text-background-100"
           }`}
           aria-label={link.label}
         >
           <link.icon
             className={`h-6 w-6 transition-transform ${
-              pathname === link.href && "text-primary-300 scale-110"
+              pathname === link.href && "text-background-100 scale-110"
             }`}
           />
-          <span className="hidden md:block text-sm font-medium">
-            {link.name}
-          </span>
+          <span className="hidden md:block text-sm font-bold">{link.name}</span>
         </Link>
       ))}
     </nav>

@@ -61,12 +61,12 @@ export function CajaVacia({ onAbrirCaja, loadingAbrir }: CajaVaciaProps) {
           aria-describedby="error-monto-apertura"
           className={`w-full px-3 py-2 rounded bg-background-200 border ${
             error ? "border-accent-100" : "border-primary-200"
-          } text-white focus:outline-none focus:ring-2 focus:ring-primary-100`}
+          } text-text-100 focus:outline-none focus:ring-2 focus:ring-primary-100`}
         />
         {error && (
           <p
             id="error-monto-apertura"
-            className="mt-1 text-sm text-accent-100"
+            className="mt-1 text-sm text-text-200"
             role="alert"
           >
             {error}
@@ -87,7 +87,7 @@ export function CajaVacia({ onAbrirCaja, loadingAbrir }: CajaVaciaProps) {
         {loadingAbrir ? (
           <span className="flex items-center justify-center gap-2">
             <svg
-              className="animate-spin h-4 w-4 text-white"
+              className="animate-spin h-4 w-4 text-text-100"
               fill="none"
               viewBox="0 0 24 24"
               xmlns="http://www.w3.org/2000/svg"

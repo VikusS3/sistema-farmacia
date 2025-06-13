@@ -65,7 +65,7 @@ export default function ProductosVencimiento({
   });
 
   return (
-    <div className="p-6 bg-background-200 rounded-2xl shadow-xl text-text-100">
+    <div className="p-6 bg-zinc-100 rounded-2xl shadow-xl text-text-100">
       {/* Búsqueda global */}
       <div className="mb-4">
         <input
@@ -108,8 +108,8 @@ export default function ProductosVencimiento({
                     exit={{ opacity: 0, y: 10 }}
                     transition={{ duration: 0.1 }}
                     className={`border-t border-background-300 transition-all ${
-                      idx % 2 === 0 ? "bg-background-100" : "bg-background-200"
-                    } hover:bg-background-300`}
+                      idx % 2 === 0 ? "bg-zinc-100" : "bg-zinc-200"
+                    } hover:bg-zinc-300 font-medium`}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <td key={cell.id} className="p-3 text-sm">

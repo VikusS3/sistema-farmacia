@@ -9,6 +9,7 @@ import {
   AbrirCajaResponse,
 } from "@/app/types";
 import { extractErrorMessage } from "@/app/utils/errorHandler";
+import { useEffect } from "react";
 
 const MySwal = withReactContent(Swal);
 
@@ -21,6 +22,7 @@ export const useCajas = () => {
     isLoading: isCajasLoading,
     error: cajasError,
     isError: isCajasError,
+    refetch: refetchCajas,
   } = useQuery<Caja[], Error>({
     queryKey: ["cajas"],
     queryFn: fetchCajas,
@@ -67,11 +69,9 @@ export const useCajas = () => {
     },
   });
 
-  const refetchCajas = () => {
-    queryClient.invalidateQueries({ queryKey: ["cajas"] });
-    // Refetch to ensure we have the latest data
-    queryClient.refetchQueries({ queryKey: ["cajas"] });
-  };
+  useEffect(() => {
+    fetchCajas().then((data) => console.log("CAJAS:", data));
+  }, []);
 
   return {
     cajas,
