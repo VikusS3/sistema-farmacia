@@ -120,7 +120,7 @@ export function CajaInfo({
       <button
         onClick={handleAction}
         disabled={loadingAbrir || loadingCerrar}
-        className={`w-full py-2 px-4 rounded font-semibold text-text-100 transition ${
+        className={`w-full py-2 px-4 rounded font-semibold text-white transition ${
           loadingAbrir || loadingCerrar
             ? "bg-gray-500 cursor-not-allowed"
             : "bg-primary-100 hover:bg-primary-200"
