@@ -9,7 +9,11 @@ export class ProductoController {
   static getAll: RequestHandler = async (req: Request, res: Response) => {
     try {
       const productos = await ProductoModel.findAll();
-      res.json(productos);
+      const productosConPresentacion = productos.map((p) => ({
+        ...p,
+        nombre_completo: `${p.nombre} (${p.factor_conversion} ${p.unidad_venta} por ${p.unidad_medida})`,
+      }));
+      res.json(productosConPresentacion);
     } catch (error) {
       res.status(500).json({ error: "Error al obtener los productos" });
     }

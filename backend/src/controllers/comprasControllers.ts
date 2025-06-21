@@ -55,9 +55,9 @@ export class ComprasController {
           res.status(404).json({ message: "Producto no encontrado" });
           return;
         }
-        if (producto.stock + detalle.cantidad < 0) {
+        if (detalle.cantidad <= 0) {
           res.status(400).json({
-            message: "No hay suficiente stock para el producto",
+            message: `La cantidad para el producto ${producto.nombre} debe ser mayor a 0`,
           });
           return;
         }
@@ -72,9 +72,15 @@ export class ComprasController {
         );
       }
 
-      res
-        .status(201)
-        .json({ id: compraId, message: "Compra creada exitosamente" });
+      res.status(201).json({
+        id: compraId,
+        message: "Compra creada exitosamente",
+        productos: detalleCompra.map((d: any) => ({
+          producto_id: d.producto_id,
+          cantidad_cajas: d.cantidad,
+          cantidad_unidades: d.cantidad * d.factor_conversion,
+        })),
+      });
     } catch (error) {
       res.status(400).json({
         error: (error as any).errors || "Error al crear la compra",

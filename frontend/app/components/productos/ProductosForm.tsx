@@ -11,7 +11,8 @@ interface ProductosFormProps {
     stock_minimo: number;
     unidad_medida: string;
     fecha_vencimiento: string;
-    conversion: number;
+    unidad_venta: string;
+    factor_conversion: number;
     categoria_id: number;
   };
   handleChange: (
@@ -162,12 +163,29 @@ export default function ProductosForm({
           </label>
           <input
             type="number"
-            id="conversion"
-            name="conversion"
-            value={values.conversion}
+            name="factor_conversion"
+            value={values.factor_conversion}
             onChange={handleChange}
+            min={1}
             className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Ingresa la conversión"
+            required
+          />
+        </div>
+
+        {/* Unidad de Venta */}
+        <div>
+          <label htmlFor="unidad_venta" className="block text-white mb-1">
+            Unidad de Venta:
+          </label>
+          <input
+            type="text"
+            id="unidad_venta"
+            name="unidad_venta"
+            value={values.unidad_venta}
+            onChange={handleChange}
+            className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Ingresa la unidad de venta"
             required
           />
         </div>

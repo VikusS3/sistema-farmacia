@@ -46,7 +46,6 @@ export interface Productos {
   actualizado_en: Date;
   categoria_id: number;
   creado_en: Date;
-  conversion: number;
   descripcion: string;
   fecha_vencimiento: string; //!capaz cambiar a string
   id: number;
@@ -56,6 +55,8 @@ export interface Productos {
   stock: number;
   stock_minimo: number;
   unidad_medida: string;
+  factor_conversion: number;
+  unidad_venta: string;
 }
 
 export interface DetalleCompra {
@@ -97,6 +98,9 @@ export interface Producto {
   producto_nombre: string;
   subtotal: string;
   venta_id: number;
+  unidad_venta: string;
+  unidad_medida: string;
+  factor_conversion: number;
 }
 
 //Tipos para las Compra

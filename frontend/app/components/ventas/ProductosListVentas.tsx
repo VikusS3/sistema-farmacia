@@ -110,11 +110,12 @@ export default function ProductosListVentas({
                   {producto.nombre}
                 </h3>
                 <p className="text-sm text-text-300">{producto.descripcion}</p>
-                <p className="text-base text-text-200">
-                  <strong>Precio:</strong> ${producto.precio_venta}
+                <p className="text-sm text-text-200">
+                  <strong>Precio por {producto.unidad_venta}:</strong> $
+                  {producto.precio_venta}
                 </p>
                 <p
-                  className={`text-base font-medium ${
+                  className={`text-sm font-medium ${
                     producto.stock <= 0
                       ? "text-red-600"
                       : producto.stock < producto.stock_minimo
@@ -122,7 +123,12 @@ export default function ProductosListVentas({
                       : "text-green-600"
                   }`}
                 >
-                  Stock: {producto.stock}
+                  Stock: {producto.stock} {producto.unidad_venta}
+                </p>
+                <p className="text-xs text-text-300 italic">
+                  Equivale a{" "}
+                  {Math.floor(producto.stock / producto.factor_conversion)}{" "}
+                  {producto.unidad_medida}(s)
                 </p>
               </div>
 
@@ -175,7 +181,14 @@ export default function ProductosListVentas({
                   const cantidad = Number(
                     cantidadRefs.current[producto.id]?.value || 1
                   );
-                  agregarProducto(producto, cantidad);
+
+                  // Si la unidad_venta es diferente a unidad_medida, convertir
+                  const cantidadFinal =
+                    producto.unidad_venta !== producto.unidad_medida
+                      ? cantidad
+                      : cantidad * producto.factor_conversion;
+
+                  agregarProducto(producto, cantidadFinal);
                 }}
                 className="w-full py-3 bg-primary-100 text-white font-bold rounded-lg hover:bg-primary-200 transition focus:outline-none focus:ring-2 focus:ring-primary-300"
               >

@@ -5,6 +5,9 @@ interface DetalleVentaProps {
     cantidad: number;
     precio_unitario: number;
     subtotal: number;
+    unidad_venta: string;
+    unidad_medida: string;
+    factor_conversion: number;
   }>;
   total: number;
   eliminarProducto: (producto_id: number) => void;
@@ -41,8 +44,16 @@ export default function DetalleVenta({
                 {item.nombre}
               </td>
               <td className="border border-primary-200 px-4 py-3">
-                {item.cantidad}
+                {item.cantidad} {item.unidad_venta}
+                {item.unidad_venta !== item.unidad_medida &&
+                  item.factor_conversion > 1 && (
+                    <div className="text-xs text-text-300 italic">
+                      ≈ {(item.cantidad / item.factor_conversion).toFixed(2)}{" "}
+                      {item.unidad_medida}(s)
+                    </div>
+                  )}
               </td>
+
               <td className="border border-primary-200 px-4 py-3">
                 ${item.precio_unitario}
               </td>

@@ -37,7 +37,8 @@ function ProductosPage() {
       stock_minimo: 0,
       unidad_medida: "",
       fecha_vencimiento: "",
-      conversion: 0,
+      factor_conversion: 0,
+      unidad_venta: "",
       categoria_id: 0,
     },
     onSubmit: async (values) => {
@@ -47,7 +48,8 @@ function ProductosPage() {
         precio_venta: Number(values.precio_venta),
         stock: Number(values.stock),
         stock_minimo: Number(values.stock_minimo),
-        conversion: Number(values.conversion),
+        factor_conversion: Number(values.factor_conversion),
+        unidad_venta: values.unidad_venta,
         categoria_id: Number(values.categoria_id),
       };
 

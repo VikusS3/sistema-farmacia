@@ -32,6 +32,9 @@ export function useVentasForm() {
       cantidad: number;
       precio_unitario: number;
       subtotal: number;
+      unidad_venta: string;
+      unidad_medida: string;
+      factor_conversion: number;
     }[]
   >([]);
   const MySwal = withReactContent(Swal);
@@ -74,6 +77,9 @@ export function useVentasForm() {
             cantidad,
             precio_unitario: producto.precio_venta,
             subtotal: producto.precio_venta * cantidad,
+            unidad_venta: producto.unidad_venta,
+            unidad_medida: producto.unidad_medida,
+            factor_conversion: producto.factor_conversion,
           },
         ];
       }
@@ -97,6 +103,14 @@ export function useVentasForm() {
   };
 
   const registrarVenta = async () => {
+    if (clienteId === 0) {
+      MySwal.fire({
+        title: "Error",
+        text: "Debe seleccionar un cliente.",
+        icon: "error",
+      });
+      return;
+    }
     const venta = {
       cliente_id: clienteId,
       usuario_id: Number(usuarioId),
@@ -110,6 +124,9 @@ export function useVentasForm() {
         cantidad: item.cantidad,
         precio_unitario: Number(item.precio_unitario),
         subtotal: Number(item.subtotal),
+        unidad_venta: item.unidad_venta,
+        unidad_medida: item.unidad_medida,
+        factor_conversion: item.factor_conversion,
       })),
     };
     await addVenta(venta);
@@ -150,6 +167,9 @@ export function useVentasForm() {
         cantidad: item.cantidad,
         precio_unitario: Number(item.precio_unitario) || 0,
         subtotal: Number(item.cantidad) * Number(item.precio_unitario || 0),
+        unidad_venta: item.unidad_venta,
+        unidad_medida: item.unidad_medida,
+        factor_conversion: item.factor_conversion,
       })),
     };
 

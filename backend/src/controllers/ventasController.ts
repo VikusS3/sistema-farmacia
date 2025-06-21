@@ -46,57 +46,68 @@ export class VentaController {
     }
   };
 
-  static create: RequestHandler = async (
-    req: Request,
-    res: Response
-  ): Promise<void> => {
+  static create: RequestHandler = async (req: Request, res: Response) => {
     try {
       const validatedData = createVentaSchema.parse(req.body);
       const detalleVenta = req.body.detalle_venta;
 
-      // Verifica el stock para todos los productos antes de continuar
+      // Validación de stock por cada producto
       for (const detalle of detalleVenta) {
         const producto = await ProductoModel.findById(detalle.producto_id);
         if (!producto) {
           res.status(404).json({
             message: `Producto con ID ${detalle.producto_id} no encontrado`,
           });
-          return; // Asegúrate de que la función termina aquí
+          return;
         }
-        if (producto.stock < detalle.cantidad) {
+
+        const factor = producto.factor_conversion || 1;
+        const cantidadEnUnidadesMinimas = detalle.cantidad;
+        const cantidadEnStock = producto.stock;
+
+        if (cantidadEnStock < cantidadEnUnidadesMinimas / factor) {
           res.status(400).json({
-            message: `Stock insuficiente para el producto ${producto.nombre}. Disponible: ${producto.stock}, solicitado: ${detalle.cantidad}`,
+            message: `Stock insuficiente para el producto ${
+              producto.nombre
+            }. Disponible: ${cantidadEnStock * factor} ${
+              producto.unidad_venta
+            }, solicitado: ${cantidadEnUnidadesMinimas}`,
           });
-          return; // Termina la función si hay un error
+          return;
         }
       }
 
-      // Crear la venta
+      // Crear venta
       const ventaId = await VentasModel.create(validatedData);
 
-      // Crear los detalles de la venta y actualizar el inventario
+      // Insertar detalle y actualizar stock
       for (const detalle of detalleVenta) {
+        const producto = await ProductoModel.findById(detalle.producto_id);
+        const factor = producto?.factor_conversion || 1;
+        const cantidadEnUnidadesMinimas = detalle.cantidad;
+
+        // Insertar detalle
         await DetalleVentaModel.create({
           venta_id: ventaId,
           producto_id: detalle.producto_id,
           cantidad: detalle.cantidad,
           precio_unitario: detalle.precio_unitario,
-          descuento: detalle.descuento,
-          adicional: detalle.adicional,
+          descuento: detalle.descuento || 0,
+          adicional: detalle.adicional || 0,
           subtotal: detalle.subtotal,
         });
 
-        // Actualizar el stock del producto
-        const stockActualizado = await ProductoModel.updateStockVenta(
+        // Actualizar stock (en unidades base: cajas, frascos, etc.)
+        const exito = await ProductoModel.updateStockVenta(
           detalle.producto_id,
-          detalle.cantidad
+          cantidadEnUnidadesMinimas / factor
         );
 
-        if (!stockActualizado) {
+        if (!exito) {
           res.status(400).json({
             message: `Error al actualizar el stock para el producto ID ${detalle.producto_id}`,
           });
-          return; // Termina la función si hay un error
+          return;
         }
       }
 

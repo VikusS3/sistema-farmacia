@@ -26,11 +26,12 @@ export type Producto = {
   stock: number;
   stock_minimo: number;
   unidad_medida: string;
-  conversion: number;
   categoria_id: number;
   fecha_vencimiento?: string;
   creado_en?: Date;
   actualizado_en?: Date;
+  unidad_venta?: string;
+  factor_conversion?: number;
 };
 
 export type Proovedor = {

@@ -43,7 +43,8 @@ export default function ProductosList({
           return date.toLocaleDateString();
         },
       },
-      { accessorKey: "conversion", header: "Conversion de Unidad" },
+      { accessorKey: "factor_conversion", header: "Conversion de Unidad" },
+      { accessorKey: "unidad_venta", header: "Unidad de Venta" },
       {
         id: "acciones",
         header: "Acciones",
