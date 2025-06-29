@@ -72,21 +72,11 @@ export const ProductoModel = {
     productoId: number,
     cantidad: number
   ): Promise<boolean> {
-    const [rows] = await pool.query<RowDataPacket[]>(
-      "SELECT factor_conversion FROM productos WHERE id = ?",
-      [productoId]
-    );
-    if (!rows.length) return false;
-
-    const factorConversion = rows[0].factor_conversion || 1;
-
-    const cantidadActualizada = cantidad * factorConversion;
-
-    const [result] = await pool.query<RowDataPacket[]>(
+    const [result] = await pool.query<any>(
       "UPDATE productos SET stock = stock + ? WHERE id = ?",
-      [cantidadActualizada, productoId]
+      [cantidad, productoId]
     );
-    return result.length > 0; // Verifica si se realizó la actualización
+    return result.affectedRows > 0;
   },
 
   async updateStockAjuste(

@@ -5,6 +5,9 @@ interface DetalleCompraProps {
     cantidad: number;
     precio_unitario: number;
     subtotal: number;
+    unidad_venta: string;
+    unidad_medida: string;
+    factor_conversion: number;
   }>;
   total: number;
   eliminarProducto: (producto_id: number) => void;
@@ -21,7 +24,7 @@ export default function DetalleCompra({
     <div className="bg-background-300 p-5 rounded-lg shadow-md">
       <table className="w-full mb-5 border-collapse text-text-100">
         <thead>
-          <tr className="bg-primary-100">
+          <tr className="bg-primary-100 text-white">
             <th className="border border-primary-200 px-4 py-3">Producto</th>
             <th className="border border-primary-200 px-4 py-3">Cantidad</th>
             <th className="border border-primary-200 px-4 py-3">
@@ -41,13 +44,17 @@ export default function DetalleCompra({
                 {item.nombre}
               </td>
               <td className="border border-primary-200 px-4 py-3">
-                {item.cantidad}
+                {item.cantidad} {item.unidad_medida}
+                <div className="text-xs text-text-300 italic">
+                  ≈ {(item.cantidad * item.factor_conversion).toFixed(2)}{" "}
+                  {item.unidad_venta}(s)
+                </div>
               </td>
               <td className="border border-primary-200 px-4 py-3">
                 ${item.precio_unitario}
               </td>
               <td className="border border-primary-200 px-4 py-3">
-                ${item.subtotal.toFixed(2)}
+                ${item.subtotal}
               </td>
               <td className="border border-primary-200 px-4 py-3 text-center">
                 <button
@@ -62,7 +69,7 @@ export default function DetalleCompra({
         </tbody>
       </table>
       <h3 className="text-xl font-bold text-primary-300 mb-3">
-        Total: ${total.toFixed(2)}
+        Total: ${total}
       </h3>
       <button
         onClick={registrarCompra}

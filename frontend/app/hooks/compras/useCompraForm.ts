@@ -30,6 +30,9 @@ export function useCompraForm() {
       cantidad: number;
       precio_unitario: number;
       subtotal: number;
+      unidad_venta: string;
+      unidad_medida: string;
+      factor_conversion: number;
     }[]
   >([]);
 
@@ -38,6 +41,11 @@ export function useCompraForm() {
   // Evita duplicados al agregar productos
   const agregarProducto = (producto: Productos, cantidad: number) => {
     if (cantidad <= 0) return;
+
+    const cantidadFinal =
+      producto.unidad_venta !== producto.unidad_medida
+        ? cantidad * producto.factor_conversion
+        : cantidad;
 
     setDetalleCompra((prevDetalle) => {
       const existente = prevDetalle.find(
@@ -53,8 +61,9 @@ export function useCompraForm() {
           item.producto_id === producto.id
             ? {
                 ...item,
-                cantidad: item.cantidad + cantidad,
-                subtotal: (item.cantidad + cantidad) * item.precio_unitario,
+                cantidad: item.cantidad + cantidadFinal,
+                subtotal:
+                  (item.cantidad + cantidadFinal) * item.precio_unitario,
               }
             : item
         );
@@ -69,9 +78,12 @@ export function useCompraForm() {
           {
             producto_id: producto.id,
             nombre: producto.nombre,
-            cantidad,
+            cantidad: cantidadFinal,
             precio_unitario: producto.precio_compra,
-            subtotal: producto.precio_compra * cantidad,
+            subtotal: producto.precio_compra * cantidadFinal,
+            unidad_venta: producto.unidad_venta,
+            unidad_medida: producto.unidad_medida,
+            factor_conversion: producto.factor_conversion,
           },
         ];
       }

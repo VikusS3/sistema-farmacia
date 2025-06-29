@@ -107,7 +107,10 @@ export default function ProductosListCompra({
             >
               <div className="space-y-2 mb-4">
                 <h3 className="text-lg font-bold text-text-100 truncate">
-                  {producto.nombre}
+                  {producto.nombre}{" "}
+                  <span className="text-xs text-text-300">
+                    ({producto.unidad_medida})
+                  </span>
                 </h3>
                 <p className="text-sm text-text-300 truncate">
                   {producto.descripcion}
@@ -125,6 +128,10 @@ export default function ProductosListCompra({
                   }`}
                 >
                   Stock: {producto.stock}
+                </p>
+                <p className="text-xs text-text-300 italic">
+                  Equivale a {producto.stock * producto.factor_conversion}{" "}
+                  {producto.unidad_venta}
                 </p>
               </div>
 
@@ -177,7 +184,13 @@ export default function ProductosListCompra({
                   const cantidad = Number(
                     cantidadRefs.current[producto.id]?.value || 1
                   );
-                  agregarProducto(producto, cantidad);
+
+                  const cantidadFinal =
+                    producto.unidad_venta !== producto.unidad_medida
+                      ? cantidad / producto.factor_conversion
+                      : cantidad;
+
+                  agregarProducto(producto, cantidadFinal);
                 }}
                 className="w-full py-3 bg-primary-100 text-white font-bold rounded-lg hover:bg-primary-200 transition focus:outline-none focus:ring-2 focus:ring-primary-300"
               >
