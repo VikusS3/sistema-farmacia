@@ -33,7 +33,7 @@ export const ComprasModel = {
     const compra = compraRows[0] as Compras | null;
 
     const [productosRows] = await pool.query<RowDataPacket[]>(
-      `SELECT detalle_compras.*, productos.nombre AS producto_nombre 
+      `SELECT detalle_compras.*, productos.nombre AS producto_nombre, productos.unidad_medida 
        FROM detalle_compras 
        JOIN productos ON detalle_compras.producto_id = productos.id 
        WHERE detalle_compras.compra_id = ?`,

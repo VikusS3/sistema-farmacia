@@ -34,7 +34,7 @@ export default function VentaSeleccionada({
                 }
               >
                 <td className="p-3 border border-background-300 text-text-100">
-                  {producto.producto_nombre}
+                  {producto.producto_nombre} {producto.unidad_medida}
                 </td>
                 <td className="p-3 text-center border border-background-300 text-text-100">
                   {producto.cantidad}

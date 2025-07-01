@@ -35,7 +35,7 @@ export const VentasModel = {
     }
 
     const [productoRows] = await pool.query<RowDataPacket[]>(
-      `SELECT dv.*, p.nombre AS producto_nombre
+      `SELECT dv.*, p.nombre AS producto_nombre, p.unidad_medida
        FROM detalle_ventas dv
        INNER JOIN productos p ON dv.producto_id = p.id
        WHERE dv.venta_id = ?`,
