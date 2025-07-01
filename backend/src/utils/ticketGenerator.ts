@@ -85,7 +85,10 @@ export const generarTicketPDF = (
   productos.forEach((prod: any) => {
     doc
       .font("Helvetica-Bold")
-      .text(`${prod.producto_nombre} x ${prod.cantidad}`, { continued: true })
+      .text(
+        `${prod.producto_nombre} (${prod.unidad_medida}) x ${prod.cantidad}`,
+        { continued: true }
+      )
       .font("Helvetica")
       .text(`  S/. ${prod.subtotal}`, { align: "right" });
   });
