@@ -130,8 +130,8 @@ export default function ProductosListCompra({
                   Stock: {producto.stock}
                 </p>
                 <p className="text-xs text-text-300 italic">
-                  Equivale a {producto.stock * producto.factor_conversion}{" "}
-                  {producto.unidad_venta}
+                  1 {producto.unidad_medida} equivale a{" "}
+                  {producto.factor_conversion} {producto.unidad_venta}
                 </p>
               </div>
 

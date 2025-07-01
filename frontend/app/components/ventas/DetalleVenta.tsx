@@ -44,14 +44,11 @@ export default function DetalleVenta({
                 {item.nombre}
               </td>
               <td className="border border-primary-200 px-4 py-3">
-                {item.cantidad} {item.unidad_venta}
-                {item.unidad_venta !== item.unidad_medida &&
-                  item.factor_conversion > 1 && (
-                    <div className="text-xs text-text-300 italic">
-                      ≈ {(item.cantidad / item.factor_conversion).toFixed(2)}{" "}
-                      {item.unidad_medida}(s)
-                    </div>
-                  )}
+                {item.cantidad} {item.unidad_medida}
+                <div className="text-xs text-text-300 italic">
+                  ≈ {(item.cantidad * item.factor_conversion).toFixed(2)}{" "}
+                  {item.unidad_venta}(s)
+                </div>
               </td>
 
               <td className="border border-primary-200 px-4 py-3">

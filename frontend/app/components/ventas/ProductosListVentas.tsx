@@ -106,13 +106,15 @@ export default function ProductosListVentas({
               aria-label={`Producto: ${producto.nombre}`}
             >
               <div className="space-y-2 mb-4">
-                <h3 className="text-lg font-bold text-text-100">
-                  {producto.nombre}
+                <h3 className="text-lg font-bold text-text-100 truncate">
+                  {producto.nombre}{" "}
+                  <span className="text-xs text-text-300">
+                    ({producto.unidad_medida})
+                  </span>
                 </h3>
                 <p className="text-sm text-text-300">{producto.descripcion}</p>
-                <p className="text-sm text-text-200">
-                  <strong>Precio por {producto.unidad_venta}:</strong> $
-                  {producto.precio_venta}
+                <p className="text-base text-text-200">
+                  <strong>Precio:</strong> ${producto.precio_venta}
                 </p>
                 <p
                   className={`text-sm font-medium ${
@@ -123,12 +125,11 @@ export default function ProductosListVentas({
                       : "text-green-600"
                   }`}
                 >
-                  Stock: {producto.stock} {producto.unidad_venta}
+                  Stock: {producto.stock}
                 </p>
                 <p className="text-xs text-text-300 italic">
-                  Equivale a{" "}
-                  {Math.floor(producto.stock / producto.factor_conversion)}{" "}
-                  {producto.unidad_medida}(s)
+                  1 {producto.unidad_medida} equivale a{" "}
+                  {producto.factor_conversion} {producto.unidad_venta}
                 </p>
               </div>
 

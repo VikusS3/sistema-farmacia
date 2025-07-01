@@ -176,7 +176,7 @@ export default function ProductosForm({
         {/* Unidad de Venta */}
         <div>
           <label htmlFor="unidad_venta" className="block text-white mb-1">
-            Unidad de Venta:
+            Unidad de Conversión:
           </label>
           <input
             type="text"
@@ -227,6 +227,7 @@ export default function ProductosForm({
           className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Ingresa la descripción"
           required
+          minLength={4}
         />
       </div>
 
