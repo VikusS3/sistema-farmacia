@@ -4,9 +4,9 @@ import { LucideIcon } from "lucide-react";
 
 interface MetricasCardProps {
   title: string;
-  value: string;
+  value: string | undefined;
   change: string;
-  changeType: "positive" | "negative" | "warning";
+  changeType: undefined | "positive" | "negative" | "warning";
   icon: LucideIcon;
 }
 
@@ -21,7 +21,7 @@ export const MetricasCard: React.FC<MetricasCardProps> = ({
     positive: "text-green-600",
     negative: "text-red-600",
     warning: "text-orange-600",
-  }[changeType];
+  }[changeType || "warning"];
 
   return (
     <div className="bg-white rounded-lg shadow-md p-4">

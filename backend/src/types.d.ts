@@ -145,3 +145,61 @@ export type Caja = {
   creado_en?: Date;
   actualizado_en?: Date;
 };
+
+// Interface para las métricas del dashboard
+export type CambioType = "positive" | "negative" | "warning";
+
+export interface MetricasDashboard {
+  ventasTotales: {
+    value: number;
+    change: number;
+    changeType: CambioType;
+  };
+  prescripciones: {
+    value: number;
+    change: number;
+    changeType: CambioType;
+  };
+  inventarioActivo: {
+    value: number;
+    change: number;
+    changeType: CambioType;
+  };
+  pacientes: {
+    value: number;
+    change: number;
+    changeType: CambioType;
+  };
+  margenGanancia: {
+    value: number;
+    change: number;
+    changeType: CambioType;
+  };
+  stockBajo: {
+    value: number;
+    change: number;
+    changeType: CambioType;
+  };
+}
+
+export interface VentasQueryResult {
+  total: number | null;
+  cantidad: number;
+}
+
+export interface ClientesQueryResult {
+  total: number;
+}
+
+export interface InventarioQueryResult {
+  total: number;
+}
+
+export interface GananciaQueryResult {
+  ganancia: number | null;
+  ingreso: number | null;
+}
+
+export interface StockBajoQueryResult {
+  total: number;
+}

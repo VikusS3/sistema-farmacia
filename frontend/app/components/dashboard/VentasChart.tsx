@@ -8,26 +8,22 @@ import {
   CartesianGrid,
   Tooltip,
 } from "recharts";
-
-const data = [
-  { name: "Ene", total: 15000 },
-  { name: "Feb", total: 18000 },
-  { name: "Mar", total: 22000 },
-  { name: "Abr", total: 25000 },
-  { name: "May", total: 28000 },
-  { name: "Jun", total: 32000 },
-  { name: "Jul", total: 35000 },
-  { name: "Ago", total: 38000 },
-  { name: "Sep", total: 42000 },
-  { name: "Oct", total: 45000 },
-  { name: "Nov", total: 41000 },
-  { name: "Dic", total: 48000 },
-];
+import { useVentasMensuales } from "@/app/hooks/dashboard/useEstadisticas";
 
 export const SalesChart = () => {
+  const { data, isLoading, error } = useVentasMensuales();
+
+  if (isLoading) {
+    return <div>Cargando...</div>;
+  }
+
+  if (error) {
+    return <div>Error al cargar las ventas mensuales</div>;
+  }
+
   return (
     <ResponsiveContainer width="100%" height={350}>
-      <AreaChart data={data}>
+      <AreaChart data={data || []}>
         <defs>
           <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
             <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />

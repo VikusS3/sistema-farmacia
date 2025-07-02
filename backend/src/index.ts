@@ -11,6 +11,7 @@ import categoriaRoutes from "./routes/categoriaRoutes";
 import inventarioRoutes from "./routes/inventarioRoutes";
 import backUpRoutes from "./routes/backUpRoutes";
 import cajaRoutes from "./routes/cajaRoutes";
+import reporteRoutes from "./routes/reporteRoutes";
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ app.use("/api/categorias", categoriaRoutes);
 app.use("/api/inventario", inventarioRoutes);
 app.use("/api/", backUpRoutes);
 app.use("/api/cajas", cajaRoutes);
+app.use("/api/reportes", reporteRoutes);
 
 const PORT = process.env.PORT || 5000;
 

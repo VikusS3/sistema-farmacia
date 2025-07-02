@@ -4,6 +4,7 @@ import { MetricasCard } from "../components/dashboard/MetricasCard";
 import { PopularMedications } from "../components/dashboard/PopularMedications";
 import { SalesChart } from "../components/dashboard/VentasChart";
 import ProtectedRoute from "../components/ProtectedRoute";
+import { useMetricasDashboard } from "../hooks/dashboard/useEstadisticas";
 import {
   DollarSign,
   Package,
@@ -13,52 +14,103 @@ import {
   AlertTriangle,
 } from "lucide-react";
 function DashboardContent() {
-  const metrics = [
+  const { data: metrics, isLoading, error } = useMetricasDashboard();
+
+  if (isLoading) {
+    return <div>Cargando...</div>;
+  }
+
+  if (error) {
+    return <div>Error al cargar las métricas</div>;
+  }
+
+  const mappedMetrics = [
     {
       title: "Ventas Totales",
-      value: "$45,231.89",
-      change: "+20.1%",
-      changeType: "positive" as const,
+      value: metrics?.ventasTotales?.value
+        ? `$${parseFloat(metrics?.ventasTotales?.value as string).toFixed(2)}`
+        : "$0.00",
+      change: `${
+        metrics?.ventasTotales?.change === undefined
+          ? ""
+          : metrics?.ventasTotales.change > 0
+          ? "+"
+          : ""
+      }${metrics?.ventasTotales?.change.toFixed(1)}%`,
+      changeType: metrics?.ventasTotales?.changeType,
       icon: DollarSign,
     },
     {
       title: "Prescripciones",
-      value: "2,350",
-      change: "+180",
-      changeType: "positive" as const,
+      value: metrics?.prescripciones?.value
+        ? metrics?.prescripciones?.value.toLocaleString()
+        : "0",
+      change: `${
+        metrics?.prescripciones?.change === undefined
+          ? ""
+          : metrics?.prescripciones.change > 0
+          ? "+"
+          : ""
+      }${metrics?.prescripciones?.change}`,
+      changeType: metrics?.prescripciones?.changeType,
       icon: FileText,
     },
     {
       title: "Inventario Activo",
-      value: "12,234",
-      change: "-19",
-      changeType: "negative" as const,
+      value: metrics?.inventarioActivo?.value.toLocaleString(),
+      change: `${
+        metrics?.inventarioActivo?.change === undefined
+          ? ""
+          : metrics?.inventarioActivo.change > 0
+          ? "+"
+          : ""
+      }${metrics?.inventarioActivo?.change}`,
+      changeType: metrics?.inventarioActivo?.changeType,
       icon: Package,
     },
     {
       title: "Pacientes",
-      value: "3,456",
-      change: "+201",
-      changeType: "positive" as const,
+      value: metrics?.pacientes?.value.toLocaleString(),
+      change: `${
+        metrics?.pacientes?.change === undefined
+          ? ""
+          : metrics?.pacientes.change > 0
+          ? "+"
+          : ""
+      }${metrics?.pacientes?.change}`,
+      changeType: metrics?.pacientes?.changeType,
       icon: Users,
     },
     {
       title: "Margen de Ganancia",
-      value: "24.5%",
-      change: "+2.1%",
-      changeType: "positive" as const,
+      value: `${metrics?.margenGanancia?.value.toFixed(1)}%`,
+      change: `${
+        metrics?.margenGanancia?.change === undefined
+          ? ""
+          : metrics?.margenGanancia.change > 0
+          ? "+"
+          : ""
+      }${metrics?.margenGanancia?.change.toFixed(1)}%`,
+      changeType: metrics?.margenGanancia?.changeType,
       icon: TrendingUp,
     },
     {
       title: "Stock Bajo",
-      value: "23",
-      change: "+5",
-      changeType: "warning" as const,
+      value: metrics?.stockBajo?.value.toString(),
+      change: `${
+        metrics?.stockBajo?.change === undefined
+          ? ""
+          : metrics?.stockBajo.change > 0
+          ? "+"
+          : ""
+      }${metrics?.stockBajo?.change}`,
+      changeType: metrics?.stockBajo?.changeType,
       icon: AlertTriangle,
     },
   ];
+
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6 bg-gray-50 min-h-screen">
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6 bg-gray-50 min-h-screen rounded-lg">
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight text-gray-900">
           Dashboard de Farmacia
@@ -72,7 +124,7 @@ function DashboardContent() {
 
       {/* Metrics Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {metrics.map((metric, index) => (
+        {mappedMetrics?.map((metric, index) => (
           <MetricasCard key={index} {...metric} />
         ))}
       </div>
