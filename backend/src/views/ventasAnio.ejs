@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Reporte de Ventas</title>
+  <style>
+    body { font-family: sans-serif; font-size: 12px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 6px; text-align: left; }
+    th { background-color: #f4f4f4; }
+  </style>
+</head>
+<body>
+  <h1>Reporte de Ventas</h1>
+  <p>Desde: <strong><%= anio %></strong></p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Cliente</th>
+        <th>Usuario</th>
+        <th>Fecha</th>
+        <th>Total</th>
+        <th>Descuento</th>
+        <th>Adicional</th>
+        <th>Método Pago</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% ventas.forEach(venta => { %>
+        <tr>
+          <td><%= venta.id %></td>
+          <td><%= venta.cliente %></td>
+          <td><%= venta.usuario %></td>
+          <td><%= venta.fecha.toLocaleDateString('es-PE', { year: 'numeric', month: 'long', day: 'numeric' }) %></td>
+          <td>S/ <%= parseFloat(venta.total) %></td>
+          <td>S/ <%= parseFloat(venta.descuento) %></td>
+          <td>S/ <%= parseFloat(venta.adicional) %></td>
+          <td><%= venta.metodo_pago %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</body>
+</html>

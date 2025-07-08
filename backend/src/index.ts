@@ -12,7 +12,7 @@ import inventarioRoutes from "./routes/inventarioRoutes";
 import backUpRoutes from "./routes/backUpRoutes";
 import cajaRoutes from "./routes/cajaRoutes";
 import reporteRoutes from "./routes/reporteRoutes";
-
+import reportePdfRoutes from "./routes/reportePdfRoutes";
 dotenv.config();
 
 const app = express();
@@ -32,6 +32,7 @@ app.use("/api/inventario", inventarioRoutes);
 app.use("/api/", backUpRoutes);
 app.use("/api/cajas", cajaRoutes);
 app.use("/api/reportes", reporteRoutes);
+app.use("/api/reportesPdf", reportePdfRoutes);
 
 const PORT = process.env.PORT || 5000;
 
