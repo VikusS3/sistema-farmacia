@@ -4,6 +4,7 @@ import puppeteer from "puppeteer";
 import { ReportePdfModel } from "../models/reportePdf";
 import path from "path";
 import { renderFile } from "ejs";
+import fs from "fs";
 
 export class ReportePdfController {
   static async generarReporteVentas(req: Request, res: Response) {
@@ -21,18 +22,34 @@ export class ReportePdfController {
         hasta.toString()
       );
 
-      // 2. Ruta del archivo .ejs
+      // 2. Logo
+      const logoPath = path.join(__dirname, "../public/logo.png");
+
+      if (!fs.existsSync(logoPath)) {
+        res.status(500).json({ error: "Logo no encontrado" });
+        return;
+      }
+      const logoBufer = fs.readFileSync(logoPath);
+      const logoBase64 = Buffer.from(logoBufer).toString("base64");
+      const logoMimeType = "image/png";
+      const logoUrl: string = `data:${logoMimeType};base64,${logoBase64}`;
+
+      // 3. Ruta del archivo .ejs
       const templatePath = path.join(__dirname, "../views/ventas.ejs");
 
-      // 3. Renderizar HTML con EJS (envuelto en promesa)
+      // 4. Renderizar HTML con EJS (envuelto en promesa)
       const html: string = await new Promise<string>((resolve, reject) => {
-        renderFile(templatePath, { ventas, desde, hasta }, (err, str) => {
-          if (err) reject(err);
-          else resolve(str);
-        });
+        renderFile(
+          templatePath,
+          { ventas, desde, hasta, logoUrl },
+          (err, str) => {
+            if (err) reject(err);
+            else resolve(str);
+          }
+        );
       });
 
-      // 4. Crear PDF con Puppeteer
+      // 5. Crear PDF con Puppeteer
       const browser = await puppeteer.launch({ headless: true });
       const page = await browser.newPage();
       await page.setContent(html, { waitUntil: "networkidle0" });
@@ -44,7 +61,7 @@ export class ReportePdfController {
 
       await browser.close();
 
-      // 5. Enviar respuesta PDF
+      // 6. Enviar respuesta PDF
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
         "Content-Disposition",
@@ -71,10 +88,21 @@ export class ReportePdfController {
         anio.toString()
       );
 
+      const logoPath = path.join(__dirname, "../public/logo.png");
+
+      if (!fs.existsSync(logoPath)) {
+        res.status(500).json({ error: "Logo no encontrado" });
+        return;
+      }
+      const logoBufer = fs.readFileSync(logoPath);
+      const logoBase64 = Buffer.from(logoBufer).toString("base64");
+      const logoMimeType = "image/png";
+      const logoUrl: string = `data:${logoMimeType};base64,${logoBase64}`;
+
       const templatePath = path.join(__dirname, "../views/ventasMes.ejs");
 
       const html: string = await new Promise<string>((resolve, reject) => {
-        renderFile(templatePath, { ventas, mes, anio }, (err, str) => {
+        renderFile(templatePath, { ventas, mes, anio, logoUrl }, (err, str) => {
           if (err) reject(err);
           else resolve(str);
         });
@@ -116,10 +144,21 @@ export class ReportePdfController {
         anio.toString()
       );
 
+      const logoPath = path.join(__dirname, "../public/logo.png");
+
+      if (!fs.existsSync(logoPath)) {
+        res.status(500).json({ error: "Logo no encontrado" });
+        return;
+      }
+      const logoBufer = fs.readFileSync(logoPath);
+      const logoBase64 = Buffer.from(logoBufer).toString("base64");
+      const logoMimeType = "image/png";
+      const logoUrl: string = `data:${logoMimeType};base64,${logoBase64}`;
+
       const templatePath = path.join(__dirname, "../views/ventasAnio.ejs");
 
       const html: string = await new Promise<string>((resolve, reject) => {
-        renderFile(templatePath, { ventas, anio }, (err, str) => {
+        renderFile(templatePath, { ventas, anio, logoUrl }, (err, str) => {
           if (err) reject(err);
           else resolve(str);
         });
@@ -140,6 +179,48 @@ export class ReportePdfController {
       res.setHeader(
         "Content-Disposition",
         `attachment; filename=reporte-ventas-${anio}.pdf`
+      );
+      res.end(pdfBuffer);
+    } catch (error) {
+      console.error("Error generando PDF:", error);
+      res.status(500).json({ error: "Error al generar el reporte" });
+    }
+  }
+
+  static async generarInventarioControl(req: Request, res: Response) {
+    try {
+      const inventario = await ReportePdfModel.controlInventario();
+      const templatePath = path.join(__dirname, "../views/inventario.ejs");
+
+      const logoPath = path.join(__dirname, "../public/logo.png");
+
+      if (!fs.existsSync(logoPath)) {
+        res.status(500).json({ error: "Logo no encontrado" });
+        return;
+      }
+      const logoBufer = fs.readFileSync(logoPath);
+      const logoBase64 = Buffer.from(logoBufer).toString("base64");
+      const logoMimeType = "image/png";
+      const logoUrl: string = `data:${logoMimeType};base64,${logoBase64}`;
+
+      const html: string = await new Promise<string>((resolve, reject) => {
+        renderFile(templatePath, { inventario, logoUrl }, (err, str) => {
+          if (err) reject(err);
+          else resolve(str);
+        });
+      });
+      const browser = await puppeteer.launch({ headless: true });
+      const page = await browser.newPage();
+      await page.setContent(html, { waitUntil: "networkidle0" });
+      const pdfBuffer = await page.pdf({
+        format: "A4",
+        printBackground: true,
+      });
+      await browser.close();
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename=reporte-inventario.pdf`
       );
       res.end(pdfBuffer);
     } catch (error) {

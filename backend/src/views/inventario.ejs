@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Reporte de Ventas</title>
+  <title>Inventario</title>
   <style>
     body {
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -77,9 +77,9 @@
   <div class="header">
     <img src="<%= logoUrl %>" alt="Logo Farmacia" class="logo" />
     <div class="title-group">
-      <p class="title">Reporte de Ventas</p>
+      <p class="title">Inventario</p>
       <p class="subtitle">
-        Desde: <strong><%= desde %></strong> — Hasta: <strong><%= hasta %></strong>
+        Fecha: <strong><%= new Date().toLocaleDateString('es-PE', { year: 'numeric', month: 'long', day: 'numeric' }) %></strong>
       </p>
     </div>
   </div>
@@ -87,27 +87,33 @@
   <table>
     <thead>
       <tr>
-        <th>ID</th>
-        <th>Cliente</th>
-        <th>Usuario</th>
-        <th>Fecha</th>
-        <th>Total</th>
-        <th>Descuento</th>
-        <th>Adicional</th>
-        <th>Método Pago</th>
+        <th>Producto</th>
+        <th>Stock</th>
+        <th>Stock Mínimo</th>
+        <th>Unidad de Medida</th>
+        <th>Precio Compra</th>
+        <th>Precio Venta</th>
+        <th>Fecha de Vencimiento</th>
       </tr>
     </thead>
     <tbody>
-      <% ventas.forEach(venta => { %>
+      <% inventario.forEach(item => { %>
         <tr>
-          <td><%= venta.id %></td>
-          <td><%= venta.cliente_nombre %></td>
-          <td><%= venta.usuario_nombre %></td>
-          <td><%= venta.fecha.toLocaleDateString('es-PE', { year: 'numeric', month: 'long', day: 'numeric' }) %></td>
-          <td>S/ <%= parseFloat(venta.total).toFixed(2) %></td>
-          <td>S/ <%= parseFloat(venta.descuento).toFixed(2) %></td>
-          <td>S/ <%= parseFloat(venta.adicional).toFixed(2) %></td>
-          <td><%= venta.metodo_pago %></td>
+          <td><%= item.nombre %></td>
+          <td><%= item.stock %></td>
+          <td><%= item.stock_minimo %></td>
+          <td><%= item.unidad_medida %></td>
+          <td>S/ <%= parseFloat(item.precio_compra).toFixed(2) %></td>
+          <td>S/ <%= parseFloat(item.precio_venta).toFixed(2) %></td>
+          <td>
+            <%= item.fecha_vencimiento
+              ? new Date(item.fecha_vencimiento).toLocaleDateString('es-PE', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })
+              : 'N/A' %>
+          </td>
         </tr>
       <% }) %>
     </tbody>

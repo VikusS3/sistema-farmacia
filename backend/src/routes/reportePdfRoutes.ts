@@ -19,5 +19,10 @@ router.get(
   authMiddleware,
   ReportePdfController.generarReporteAnio
 );
+router.get(
+  "/reporte-inventario",
+  authMiddleware,
+  ReportePdfController.generarInventarioControl
+);
 
 export default router;
