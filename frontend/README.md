@@ -40,3 +40,7 @@
 [] Ver como arreglar ese mini movimiento de las tablas DISEÑO
 [x] Ver una tabla para los vencimientos de los productos
 []Quitar el precio de compra de la tabla
+
+[] Corregir la logica de la venta en caso de unidades y conversiones para tener en cuenta cuando se vende una pastilla
+[] mostrar estadistica de la venta del dia
+[] Añadir el boton del backup

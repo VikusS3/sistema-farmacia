@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-table";
 import { Categoria } from "@/app/types";
 import { AnimatePresence, motion } from "framer-motion";
+import { Pencil, Trash } from "lucide-react";
 
 interface CategoriaListProps {
   categorias: Categoria[];
@@ -36,17 +37,17 @@ export default function CategoriaList({
           <div className="flex gap-2">
             <button
               onClick={() => handleEdit(row.original.id)}
-              className="bg-primary-200 text-white py-1 px-3 rounded-lg hover:bg-primary-100 transition-all focus:ring-2 focus:ring-primary-300"
+              className="rounded-lg bg-primary-200 px-4 py-2 text-white hover:bg-primary-100 focus:outline-none focus:ring-2 focus:ring-primary-300 transition"
               aria-label="Editar categoría"
             >
-              Editar
+              <Pencil className="w-4 h-4" />
             </button>
             <button
               onClick={() => borrarCategoria(row.original.id)}
-              className="bg-accent-100 text-white py-1 px-3 rounded-lg hover:bg-red-700 transition-all focus:ring-2 focus:ring-red-400"
+              className="rounded-lg bg-accent-100 px-4 py-2 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 transition"
               aria-label="Borrar categoría"
             >
-              Borrar
+              <Trash className="w-4 h-4" />
             </button>
           </div>
         ),

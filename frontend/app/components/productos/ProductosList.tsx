@@ -53,14 +53,14 @@ export default function ProductosList({
             <button
               onClick={() => handleEdit(row.original.id)}
               className="rounded-lg bg-primary-200 px-4 py-2 text-white hover:bg-primary-100 focus:outline-none focus:ring-2 focus:ring-primary-300 transition"
-              aria-label="Editar categoría"
+              aria-label="Editar producto"
             >
               <Pencil className="w-4 h-4" />
             </button>
             <button
               onClick={() => borrarProductos(row.original.id)}
               className="rounded-lg bg-accent-100 px-4 py-2 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 transition"
-              aria-label="Borrar categoría"
+              aria-label="Borrar producto"
             >
               <Trash className="w-4 h-4" />
             </button>
