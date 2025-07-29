@@ -1,26 +1,15 @@
 import { z } from "zod";
 
-export const createComprasSchema = z.object({
-  proveedor_id: z.number(),
-  usuario_id: z.number(),
-  fecha: z.string(),
-  total: z.number(),
+export const detalleCompraSchema = z.object({
+  producto_id: z.number().int().positive(),
+  cantidad: z.number().int().positive(),
+  precio_unitario: z.number().nonnegative(),
+  subtotal: z.number().nonnegative(),
 });
 
-export const updateComprasSchema = z.object({
-  proveedor_id: z.number().optional(),
-  usuario_id: z.number().optional(),
-  fecha: z.string().optional(),
-  total: z.number().optional(),
-
-  detalle_compra: z
-    .array(
-      z.object({
-        producto_id: z.number(),
-        cantidad: z.number(),
-        precio_unitario: z.number(),
-        subtotal: z.number(),
-      })
-    )
-    .optional(),
+export const compraSchema = z.object({
+  proveedor_id: z.number().int().positive(),
+  usuario_id: z.number().int().positive(),
+  total: z.number().nonnegative(),
+  detalles: z.array(detalleCompraSchema).min(1),
 });

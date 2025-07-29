@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const createUsuarioSchema = z.object({
-  nombres: z
+  nombre: z
     .string()
     .min(3, "El nombre debe tener al menos 3 caracteres")
     .max(255, "El nombre debe tener menos de 255 caracteres"),
@@ -11,7 +11,7 @@ export const createUsuarioSchema = z.object({
 });
 
 export const updateUsuarioSchema = z.object({
-  nombres: z
+  nombre: z
     .string()
     .min(3, "El nombre debe tener al menos 3 caracteres")
     .max(255, "El nombre debe tener menos de 255 caracteres")
