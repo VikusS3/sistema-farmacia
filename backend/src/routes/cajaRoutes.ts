@@ -1,17 +1,16 @@
-import express from "express";
+import { Router } from "express";
 import { CajaController } from "../controllers/cajaController";
 import { authMiddleware } from "../middlewares/authMiddleware";
 
-const router = express.Router();
+const router = Router();
 
-router.get("/", authMiddleware, CajaController.getAll);
-router.get("/:id", authMiddleware, CajaController.getById);
-router.post("/abrir", authMiddleware, CajaController.abrirCaja);
-router.put("/cerrar", authMiddleware, CajaController.cerrarCaja);
+router.post("/abrir", authMiddleware, CajaController.abrir);
+router.post("/cerrar", authMiddleware, CajaController.cerrar);
 router.get(
-  "/activa/usuario/:id",
+  "/abierta/:usuario_id",
   authMiddleware,
-  CajaController.getCajaActivaByUser
+  CajaController.getCajaAbierta
 );
+router.get("/", authMiddleware, CajaController.getAll);
 
 export default router;

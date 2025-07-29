@@ -1,18 +1,11 @@
-import express from "express";
-import { ComprasController } from "../controllers/comprasControllers";
+import { Router } from "express";
+import { CompraController } from "../controllers/comprasControllers";
 import { authMiddleware } from "../middlewares/authMiddleware";
 
-const router = express.Router();
+const router = Router();
 
-router.get("/", authMiddleware, ComprasController.getAll);
-router.get("/:id", authMiddleware, ComprasController.getById);
-router.get(
-  "/:id/productos",
-  authMiddleware,
-  ComprasController.findProductosCompra
-);
-router.post("/", authMiddleware, ComprasController.create);
-router.put("/:id", authMiddleware, ComprasController.update);
-router.delete("/:id", authMiddleware, ComprasController.delete);
+router.get("/", authMiddleware, CompraController.getAll);
+router.get("/:id", authMiddleware, CompraController.getById);
+router.post("/", authMiddleware, CompraController.create);
 
 export default router;
