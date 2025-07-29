@@ -1,95 +1,57 @@
-import { Request, Response, RequestHandler } from "express";
+import { Request, Response } from "express";
 import { ProductoModel } from "../models/productos";
-import {
-  createProductoSchema,
-  updateProductoSchema,
-} from "../validators/productosValidators";
+import { productoSchema } from "../validators/productosValidators";
 
-export class ProductoController {
-  static getAll: RequestHandler = async (req: Request, res: Response) => {
-    try {
-      const productos = await ProductoModel.findAll();
-      const productosConPresentacion = productos.map((p) => ({
-        ...p,
-        nombre_completo: `${p.nombre} (${p.factor_conversion} ${p.unidad_venta} por ${p.unidad_medida})`,
-      }));
-      res.json(productosConPresentacion);
-    } catch (error) {
-      res.status(500).json({ error: "Error al obtener los productos" });
-    }
-  };
+export const ProductoController = {
+  async getAll(req: Request, res: Response): Promise<void> {
+    const productos = await ProductoModel.getAll();
+    res.json(productos);
+  },
 
-  static getById: RequestHandler = async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      const producto = await ProductoModel.findById(parseInt(id));
-      if (!producto) {
-        res.status(404).json({ message: "Producto no encontrado" });
-        return;
-      }
-      res.json(producto);
-    } catch (error) {
-      res.status(500).json({ error: "Error al obtener el producto" });
-    }
-  };
+  async getById(req: Request, res: Response): Promise<void> {
+    const producto = await ProductoModel.findById(Number(req.params.id));
+    if (!producto) res.status(404).json({ message: "Producto no encontrado" });
 
-  static create: RequestHandler = async (req: Request, res: Response) => {
-    try {
-      const validatedData = createProductoSchema.parse(req.body);
-      const id = await ProductoModel.create(validatedData);
-      res.status(201).json({ id, message: "Producto creado exitosamente" });
-    } catch (error) {
-      console.log(error);
-      res.status(400).json({
-        error: (error as any).errors || "Error al crear el producto",
-      });
-    }
-  };
+    res.json(producto);
+    return;
+  },
 
-  static update: RequestHandler = async (req: Request, res: Response) => {
-    try {
-      const id = parseInt(req.params.id);
-      const validatedData = updateProductoSchema.parse(req.body);
-      const updated = await ProductoModel.update(id, validatedData);
-      if (!updated) {
-        res.status(404).json({ message: "Producto no encontrado" });
-        return;
-      }
-      res.json({ message: "Producto actualizado exitosamente" });
-    } catch (error) {
-      res.status(400).json({
-        error: (error as any).errors || "Error al actualizar el producto",
-      });
+  async create(req: Request, res: Response): Promise<void> {
+    const parse = productoSchema.safeParse(req.body);
+    if (!parse.success) {
+      res.status(400).json({ errors: parse.error.format() });
+      return;
     }
-  };
 
-  static delete: RequestHandler = async (req: Request, res: Response) => {
-    try {
-      const id = parseInt(req.params.id);
-      const deleted = await ProductoModel.delete(id);
-      if (!deleted) {
-        res.status(404).json({ message: "Producto no encontrado" });
-        return;
-      }
-      res.json({ message: "Producto eliminado exitosamente" });
-    } catch (error) {
-      res.status(500).json({ error: "Error al eliminar el producto" });
-    }
-  };
+    const id = await ProductoModel.create(parse.data);
+    const producto = await ProductoModel.findById(id);
+    res.status(201).json(producto);
+    return;
+  },
 
-  static findAllWithExpired: RequestHandler = async (
-    req: Request,
-    res: Response
-  ) => {
-    try {
-      const productos = await ProductoModel.findAllWithExpiration();
-      if (!productos || productos.length === 0) {
-        res.status(404).json({ message: "No hay productos vencidos" });
-        return;
-      }
-      res.json(productos);
-    } catch (error) {
-      res.status(500).json({ error: "Error al obtener productos vencidos" });
+  async update(req: Request, res: Response): Promise<void> {
+    const id = Number(req.params.id);
+    const parse = productoSchema.partial().safeParse(req.body);
+    if (!parse.success) {
+      res.status(400).json({ errors: parse.error.format() });
+      return;
     }
-  };
-}
+
+    const updated = await ProductoModel.update(id, parse.data);
+    if (!updated) res.status(404).json({ message: "Producto no encontrado" });
+
+    const producto = await ProductoModel.findById(id);
+    res.json(producto);
+    return;
+  },
+
+  async delete(req: Request, res: Response): Promise<void> {
+    const id = Number(req.params.id);
+    const deleted = await ProductoModel.delete(id);
+    if (!deleted) res.status(404).json({ message: "Producto no encontrado" });
+
+    const producto = await ProductoModel.findById(id);
+    res.json(producto);
+    return;
+  },
+};
