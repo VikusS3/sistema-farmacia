@@ -3,6 +3,7 @@ import { z } from "zod";
 export const detalleCompraSchema = z.object({
   producto_id: z.number().int().positive(),
   cantidad: z.number().int().positive(),
+  unidad_compra: z.enum(["caja", "blister", "unidad"]),
   precio_unitario: z.number().nonnegative(),
   subtotal: z.number().nonnegative(),
 });

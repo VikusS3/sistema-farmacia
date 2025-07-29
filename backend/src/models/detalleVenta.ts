@@ -7,21 +7,21 @@ export const DetalleVentaModel = {
       venta_id,
       producto_id,
       cantidad,
+      unidad_venta,
       precio_unitario,
-      descuento,
-      adicional,
       subtotal,
+      ganancia,
     } = detalleVenta;
     const [result] = await pool.query<any>(
-      "INSERT INTO detalle_ventas (venta_id, producto_id, cantidad, precio_unitario, descuento, adicional, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      "INSERT INTO detalle_ventas (venta_id, producto_id, cantidad, unidad_venta, precio_unitario, subtotal, ganancia) VALUES (?, ?, ?, ?, ?, ?, ?)",
       [
         venta_id,
         producto_id,
         cantidad,
+        unidad_venta,
         precio_unitario,
-        descuento,
-        adicional,
         subtotal,
+        ganancia,
       ]
     );
     return result.insertId;

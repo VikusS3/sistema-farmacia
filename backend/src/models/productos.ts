@@ -19,14 +19,15 @@ export const ProductoModel = {
   async create(producto: Omit<Producto, "id">): Promise<number> {
     const [result] = await pool.query(
       `INSERT INTO productos 
-        (nombre, descripcion, unidad_venta, unidad_medida, factor_conversion, stock, precio_compra, precio_venta)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        (nombre, descripcion, unidad_venta, unidad_medida, factor_conversion, factor_caja, stock, precio_compra, precio_venta)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         producto.nombre,
         producto.descripcion,
         producto.unidad_venta,
         producto.unidad_medida,
         producto.factor_conversion,
+        producto.factor_caja,
         producto.stock,
         producto.precio_compra,
         producto.precio_venta,
@@ -53,16 +54,20 @@ export const ProductoModel = {
   // Método auxiliar para actualizar stock tras compra o venta
   async updateStockCompra(
     id: number,
-    cantidadEnUnidadVenta: number
+    cantidadEnUnidadVenta: number,
+    conn?: any
   ): Promise<void> {
+    const connection = conn || (await pool.getConnection());
     const producto = await this.findById(id);
     if (!producto) throw new Error("Producto no encontrado");
 
     const cantidadMinima = cantidadEnUnidadVenta * producto.factor_conversion;
-    await pool.query(`UPDATE productos SET stock = stock + ? WHERE id = ?`, [
-      cantidadMinima,
-      id,
-    ]);
+    await connection.query(
+      `UPDATE productos SET stock = stock + ? WHERE id = ?`,
+      [cantidadMinima, id]
+    );
+
+    if (!conn) connection.release();
   },
 
   async updateStockVenta(producto_id: number, cantidad: number, conn?: any) {

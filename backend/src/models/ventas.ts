@@ -1,16 +1,16 @@
 import pool from "../config/db";
 import { Venta, DetalleVenta } from "../types";
-import { ProductoModel } from "./productos";
 
 export const VentaModel = {
   async create(
     venta: Omit<Venta, "id">,
-    detalles: Omit<DetalleVenta, "id" | "venta_id">[]
+    detalles: Omit<DetalleVenta, "id" | "venta_id" | "ganancia">[]
   ) {
     const connection = await pool.getConnection();
     try {
       await connection.beginTransaction();
 
+      // Insertar venta
       const [ventaResult] = await connection.query(
         `INSERT INTO ventas (cliente_id, usuario_id, caja_id, fecha, total)
          VALUES (?, ?, ?, NOW(), ?)`,
@@ -18,24 +18,57 @@ export const VentaModel = {
       );
       const ventaId = (ventaResult as any).insertId;
 
+      // Procesar cada detalle
       for (const detalle of detalles) {
+        // Leer producto y bloquear la fila
+        const [rows] = await connection.query(
+          `SELECT * FROM productos WHERE id = ? FOR UPDATE`,
+          [detalle.producto_id]
+        );
+        const producto: any = (rows as any)[0];
+
+        if (!producto) {
+          throw new Error(`Producto ID ${detalle.producto_id} no encontrado`);
+        }
+
+        // Calcular cantidad en unidades mínimas
+        let cantidadEnMinima = detalle.cantidad;
+        if (detalle.unidad_venta === "blister") {
+          cantidadEnMinima *= producto.factor_conversion;
+        } else if (detalle.unidad_venta === "caja") {
+          cantidadEnMinima *= producto.factor_caja;
+        }
+
+        if (cantidadEnMinima <= 0) {
+          throw new Error("Cantidad mínima calculada inválida");
+        }
+
+        // Calcular ganancia real
+        const ganancia =
+          (producto.precio_venta - producto.precio_compra) * cantidadEnMinima;
+
+        // Insertar detalle de venta
         await connection.query(
-          `INSERT INTO detalle_ventas (venta_id, producto_id, cantidad, precio_unitario, subtotal)
-           VALUES (?, ?, ?, ?, ?)`,
+          `INSERT INTO detalle_ventas
+           (venta_id, producto_id, cantidad, unidad_venta, precio_unitario, subtotal, ganancia)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`,
           [
             ventaId,
             detalle.producto_id,
             detalle.cantidad,
+            detalle.unidad_venta,
             detalle.precio_unitario,
             detalle.subtotal,
+            ganancia,
           ]
         );
 
-        // Descontar del stock (en unidad mínima)
-        await ProductoModel.updateStockVenta(
-          detalle.producto_id,
-          detalle.cantidad,
-          connection
+        // Actualizar stock
+        await connection.query(
+          `UPDATE productos
+           SET stock = stock - ?
+           WHERE id = ?`,
+          [cantidadEnMinima, detalle.producto_id]
         );
       }
 

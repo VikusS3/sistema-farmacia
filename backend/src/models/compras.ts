@@ -1,6 +1,5 @@
 import pool from "../config/db";
 import { Compra, DetalleCompra } from "../types";
-import { ProductoModel } from "./productos";
 
 export const CompraModel = {
   async create(
@@ -13,33 +12,69 @@ export const CompraModel = {
 
       // Insertar compra
       const [compraResult] = await connection.query(
-        `INSERT INTO compras (proveedor_id, usuario_id, fecha, total) VALUES (?, ?, NOW(), ?)`,
+        `INSERT INTO compras (proveedor_id, usuario_id, fecha, total)
+         VALUES (?, ?, NOW(), ?)`,
         [compra.proveedor_id, compra.usuario_id, compra.total]
       );
       const compraId = (compraResult as any).insertId;
 
-      // Insertar detalles y actualizar stock
+      // Procesar cada detalle
       for (const detalle of detalles) {
+        // Obtener producto usando la misma conexión
+        const [rows] = await connection.query(
+          `SELECT * FROM productos WHERE id = ? FOR UPDATE`,
+          [detalle.producto_id]
+        );
+        const producto: any = (rows as any)[0];
+
+        if (!producto) {
+          throw new Error(`Producto ID ${detalle.producto_id} no encontrado`);
+        }
+
+        // Calcular cantidad en unidades mínimas
+        let cantidadEnMinima = detalle.cantidad;
+        if (detalle.unidad_compra === "blister") {
+          cantidadEnMinima *= producto.factor_conversion;
+        } else if (detalle.unidad_compra === "caja" && producto.factor_caja) {
+          cantidadEnMinima *= producto.factor_caja;
+        }
+
+        if (cantidadEnMinima <= 0) {
+          throw new Error("Cantidad mínima calculada inválida");
+        }
+
+        // Calcular nuevo precio_compra y ganancia
+        const nuevoPrecioCompra = detalle.precio_unitario / cantidadEnMinima;
+        const nuevaGanancia = producto.precio_venta - nuevoPrecioCompra;
+
+        // Insertar detalle de compra usando la misma conexión
         await connection.query(
-          `INSERT INTO detalle_compras (compra_id, producto_id, cantidad, precio_unitario, subtotal)
-           VALUES (?, ?, ?, ?, ?)`,
+          `INSERT INTO detalle_compras
+           (compra_id, producto_id, cantidad, unidad_compra, precio_unitario, subtotal)
+           VALUES (?, ?, ?, ?, ?, ?)`,
           [
             compraId,
             detalle.producto_id,
             detalle.cantidad,
+            detalle.unidad_compra,
             detalle.precio_unitario,
             detalle.subtotal,
           ]
         );
 
-        // Actualizar stock usando la lógica de factor de conversión
-        const producto = await ProductoModel.findById(detalle.producto_id);
-        const cantidadEnUnidadMinima =
-          detalle.cantidad * producto!.factor_conversion;
-
+        // Actualizar stock y precios del producto
         await connection.query(
-          `UPDATE productos SET stock = stock + ? WHERE id = ?`,
-          [cantidadEnUnidadMinima, detalle.producto_id]
+          `UPDATE productos
+           SET stock = stock + ?,
+               precio_compra = ?,
+               ganancia = ?
+           WHERE id = ?`,
+          [
+            cantidadEnMinima,
+            nuevoPrecioCompra,
+            nuevaGanancia,
+            detalle.producto_id,
+          ]
         );
       }
 

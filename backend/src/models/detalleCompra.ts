@@ -3,11 +3,24 @@ import { DetalleCompra } from "../types";
 
 export const DetalleCompraModel = {
   async create(detalleCompra: Omit<DetalleCompra, "id">): Promise<number> {
-    const { compra_id, producto_id, cantidad, precio_unitario, subtotal } =
-      detalleCompra;
+    const {
+      compra_id,
+      producto_id,
+      cantidad,
+      unidad_compra,
+      precio_unitario,
+      subtotal,
+    } = detalleCompra;
     const [result] = await pool.query<any>(
-      "INSERT INTO detalle_compras (compra_id, producto_id, cantidad, precio_unitario, subtotal) VALUES (?, ?, ?, ?, ?)",
-      [compra_id, producto_id, cantidad, precio_unitario, subtotal]
+      "INSERT INTO detalle_compras (compra_id, producto_id, cantidad, unidad_compra, precio_unitario, subtotal) VALUES (?, ?, ?, ?, ?, ?)",
+      [
+        compra_id,
+        producto_id,
+        cantidad,
+        unidad_compra,
+        precio_unitario,
+        subtotal,
+      ]
     );
     return result.insertId;
   },

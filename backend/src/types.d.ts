@@ -1,6 +1,6 @@
 export type Usuario = {
   id?: number;
-  nombres: string;
+  nombre: string;
   email: string;
   password: string;
   rol?: "admin" | "empleado";
@@ -17,31 +17,25 @@ export type Categoria = {
   actualizado_en?: Date;
 };
 
-export type Producto = {
+export interface Producto {
   id?: number;
   nombre: string;
-  descripcion: string;
+  descripcion?: string;
+  unidad_venta: string;
+  unidad_medida: string;
+  factor_conversion: number;
+  factor_caja?: number | null;
+  stock: number;
   precio_compra: number;
   precio_venta: number;
-  stock: number;
-  stock_minimo: number;
-  unidad_medida: string;
-  categoria_id: number;
-  fecha_vencimiento?: string;
-  creado_en?: Date;
-  actualizado_en?: Date;
-  unidad_venta?: string;
-  factor_conversion?: number;
-};
+}
 
 export type Proovedor = {
   id?: number;
   nombre: string;
-  email?: string;
-  telefono?: string;
-  direccion?: string;
-  creado_en?: Date;
-  actualizado_en?: Date;
+  ruc: string;
+  telefono: string;
+  direccion: string;
 };
 
 export type Clientes = {
@@ -54,39 +48,22 @@ export type Clientes = {
   actualizado_en?: Date;
 };
 
-export type Compras = {
+export interface Compra {
   id?: number;
   proveedor_id: number;
   usuario_id: number;
-  fecha: string;
+  fecha?: string;
   total: number;
-  creado_en?: Date;
-  actualizado_en?: Date;
-
-  detalle_compra?: DetalleCompra[];
-};
-
-export type DetalleCompra = {
-  id: number;
-  compra_id?: number;
-  producto_id: number;
-  cantidad: number;
-  precio_unitario: number;
-  subtotal: number;
-};
-
-export type DetalleVenta = {
+}
+export interface DetalleCompra {
   id?: number;
-  venta_id: number;
+  compra_id: number;
   producto_id: number;
-  cantidad: number;
+  cantidad: number; // cantidad en la unidad seleccionada
+  unidad_compra: "caja" | "blister" | "unidad"; // NUEVO
   precio_unitario: number;
-  descuento?: number;
-  adicional?: number;
   subtotal: number;
-  creado_en?: Date;
-  actualizado_en?: Date;
-};
+}
 
 export type Inventario = {
   id?: number;
@@ -121,18 +98,25 @@ export interface VentaTicket {
   usuario_id: number;
 }
 
-export type Ventas = {
+export interface Venta {
   id?: number;
   cliente_id: number;
   usuario_id: number;
-  fecha: string;
+  caja_id: number | null;
+  fecha?: string;
   total: number;
-  descuento?: number;
-  adicional?: number;
-  metodo_pago?: string;
-  creado_en?: Date;
-  actualizado_en?: Date;
-};
+}
+
+export interface DetalleVenta {
+  id?: number;
+  venta_id: number;
+  producto_id: number;
+  cantidad: number; // cantidad en la unidad seleccionada
+  unidad_venta: "caja" | "blister" | "unidad"; // NUEVO
+  precio_unitario: number;
+  subtotal: number;
+  ganancia: number;
+}
 
 export type Caja = {
   id?: number;

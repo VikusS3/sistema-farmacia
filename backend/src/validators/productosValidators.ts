@@ -6,6 +6,7 @@ export const productoSchema = z.object({
   unidad_venta: z.string().min(1),
   unidad_medida: z.string().min(1),
   factor_conversion: z.number().int().positive(),
+  factor_caja: z.number().positive().nullable().optional(),
   stock: z.number().int().nonnegative(),
   precio_compra: z.number().nonnegative(),
   precio_venta: z.number().nonnegative(),
