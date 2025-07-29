@@ -19,10 +19,10 @@ export const ProovedoresModel = {
   },
 
   async create(proovedor: Proovedor): Promise<number> {
-    const { nombre, email, telefono, direccion } = proovedor;
+    const { nombre, ruc, telefono, direccion } = proovedor;
     const [result] = await pool.query<any>(
-      "INSERT INTO proveedores (nombre, email, telefono, direccion) VALUES (?, ?, ?, ?)",
-      [nombre, email, telefono, direccion]
+      "INSERT INTO proveedores (nombre, ruc, telefono, direccion) VALUES (?, ?, ?, ?)",
+      [nombre, ruc, telefono, direccion]
     );
     return result.insertId;
   },

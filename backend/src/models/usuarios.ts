@@ -1,7 +1,6 @@
 import pool from "../config/db";
 import { RowDataPacket } from "mysql2";
 import { Usuario } from "../types";
-import crypto from "crypto";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -47,13 +46,13 @@ export const UsuarioModel = {
   },
 
   async create(usuario: Usuario): Promise<number> {
-    const { nombres, email, password, rol } = usuario;
+    const { nombre, email, password, rol } = usuario;
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     const [result] = await pool.query<any>(
-      "INSERT INTO usuarios (nombres, email, password, rol) VALUES (?, ?, ?, ?)",
-      [nombres, email, hashedPassword, rol || "empleado"]
+      "INSERT INTO usuarios (nombre, email, password, rol) VALUES (?, ?, ?, ?)",
+      [nombre, email, hashedPassword, rol || "empleado"]
     );
 
     return result.insertId;

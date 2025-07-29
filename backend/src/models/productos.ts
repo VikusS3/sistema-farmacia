@@ -3,7 +3,7 @@ import { RowDataPacket } from "mysql2";
 import { Producto } from "../types";
 
 export const ProductoModel = {
-  async findAll(): Promise<Producto[]> {
+  async getAll(): Promise<Producto[]> {
     const [rows] = await pool.query<RowDataPacket[]>("SELECT * FROM productos");
     return rows as Producto[];
   },
@@ -13,106 +13,65 @@ export const ProductoModel = {
       "SELECT * FROM productos WHERE id = ?",
       [id]
     );
-    return rows[0] as Producto | null;
+    return rows.length ? (rows[0] as Producto) : null;
   },
 
-  async create(producto: Producto): Promise<number> {
-    const {
-      nombre,
-      descripcion,
-      precio_compra,
-      precio_venta,
-      stock,
-      stock_minimo,
-      unidad_medida,
-      categoria_id,
-      fecha_vencimiento,
-      unidad_venta,
-      factor_conversion,
-    } = producto;
-    const [result] = await pool.query<any>(
-      "INSERT INTO productos (nombre, descripcion, precio_compra, precio_venta, stock, stock_minimo, unidad_medida, categoria_id, fecha_vencimiento, unidad_venta, factor_conversion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+  async create(producto: Omit<Producto, "id">): Promise<number> {
+    const [result] = await pool.query(
+      `INSERT INTO productos 
+        (nombre, descripcion, unidad_venta, unidad_medida, factor_conversion, stock, precio_compra, precio_venta)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        nombre,
-        descripcion,
-        precio_compra,
-        precio_venta,
-        stock,
-        stock_minimo,
-        unidad_medida,
-        categoria_id,
-        fecha_vencimiento,
-        unidad_venta,
-        factor_conversion,
+        producto.nombre,
+        producto.descripcion,
+        producto.unidad_venta,
+        producto.unidad_medida,
+        producto.factor_conversion,
+        producto.stock,
+        producto.precio_compra,
+        producto.precio_venta,
       ]
     );
-    return result.insertId;
+    return (result as any).insertId;
   },
 
   async update(id: number, producto: Partial<Producto>): Promise<boolean> {
-    const [result] = await pool.query<any>(
-      "UPDATE productos SET ? WHERE id = ?",
-      [producto, id]
-    );
-    return result.affectedRows > 0;
-  },
-
-  async updateStockVenta(
-    productoId: number,
-    cantidad: number
-  ): Promise<boolean> {
-    const [result] = await pool.query<any>(
-      "UPDATE productos SET stock = stock - ? WHERE id = ? AND stock >= ?",
-      [cantidad, productoId, cantidad]
-    );
-    return result.affectedRows > 0;
-  },
-
-  async updateStockCompra(
-    productoId: number,
-    cantidad: number
-  ): Promise<boolean> {
-    const [result] = await pool.query<any>(
-      "UPDATE productos SET stock = stock + ? WHERE id = ?",
-      [cantidad, productoId]
-    );
-    return result.affectedRows > 0;
-  },
-
-  async updateStockAjuste(
-    productoId: number,
-    diferencia: number
-  ): Promise<boolean> {
-    const [rows] = await pool.query<RowDataPacket[]>(
-      "SELECT factor_conversion FROM productos WHERE id = ?",
-      [productoId]
-    );
-    if (!rows.length) return false;
-
-    const factorConversion = rows[0].factor_conversion || 1;
-
-    const cantidadActualizada = diferencia * factorConversion;
-
-    const [result] = await pool.query<RowDataPacket[]>(
-      "UPDATE productos SET stock = stock + ? WHERE id = ?",
-      [cantidadActualizada, productoId]
-    );
-    return result.length > 0;
+    const [result] = await pool.query(`UPDATE productos SET ? WHERE id = ?`, [
+      producto,
+      id,
+    ]);
+    return (result as any).affectedRows > 0;
   },
 
   async delete(id: number): Promise<boolean> {
-    const [result] = await pool.query<RowDataPacket[]>(
-      "DELETE FROM productos WHERE id = ?",
-      [id]
-    );
-    return result.length > 0;
+    const [result] = await pool.query(`DELETE FROM productos WHERE id = ?`, [
+      id,
+    ]);
+    return (result as any).affectedRows > 0;
   },
 
-  //consulata para traer los productos con su fecha de vencimiento
-  async findAllWithExpiration(): Promise<Producto[]> {
-    const [rows] = await pool.query<RowDataPacket[]>(
-      "SELECT p.nombre,p.fecha_vencimiento FROM productos as p WHERE fecha_vencimiento IS NOT NULL"
-    );
-    return rows as Producto[];
+  // Método auxiliar para actualizar stock tras compra o venta
+  async updateStockCompra(
+    id: number,
+    cantidadEnUnidadVenta: number
+  ): Promise<void> {
+    const producto = await this.findById(id);
+    if (!producto) throw new Error("Producto no encontrado");
+
+    const cantidadMinima = cantidadEnUnidadVenta * producto.factor_conversion;
+    await pool.query(`UPDATE productos SET stock = stock + ? WHERE id = ?`, [
+      cantidadMinima,
+      id,
+    ]);
+  },
+
+  async updateStockVenta(producto_id: number, cantidad: number, conn?: any) {
+    const connection = conn || (await pool.getConnection());
+    try {
+      const query = `UPDATE productos SET stock = stock - ? WHERE id = ?`;
+      await connection.query(query, [cantidad, producto_id]);
+    } finally {
+      if (!conn) connection.release();
+    }
   },
 };
