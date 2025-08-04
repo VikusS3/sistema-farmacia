@@ -6,9 +6,7 @@ import jwt from "jsonwebtoken";
 
 export const UsuarioModel = {
   async findAll(): Promise<Usuario[]> {
-    const [rows] = await pool.query<RowDataPacket[]>(
-      "SELECT * FROM usuarios WHERE estado = 1"
-    );
+    const [rows] = await pool.query<RowDataPacket[]>("SELECT * FROM usuarios");
     return rows as Usuario[];
   },
 
@@ -68,7 +66,7 @@ export const UsuarioModel = {
 
   async delete(id: number): Promise<boolean> {
     const [result] = await pool.query<any>(
-      "UPDATE usuarios SET estado = 0 WHERE id = ?",
+      "DELETE FROM usuarios WHERE id = ?",
       [id]
     );
     return result.affectedRows > 0;

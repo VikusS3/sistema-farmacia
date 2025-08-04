@@ -2,7 +2,7 @@ import { ROLES } from "@/app/constants/roles";
 
 interface UsuarioFormProps {
   values: {
-    nombres: string;
+    nombre: string;
     email: string;
     password: string;
     rol: string;
@@ -28,14 +28,14 @@ export default function UsuarioForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Nombre */}
       <div className="flex flex-col">
-        <label htmlFor="nombres" className="text-text-100 font-medium">
+        <label htmlFor="nombre" className="text-text-100 font-medium">
           Nombre:
         </label>
         <input
           type="text"
-          id="nombres"
-          name="nombres"
-          value={values.nombres}
+          id="nombre"
+          name="nombre"
+          value={values.nombre}
           onChange={handleChange}
           className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Ingresa el nombre"

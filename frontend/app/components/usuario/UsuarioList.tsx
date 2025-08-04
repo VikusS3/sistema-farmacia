@@ -27,7 +27,7 @@ export default function UsuarioList({
   // Definir columnas
   const columns = useMemo(
     () => [
-      { accessorKey: "nombres", header: "Nombres" },
+      { accessorKey: "nombre", header: "Nombre" },
       { accessorKey: "email", header: "Email" },
       { accessorKey: "rol", header: "Rol" },
       {

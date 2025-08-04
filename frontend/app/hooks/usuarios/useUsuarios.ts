@@ -24,6 +24,7 @@ export const useUsuarios = () => {
     queryKey: ["usuarios"],
     queryFn: fetchUsuarios,
     staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
   });
 
   const addUsuario = async (usuario: Partial<Usuario>) => {

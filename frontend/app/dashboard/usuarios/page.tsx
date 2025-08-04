@@ -20,7 +20,7 @@ function UsuariosPage() {
 
   const form = useCrudForm({
     initialValues: {
-      nombres: "",
+      nombre: "",
       email: "",
       password: "",
       rol: "",
