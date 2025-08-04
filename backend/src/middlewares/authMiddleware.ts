@@ -7,7 +7,6 @@ interface JwtPayload {
   email: string;
   password: string;
   rol?: "admin" | "empleado";
-  estado?: 1 | 0;
   creado_en?: Date;
   actualizado_en?: Date;
 }
