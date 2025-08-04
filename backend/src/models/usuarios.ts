@@ -37,7 +37,7 @@ export const UsuarioModel = {
     const token = jwt.sign(
       { id: usuario.id, email: usuario.email },
       process.env.JWT_SECRET!,
-      { expiresIn: "2h" }
+      { expiresIn: "1d" }
     );
 
     return { usuario, token };
