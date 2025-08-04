@@ -28,6 +28,7 @@ export interface Producto {
   stock: number;
   precio_compra: number;
   precio_venta: number;
+  fecha_vencimiento?: string;
 }
 
 export type Proovedor = {

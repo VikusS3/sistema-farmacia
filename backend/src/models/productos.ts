@@ -19,8 +19,8 @@ export const ProductoModel = {
   async create(producto: Omit<Producto, "id">): Promise<number> {
     const [result] = await pool.query(
       `INSERT INTO productos 
-        (nombre, descripcion, unidad_venta, unidad_medida, factor_conversion, factor_caja, stock, precio_compra, precio_venta)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        (nombre, descripcion, unidad_venta, unidad_medida, factor_conversion, factor_caja, stock, precio_compra, precio_venta, fecha_vencimiento)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         producto.nombre,
         producto.descripcion,
@@ -31,6 +31,7 @@ export const ProductoModel = {
         producto.stock,
         producto.precio_compra,
         producto.precio_venta,
+        producto.fecha_vencimiento,
       ]
     );
     return (result as any).insertId;

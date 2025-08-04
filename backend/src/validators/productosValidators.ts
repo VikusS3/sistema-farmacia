@@ -10,4 +10,5 @@ export const productoSchema = z.object({
   stock: z.number().int().nonnegative(),
   precio_compra: z.number().nonnegative(),
   precio_venta: z.number().nonnegative(),
+  fecha_vencimiento: z.string().optional(),
 });
