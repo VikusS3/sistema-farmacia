@@ -25,12 +25,12 @@ export const useAuth = () => {
 
       localStorage.setItem("token", token);
       localStorage.setItem("usuario_id", response.data.usuario.id);
-      localStorage.setItem("usuario", response.data.usuario.nombres);
+      localStorage.setItem("usuario", response.data.usuario.nombre);
 
       MySwal.fire({
         icon: "success",
         title: "¡Bienvenido!",
-        text: `Hola ${response.data.usuario.nombres}`,
+        text: `Hola ${response.data.usuario.nombre}`,
         confirmButtonText: "Aceptar",
       });
 
