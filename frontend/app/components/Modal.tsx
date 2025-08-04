@@ -41,16 +41,16 @@ const Modal: React.FC<ModalProps> = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm overflow-y-auto"
+        className="fixed inset-0 z-50 flex items-start justify-center bg-black bg-opacity-50 backdrop-blur-sm overflow-y-auto"
       >
         <motion.div
-          initial={{ y: -50, opacity: 0 }}
+          initial={{ y: -30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -50, opacity: 0 }}
+          exit={{ y: -30, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
-          className={`bg-background-200 text-text-100 p-6 rounded-md shadow-lg ${
+          className={`bg-background-200 text-text-100 p-6 rounded-md shadow-lg max-h-screen overflow-y-auto ${
             className || "w-96"
-          } relative`}
+          } relative mt-10 mb-10`} // margen arriba y abajo
         >
           {/* Botón de cierre */}
           <button
