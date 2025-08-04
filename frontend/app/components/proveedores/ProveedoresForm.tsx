@@ -1,7 +1,7 @@
 interface ProveedoresFormProps {
   values: {
     nombre: string;
-    email: string;
+    ruc: string;
     direccion: string;
     telefono: string;
   };
@@ -41,17 +41,17 @@ export default function ProveedoresForm({
 
       {/* Correo Electrónico */}
       <div className="flex flex-col">
-        <label htmlFor="email" className="text-white font-medium">
-          Correo Electrónico:
+        <label htmlFor="ruc" className="text-white font-medium">
+          RUC:
         </label>
         <input
-          type="email"
-          id="email"
-          name="email"
-          value={values.email}
+          type="text"
+          id="ruc"
+          name="ruc"
+          value={values.ruc}
           onChange={handleChange}
           className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Ingresa el correo electrónico"
+          placeholder="Ingresa el RUC"
           required
         />
       </div>

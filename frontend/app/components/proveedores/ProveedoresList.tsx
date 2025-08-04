@@ -29,7 +29,7 @@ export default function ProovedoresList({
   const columns = useMemo(
     () => [
       { accessorKey: "nombre", header: "Nombre" },
-      { accessorKey: "email", header: "Email" },
+      { accessorKey: "ruc", header: "RUC" },
       { accessorKey: "telefono", header: "Telefono" },
       { accessorKey: "direccion", header: "Direccion" },
       {
