@@ -1,6 +1,7 @@
 "use client";
 
-import { Categoria } from "@/app/types";
+import { useEffect, useState } from "react";
+
 interface ProductosFormProps {
   values: {
     nombre: string;
@@ -8,21 +9,22 @@ interface ProductosFormProps {
     precio_compra: number;
     precio_venta: number;
     stock: number;
-    stock_minimo: number;
-    unidad_medida: string;
-    fecha_vencimiento: string;
     unidad_venta: string;
+    unidad_medida: string;
     factor_conversion: number;
-    categoria_id: number;
+    factor_caja: number;
+    fecha_vencimiento: string;
+    ganancia: number;
   };
   handleChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => void;
   handleSubmit: (e: React.FormEvent) => void;
   loading?: boolean;
   editingProductoId?: number | null;
   closeModal?: () => void;
-  categorias: Categoria[];
 }
 
 export default function ProductosForm({
@@ -32,202 +34,199 @@ export default function ProductosForm({
   loading,
   editingProductoId,
   closeModal,
-  categorias,
 }: ProductosFormProps) {
+  const [disabledStock, setDisabledStock] = useState(false);
+
+  useEffect(() => {
+    if (editingProductoId) {
+      setDisabledStock(true);
+    } else {
+      setDisabledStock(false);
+    }
+  }, [editingProductoId]);
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Campos del formulario en grid responsivo */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Nombre */}
-        <div>
-          <label htmlFor="nombre" className="block text-white mb-1">
-            Nombre:
-          </label>
-          <input
-            type="text"
-            id="nombre"
-            name="nombre"
-            value={values.nombre}
-            onChange={handleChange}
-            className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Ingresa el nombre"
-            required
-          />
-        </div>
+      {/* Sección: Datos Generales */}
+      <div className="bg-gray-800 p-4 rounded-lg space-y-4">
+        <h2 className="text-lg font-semibold text-white">Datos Generales</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Nombre */}
+          <div>
+            <label className="block text-white mb-1">Nombre:</label>
+            <input
+              type="text"
+              name="nombre"
+              value={values.nombre}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-md bg-gray-900 text-white border border-gray-600"
+              placeholder="Ej: Amoxicilina 500mg"
+              required
+            />
+          </div>
 
-        {/* Precio de Compra */}
-        <div>
-          <label htmlFor="precio_compra" className="block text-white mb-1">
-            Precio de Compra:
-          </label>
-          <input
-            type="number"
-            id="precio_compra"
-            name="precio_compra"
-            value={values.precio_compra}
-            onChange={handleChange}
-            className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Ingresa el precio de compra"
-            required
-          />
-        </div>
-
-        {/* Precio de Venta */}
-        <div>
-          <label htmlFor="precio_venta" className="block text-white mb-1">
-            Precio de Venta:
-          </label>
-          <input
-            type="number"
-            id="precio_venta"
-            name="precio_venta"
-            value={values.precio_venta}
-            onChange={handleChange}
-            className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Ingresa el precio de venta"
-            required
-          />
-        </div>
-
-        {/* Stock */}
-        <div>
-          <label htmlFor="stock" className="block text-white mb-1">
-            Stock:
-          </label>
-          <input
-            type="number"
-            id="stock"
-            name="stock"
-            value={values.stock}
-            onChange={handleChange}
-            className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Ingresa el stock"
-            required
-          />
-        </div>
-
-        {/* Stock Mínimo */}
-        <div>
-          <label htmlFor="stock_minimo" className="block text-white mb-1">
-            Stock Mínimo:
-          </label>
-          <input
-            type="number"
-            id="stock_minimo"
-            name="stock_minimo"
-            value={values.stock_minimo}
-            onChange={handleChange}
-            className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Ingresa el stock mínimo"
-            required
-          />
-        </div>
-
-        {/* Unidad de Medida */}
-        <div>
-          <label htmlFor="unidad_medida" className="block text-white mb-1">
-            Unidad de Medida:
-          </label>
-          <input
-            type="text"
-            id="unidad_medida"
-            name="unidad_medida"
-            value={values.unidad_medida}
-            onChange={handleChange}
-            className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Ingresa la unidad de medida"
-            required
-          />
-        </div>
-
-        {/* Fecha de Vencimiento */}
-        <div>
-          <label htmlFor="fecha_vencimiento" className="block text-white mb-1">
-            Fecha de Vencimiento:
-          </label>
-          <input
-            type="date"
-            id="fecha_vencimiento"
-            name="fecha_vencimiento"
-            value={values.fecha_vencimiento}
-            onChange={handleChange}
-            className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-
-        {/* Conversión */}
-        <div>
-          <label htmlFor="conversion" className="block text-white mb-1">
-            Conversión:
-          </label>
-          <input
-            type="number"
-            name="factor_conversion"
-            value={values.factor_conversion}
-            onChange={handleChange}
-            min={1}
-            className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Ingresa la conversión"
-            required
-          />
-        </div>
-
-        {/* Unidad de Venta */}
-        <div>
-          <label htmlFor="unidad_venta" className="block text-white mb-1">
-            Unidad de Conversión:
-          </label>
-          <input
-            type="text"
-            id="unidad_venta"
-            name="unidad_venta"
-            value={values.unidad_venta}
-            onChange={handleChange}
-            className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Ingresa la unidad de venta"
-            required
-          />
-        </div>
-
-        {/* Categoría */}
-        <div>
-          <label htmlFor="categoria_id" className="block text-white mb-1">
-            Categoría:
-          </label>
-          <select
-            id="categoria_id"
-            name="categoria_id"
-            value={values.categoria_id}
-            onChange={
-              handleChange as unknown as React.ChangeEventHandler<HTMLSelectElement>
-            }
-            className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          >
-            <option value="">Selecciona categoría</option>
-            {categorias.map((categoria) => (
-              <option key={categoria.id} value={categoria.id}>
-                {categoria.nombre}
-              </option>
-            ))}
-          </select>
+          {/* Descripción */}
+          <div>
+            <label className="block text-white mb-1">Descripción:</label>
+            <textarea
+              name="descripcion"
+              value={values.descripcion}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-md bg-gray-900 text-white border border-gray-600"
+              placeholder="Ej: Caja con 10 blisters de 10 pastillas"
+              required
+            />
+          </div>
         </div>
       </div>
-      {/* Descripción */}
-      <div>
-        <label htmlFor="descripcion" className="block text-white mb-1">
-          Descripción:
-        </label>
-        <textarea
-          id="descripcion"
-          name="descripcion"
-          value={values.descripcion}
+
+      {/* Sección: Unidades y Conversión */}
+      <div className="bg-gray-800 p-4 rounded-lg space-y-4">
+        <h2 className="text-lg font-semibold text-white">
+          Unidades y Conversión
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Unidad mínima */}
+          <div>
+            <label className="block text-white mb-1">
+              Unidad mínima de control:
+            </label>
+            <select
+              name="unidad_medida"
+              value={values.unidad_medida}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-md bg-gray-900 text-white border border-gray-600"
+            >
+              <option value="unidad">Unidad</option>
+              <option value="pastilla">Pastilla</option>
+            </select>
+          </div>
+
+          {/* Unidad de venta */}
+          <div>
+            <label className="block text-white mb-1">Unidad de venta:</label>
+            <select
+              name="unidad_venta"
+              value={values.unidad_venta}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-md bg-gray-900 text-white border border-gray-600"
+            >
+              <option value="unidad">Unidad</option>
+              <option value="blister">Blister</option>
+              <option value="caja">Caja</option>
+            </select>
+          </div>
+
+          {/* Factor conversión */}
+          <div>
+            <label className="block text-white mb-1">
+              Unidades mínimas por unidad de venta:
+            </label>
+            <input
+              type="number"
+              name="factor_conversion"
+              value={values.factor_conversion}
+              onChange={handleChange}
+              min={1}
+              className="w-full px-4 py-2 rounded-md bg-gray-900 text-white border border-gray-600"
+              placeholder="Ej: 10 si un blister tiene 10 pastillas"
+            />
+          </div>
+
+          {/* Factor caja */}
+          <div>
+            <label className="block text-white mb-1">
+              Unidades mínimas por caja:
+            </label>
+            <input
+              type="number"
+              name="factor_caja"
+              value={values.factor_caja}
+              onChange={handleChange}
+              min={1}
+              className="w-full px-4 py-2 rounded-md bg-gray-900 text-white border border-gray-600"
+              placeholder="Ej: 100 si la caja tiene 10 blisters de 10 pastillas"
+            />
+          </div>
+          {/*Stock */}
+          <div>
+            <label className="block text-white mb-1">Stock:</label>
+            <input
+              type="number"
+              name="stock"
+              value={values.stock}
+              onChange={handleChange}
+              min={0}
+              className={`w-full px-4 py-2 rounded-md bg-gray-900 text-white border border-gray-600 ${
+                disabledStock ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              placeholder="Ej: 100"
+              readOnly={disabledStock}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Sección: Precios */}
+      <div className="bg-gray-800 p-4 rounded-lg space-y-4">
+        <h2 className="text-lg font-semibold text-white">Precios</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Precio venta */}
+          <div>
+            <label className="block text-white mb-1">Precio de Venta:</label>
+            <input
+              type="number"
+              name="precio_venta"
+              value={values.precio_venta}
+              onChange={handleChange}
+              step="0.01"
+              className="w-full px-4 py-2 rounded-md bg-gray-900 text-white border border-gray-600"
+              required
+            />
+          </div>
+
+          {/* Precio compra solo lectura si edición */}
+          {editingProductoId && (
+            <div>
+              <label className="block text-white mb-1">
+                Precio de Compra (auto):
+              </label>
+              <input
+                type="number"
+                value={values.precio_compra}
+                readOnly
+                className="w-full px-4 cursor-not-allowed py-2 rounded-md bg-gray-700 text-gray-400 border border-gray-600"
+              />
+            </div>
+          )}
+
+          {/* Ganancia solo lectura si edición */}
+          {editingProductoId && (
+            <div>
+              <label className="block text-white mb-1">Ganancia (auto):</label>
+              <input
+                type="number"
+                value={values.ganancia}
+                readOnly
+                className="w-full px-4 py-2 rounded-md bg-gray-700 text-gray-400 border border-gray-600"
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Sección: Fecha de vencimiento */}
+      <div className="bg-gray-800 p-4 rounded-lg space-y-4">
+        <h2 className="text-lg font-semibold text-white">
+          Fecha de Vencimiento
+        </h2>
+        <input
+          type="date"
+          name="fecha_vencimiento"
+          value={values.fecha_vencimiento}
           onChange={handleChange}
-          className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Ingresa la descripción"
+          className="w-full px-4 py-2 rounded-md bg-gray-900 text-white border border-gray-600"
           required
-          minLength={4}
         />
       </div>
 
@@ -237,14 +236,14 @@ export default function ProductosForm({
           <button
             type="button"
             onClick={closeModal}
-            className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+            className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700"
           >
             Cancelar
           </button>
         )}
         <button
           type="submit"
-          className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700"
           disabled={loading}
         >
           {editingProductoId ? "Editar" : "Agregar"}

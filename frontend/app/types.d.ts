@@ -34,29 +34,27 @@ export interface Clientes {
   telefono: string;
 }
 
-export interface Categoria {
-  actualizado_en: Date;
-  creado_en: Date;
-  descripcion: string;
-  id: number;
-  nombre: string;
-}
+// export interface Categoria {
+//   actualizado_en: Date;
+//   creado_en: Date;
+//   descripcion: string;
+//   id: number;
+//   nombre: string;
+// }
 
 export interface Productos {
-  actualizado_en: Date;
-  categoria_id: number;
-  creado_en: Date;
-  descripcion: string;
-  fecha_vencimiento: string; //!capaz cambiar a string
   id: number;
   nombre: string;
-  precio_compra: number;
-  precio_venta: number;
-  stock: number;
-  stock_minimo: number;
+  descripcion: string;
+  unidad_venta: string;
   unidad_medida: string;
   factor_conversion: number;
-  unidad_venta: string;
+  factor_caja: number;
+  stock: number;
+  precio_compra: number;
+  precio_venta: number;
+  fecha_vencimiento: string;
+  ganancia: number;
 }
 
 export interface DetalleCompra {

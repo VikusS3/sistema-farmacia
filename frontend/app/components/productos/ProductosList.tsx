@@ -30,11 +30,56 @@ export default function ProductosList({
     () => [
       { accessorKey: "nombre", header: "Nombre" },
       { accessorKey: "descripcion", header: "Descripcion" },
-      { accessorKey: "precio_compra", header: "Precio Compra" },
-      { accessorKey: "precio_venta", header: "Precio Venta" },
-      { accessorKey: "stock", header: "Stock" },
-      { accessorKey: "stock_minimo", header: "Stock Minimo" },
-      { accessorKey: "unidad_medida", header: "Unidad Medida" },
+      {
+        accessorKey: "precio_compra",
+        header: "Precio Compra",
+        cell: ({ cell }: { cell: any }) =>
+          `S/ ${Number(cell.getValue()).toFixed(2)}`,
+      },
+      {
+        accessorKey: "precio_venta",
+        header: "Precio Venta",
+        cell: ({ cell }: { cell: any }) =>
+          `S/ ${Number(cell.getValue()).toFixed(2)}`,
+      },
+      {
+        accessorKey: "stock",
+        header: "Stock",
+        cell: ({ cell }: { cell: any }) => {
+          const value = Number(cell.getValue());
+          return (
+            <span className={value < 10 ? "text-red-500 font-bold" : ""}>
+              {value}
+            </span>
+          );
+        },
+      },
+      {
+        accessorKey: "unidad_venta",
+        header: "Unidad Venta",
+        cell: ({ cell }: { cell: any }) => {
+          const value = cell.getValue();
+          const etiquetas: Record<string, string> = {
+            caja: "Caja",
+            blister: "Blíster",
+            unidad: "Unidad/Pastilla",
+          };
+          return etiquetas[value as string] || value;
+        },
+      },
+      {
+        accessorKey: "unidad_medida",
+        header: "Unidad Medida",
+        cell: ({ cell }: { cell: any }) => {
+          const value = cell.getValue();
+          const etiquetas: Record<string, string> = {
+            pastilla: "Unidad/Pastilla",
+            caja: "Caja",
+            blister: "Blíster",
+          };
+          return etiquetas[value as string] || value;
+        },
+      },
       {
         accessorKey: "fecha_vencimiento",
         header: "Fecha Vencimiento",
@@ -44,7 +89,13 @@ export default function ProductosList({
         },
       },
       { accessorKey: "factor_conversion", header: "Conversion de Unidad" },
-      { accessorKey: "unidad_venta", header: "Unidad de Venta" },
+      { accessorKey: "factor_caja", header: "Converson de Caja" },
+      {
+        accessorKey: "ganancia",
+        header: "Ganancia",
+        cell: ({ cell }: { cell: any }) =>
+          `${Number(cell.getValue()).toFixed(2)} %`,
+      },
       {
         id: "acciones",
         header: "Acciones",

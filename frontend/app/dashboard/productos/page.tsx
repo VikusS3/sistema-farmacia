@@ -5,7 +5,7 @@ import { useHookForm } from "@/app/hooks/useHookForm";
 import { useState } from "react";
 import Modal from "@/app/components/Modal";
 import ProductosForm from "@/app/components/productos/ProductosForm";
-import { useCategoria } from "@/app/hooks/categorias/useCategoria";
+
 import ProductosList from "@/app/components/productos/ProductosList";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
 
@@ -25,21 +25,19 @@ function ProductosPage() {
   );
   const [modalOpen, setModalOpen] = useState(false);
 
-  const { categorias } = useCategoria();
-
   const { handleChange, handleSubmit, reset, setValues, values } = useHookForm({
     initialValues: {
       nombre: "",
       descripcion: "",
       precio_compra: 0,
-      precio_venta: 0,
-      stock: 0,
-      stock_minimo: 0,
-      unidad_medida: "",
-      fecha_vencimiento: "",
-      factor_conversion: 0,
       unidad_venta: "",
-      categoria_id: 0,
+      unidad_medida: "",
+      factor_conversion: 0,
+      factor_caja: 0,
+      stock: 0,
+      precio_venta: 0,
+      fecha_vencimiento: "",
+      ganancia: 0,
     },
     onSubmit: async (values) => {
       const transformedValues = {
@@ -47,10 +45,11 @@ function ProductosPage() {
         precio_compra: Number(values.precio_compra),
         precio_venta: Number(values.precio_venta),
         stock: Number(values.stock),
-        stock_minimo: Number(values.stock_minimo),
         factor_conversion: Number(values.factor_conversion),
+        factor_caja: Number(values.factor_caja),
         unidad_venta: values.unidad_venta,
-        categoria_id: Number(values.categoria_id),
+        unidad_medida: values.unidad_medida,
+        fecha_vencimiento: values.fecha_vencimiento,
       };
 
       if (editingProductoId) {
@@ -99,7 +98,7 @@ function ProductosPage() {
         title={editingProductoId ? "Editar Producto" : "Agregar Producto"}
         isOpen={modalOpen}
         onClose={closeModal}
-        className="max-w-2xl w-full"
+        className="max-w-5xl w-full"
       >
         <ProductosForm
           values={values}
@@ -108,7 +107,6 @@ function ProductosPage() {
           loading={loading}
           editingProductoId={editingProductoId}
           closeModal={closeModal}
-          categorias={categorias}
         />
       </Modal>
       <ProductosList

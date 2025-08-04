@@ -24,6 +24,7 @@ export const useProductos = () => {
     queryKey: ["productos"],
     queryFn: fetchProductos,
     staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
   });
 
   const addProducto = async (producto: Partial<Productos>) => {
