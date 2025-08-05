@@ -15,12 +15,14 @@ export function useCompraForm() {
     loading,
     error,
     fetchCompras,
+    refetch,
     actualizarCompra,
   } = useCompras();
   const { productos, refetchProductos } = useProductos();
   const { proveedores } = useProveedores();
   const usuarioId = localStorage.getItem("usuario_id");
   const MySwal = withReactContent(Swal);
+
   const [proveedorId, setProveedorId] = useState<number>(0);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [detalleCompra, setDetalleCompra] = useState<
@@ -33,24 +35,26 @@ export function useCompraForm() {
       unidad_venta: string;
       unidad_medida: string;
       factor_conversion: number;
+      factor_caja: number;
+      unidad_compra: "caja" | "blister" | "unidad";
     }[]
   >([]);
 
   const total = detalleCompra.reduce((acc, item) => acc + item.subtotal, 0);
 
-  // Evita duplicados al agregar productos
-  const agregarProducto = (producto: Productos, cantidad: number) => {
+  const agregarProducto = (
+    producto: Productos,
+    cantidad: number,
+    unidad_compra: "caja" | "blister" | "unidad",
+    precio_compra: number
+  ) => {
     if (cantidad <= 0) return;
-
-    const cantidadFinal =
-      producto.unidad_venta !== producto.unidad_medida
-        ? cantidad * producto.factor_conversion
-        : cantidad;
 
     setDetalleCompra((prevDetalle) => {
       const existente = prevDetalle.find(
         (item) => item.producto_id === producto.id
       );
+
       if (existente) {
         MySwal.fire({
           title: "Producto Actualizado",
@@ -61,9 +65,9 @@ export function useCompraForm() {
           item.producto_id === producto.id
             ? {
                 ...item,
-                cantidad: item.cantidad + cantidadFinal,
-                subtotal:
-                  (item.cantidad + cantidadFinal) * item.precio_unitario,
+                cantidad: item.cantidad + cantidad,
+                subtotal: (item.cantidad + cantidad) * precio_compra,
+                precio_unitario: precio_compra, // ✅ aseguramos que guarde el nuevo precio
               }
             : item
         );
@@ -78,12 +82,14 @@ export function useCompraForm() {
           {
             producto_id: producto.id,
             nombre: producto.nombre,
-            cantidad: cantidadFinal,
-            precio_unitario: producto.precio_compra,
-            subtotal: producto.precio_compra * cantidadFinal,
+            cantidad,
+            precio_unitario: precio_compra,
+            subtotal: precio_compra * cantidad,
+            unidad_compra, // ✅ ahora sí recibimos desde ProductosListCompra
             unidad_venta: producto.unidad_venta,
             unidad_medida: producto.unidad_medida,
             factor_conversion: producto.factor_conversion,
+            factor_caja: producto.factor_caja,
           },
         ];
       }
@@ -101,19 +107,20 @@ export function useCompraForm() {
   };
 
   const registrarCompra = async () => {
-    const compra = {
-      proveedor_id: proveedorId,
+    const compraData = {
       usuario_id: Number(usuarioId),
-      fecha: new Date().toISOString(),
+      proveedor_id: proveedorId,
       total,
-      detalle_compra: detalleCompra.map((item) => ({
+      detalles: detalleCompra.map((item) => ({
         producto_id: item.producto_id,
         cantidad: item.cantidad,
+        unidad_compra: item.unidad_compra,
         precio_unitario: item.precio_unitario,
         subtotal: item.subtotal,
       })),
     };
-    await addCompra(compra);
+
+    await addCompra(compraData);
     MySwal.fire({
       title: "Compra Registrada",
       text: "La compra ha sido registrada exitosamente.",
@@ -122,7 +129,12 @@ export function useCompraForm() {
     resetForm();
   };
 
-  // Actualizar compra
+  const resetForm = () => {
+    setProveedorId(0);
+    setDetalleCompra([]);
+    setModalOpen(false);
+  };
+
   const handleActualizarCompra = async (
     compraEditando: CompraProducto | null
   ) => {
@@ -148,15 +160,11 @@ export function useCompraForm() {
       })),
     };
 
-    await actualizarCompra(compraEditando.compra.id as number, compra);
+    await actualizarCompra(
+      compraEditando.compra.id as number,
+      compra as Partial<CompraProducto>
+    );
     resetForm();
-  };
-
-  // Resetear formulario después de registrar o actualizar
-  const resetForm = () => {
-    setProveedorId(0);
-    setDetalleCompra([]);
-    setModalOpen(false);
   };
 
   return {
@@ -178,7 +186,8 @@ export function useCompraForm() {
     loading,
     fetchCompras,
     error,
-    handleActualizarCompra,
     refetchProductos,
+    refetch,
+    handleActualizarCompra,
   };
 }

@@ -12,9 +12,14 @@ import { fieldTypes } from "@/app/constants/productos";
 
 type FilterableField = keyof typeof fieldTypes;
 
-interface ProductosListVentasProps {
+interface ProductosListCompraProps {
   productos: Productos[];
-  agregarProducto: (producto: Productos, cantidad: number) => void;
+  agregarProducto: (
+    producto: Productos,
+    cantidad: number,
+    unidad_compra: "caja" | "blister" | "unidad",
+    precio_compra: number
+  ) => void;
   refetchProductos: () => void;
 }
 
@@ -22,7 +27,7 @@ export default function ProductosListCompra({
   productos,
   agregarProducto,
   refetchProductos,
-}: ProductosListVentasProps) {
+}: ProductosListCompraProps) {
   const [searchField, setSearchField] =
     useState<FilterableField>("descripcion");
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -30,6 +35,8 @@ export default function ProductosListCompra({
   const productosPorPagina = 4;
 
   const cantidadRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
+  const unidadRefs = useRef<{ [key: number]: HTMLSelectElement | null }>({});
+  const precioRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
 
   const filteredProductos = productos.filter((producto) => {
     const fieldValue = producto[searchField];
@@ -47,27 +54,21 @@ export default function ProductosListCompra({
         Productos disponibles
       </h2>
 
-      {/* Header sticky con filtros */}
+      {/* Filtros */}
       <div className="sticky top-0 z-10 bg-background-200 py-4 mb-4 shadow-sm">
         <div className="flex flex-col sm:flex-row gap-4 items-center">
-          {/* Selector de campo */}
           <select
             value={searchField}
             onChange={(e) => setSearchField(e.target.value as FilterableField)}
             className="p-3 border rounded-lg bg-background-200 text-text-200"
           >
             {Object.keys(fieldTypes).map((key) => (
-              <option
-                key={key}
-                value={key}
-                className="text-text-200 font-semibold"
-              >
+              <option key={key} value={key}>
                 {key}
               </option>
             ))}
           </select>
 
-          {/* Input de búsqueda */}
           <div className="relative w-full">
             <input
               type="text"
@@ -85,7 +86,6 @@ export default function ProductosListCompra({
             />
           </div>
 
-          {/* Botón de refrescar */}
           <button
             onClick={refetchProductos}
             className="flex items-center gap-2 px-4 py-2 bg-primary-100 text-white rounded-lg hover:bg-primary-200 transition focus:outline-none focus:ring-2 focus:ring-primary-300"
@@ -101,9 +101,7 @@ export default function ProductosListCompra({
           paginatedProductos.map((producto) => (
             <div
               key={producto.id}
-              className="flex flex-col justify-between p-6 border border-background-300 rounded-2xl bg-background-200 shadow-md hover:shadow-xl transition focus-within:ring-2 focus-within:ring-primary-300"
-              role="region"
-              aria-label={`Producto: ${producto.nombre}`}
+              className="flex flex-col justify-between p-6 border border-background-300 rounded-2xl bg-background-200 shadow-md hover:shadow-xl transition"
             >
               <div className="space-y-2 mb-4">
                 <h3 className="text-lg font-bold text-text-100 truncate">
@@ -115,14 +113,31 @@ export default function ProductosListCompra({
                 <p className="text-sm text-text-300 truncate">
                   {producto.descripcion}
                 </p>
-                <p className="text-base text-text-200">
-                  <strong>Precio:</strong> ${producto.precio_venta}
-                </p>
+                <div className="flex flex-col mb-2">
+                  <label
+                    htmlFor={`precio-${producto.id}`}
+                    className="text-xs text-text-300"
+                  >
+                    Precio compra:
+                  </label>
+                  <input
+                    id={`precio-${producto.id}`}
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    ref={(el) => {
+                      precioRefs.current[producto.id] = el;
+                    }}
+                    defaultValue={producto.precio_compra}
+                    className="p-2 border border-background-300 rounded-lg bg-background-100 text-text-100 w-full"
+                    placeholder="Precio compra"
+                  />
+                </div>
                 <p
                   className={`text-base font-medium ${
                     producto.stock <= 0
                       ? "text-red-600"
-                      : producto.stock < producto.stock_minimo
+                      : producto.stock < 20
                       ? "text-yellow-600"
                       : "text-green-600"
                   }`}
@@ -130,49 +145,56 @@ export default function ProductosListCompra({
                   Stock: {producto.stock}
                 </p>
                 <p className="text-xs text-text-300 italic">
-                  1 {producto.unidad_medida} equivale a{" "}
-                  {producto.factor_conversion} {producto.unidad_venta}
+                  1 {producto.unidad_venta} equivale a{" "}
+                  {producto.factor_conversion} {producto.unidad_medida}
                 </p>
               </div>
 
-              {/* Selector de cantidad */}
+              {/* Selector de unidad de compra */}
+              <select
+                ref={(el) => {
+                  unidadRefs.current[producto.id] = el;
+                }}
+                defaultValue="unidad"
+                className="mb-3 p-2 border border-background-300 rounded-lg bg-background-100 text-text-100"
+              >
+                <option value="unidad">Unidad</option>
+                <option value="blister">Blister</option>
+                <option value="caja">Caja</option>
+              </select>
+
+              {/* Cantidad */}
               <div className="flex items-center justify-center gap-3 mb-4">
                 <button
-                  aria-label="Disminuir cantidad"
                   onClick={() => {
                     const input = cantidadRefs.current[producto.id];
                     if (input && Number(input.value) > 1) {
                       input.value = String(Number(input.value) - 1);
                     }
                   }}
-                  className="p-3 bg-primary-100 text-white rounded-lg hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-300"
+                  className="p-3 bg-primary-100 text-white rounded-lg hover:bg-primary-200"
                 >
                   <Minus size={18} />
                 </button>
 
-                <label htmlFor={`cantidad-${producto.id}`} className="sr-only">
-                  Cantidad para {producto.nombre}
-                </label>
                 <input
-                  id={`cantidad-${producto.id}`}
                   type="number"
                   min="1"
                   defaultValue="1"
                   ref={(el) => {
                     cantidadRefs.current[producto.id] = el;
                   }}
-                  className="w-16 p-2 text-center border border-background-300 rounded-lg bg-background-100 text-text-100 focus:outline-none focus:ring-2 focus:ring-primary-300"
+                  className="w-16 p-2 text-center border border-background-300 rounded-lg bg-background-100 text-text-100"
                 />
 
                 <button
-                  aria-label="Aumentar cantidad"
                   onClick={() => {
                     const input = cantidadRefs.current[producto.id];
                     if (input) {
                       input.value = String(Number(input.value) + 1);
                     }
                   }}
-                  className="p-3 bg-primary-100 text-white rounded-lg hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-primary-300"
+                  className="p-3 bg-primary-100 text-white rounded-lg hover:bg-primary-200"
                 >
                   <Plus size={18} />
                 </button>
@@ -184,15 +206,21 @@ export default function ProductosListCompra({
                   const cantidad = Number(
                     cantidadRefs.current[producto.id]?.value || 1
                   );
+                  const unidad_compra =
+                    unidadRefs.current[producto.id]?.value || "unidad";
+                  const precio_compra = Number(
+                    precioRefs.current[producto.id]?.value ||
+                      producto.precio_compra
+                  );
 
-                  const cantidadFinal =
-                    producto.unidad_venta !== producto.unidad_medida
-                      ? cantidad / producto.factor_conversion
-                      : cantidad;
-
-                  agregarProducto(producto, cantidadFinal);
+                  agregarProducto(
+                    producto,
+                    cantidad,
+                    unidad_compra as "caja" | "blister" | "unidad",
+                    precio_compra
+                  );
                 }}
-                className="w-full py-3 bg-primary-100 text-white font-bold rounded-lg hover:bg-primary-200 transition focus:outline-none focus:ring-2 focus:ring-primary-300"
+                className="w-full py-3 bg-primary-100 text-white font-bold rounded-lg hover:bg-primary-200"
               >
                 Agregar al carrito
               </button>
@@ -207,16 +235,11 @@ export default function ProductosListCompra({
 
       {/* Paginación */}
       {filteredProductos.length > productosPorPagina && (
-        <div
-          className="flex justify-center mt-8 gap-4 items-center"
-          role="navigation"
-          aria-label="Paginación de productos"
-        >
+        <div className="flex justify-center mt-8 gap-4 items-center">
           <button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            aria-label="Página anterior"
-            className="p-3 bg-primary-100 text-white rounded-full hover:bg-primary-200 transition focus:outline-none focus:ring-2 focus:ring-primary-300"
             disabled={currentPage === 1}
+            className="p-3 bg-primary-100 text-white rounded-full hover:bg-primary-200"
           >
             <ChevronLeft />
           </button>
@@ -233,12 +256,11 @@ export default function ProductosListCompra({
                 )
               )
             }
-            aria-label="Página siguiente"
-            className="p-3 bg-primary-100 text-white rounded-full hover:bg-primary-200 transition focus:outline-none focus:ring-2 focus:ring-primary-300"
             disabled={
               currentPage >=
               Math.ceil(filteredProductos.length / productosPorPagina)
             }
+            className="p-3 bg-primary-100 text-white rounded-full hover:bg-primary-200"
           >
             <ChevronRight />
           </button>

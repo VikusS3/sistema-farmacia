@@ -17,7 +17,7 @@ export const fetchComprasConProductos = async (
   id: number
 ): Promise<CompraProducto> => {
   try {
-    const response = await api.get(`/compras/${id}/productos`);
+    const response = await api.get(`/compras/${id}`);
     return response.data;
   } catch (error) {
     const mensajeError = extractErrorMessage(error);
@@ -26,23 +26,22 @@ export const fetchComprasConProductos = async (
   }
 };
 
-export const createCompra = async (
-  compra: Omit<Compra, "id" | "creado_en" | "actualizado_en"> & {
-    detalle_compra: Omit<DetalleCompra, "id" | "compra_id">[];
-  }
-): Promise<Compra> => {
+export const createCompra = async (compra: {
+  usuario_id: number;
+  proveedor_id: number;
+  total: number;
+  detalles: {
+    producto_id: number;
+    cantidad: number;
+    precio_unitario: number;
+    subtotal: number;
+  }[];
+}) => {
   try {
-    // Eliminamos `compra_id` antes de enviarlo
-    const compraData = {
-      ...compra,
-      detalle_compra: compra.detalle_compra,
-    };
-
-    const response = await api.post("/compras", compraData);
+    const response = await api.post("/compras", compra);
     return response.data;
   } catch (error) {
     console.error(error);
-    console.error(extractErrorMessage(error));
     throw error;
   }
 };

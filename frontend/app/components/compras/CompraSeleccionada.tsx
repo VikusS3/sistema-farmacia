@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CompraProducto } from "@/app/types";
 
 interface CompraSeleccionadaProps {
@@ -26,27 +27,29 @@ export default function CompraSeleccionada({
             </tr>
           </thead>
           <tbody>
-            {compraSeleccionada.productos.map((producto, index) => (
-              <tr
-                key={producto.producto_id}
-                className={
-                  index % 2 === 0 ? "bg-background-200" : "bg-background-300"
-                }
-              >
-                <td className="p-3 border border-background-300 text-text-100">
-                  {producto.producto_nombre} {producto.unidad_medida}
-                </td>
-                <td className="p-3 text-center border border-background-300 text-text-100">
-                  {producto.cantidad}
-                </td>
-                <td className="p-3 text-center border border-background-300 text-text-100">
-                  ${producto.precio_unitario}
-                </td>
-                <td className="p-3 text-center border border-background-300 text-text-100">
-                  ${producto.subtotal}
-                </td>
-              </tr>
-            ))}
+            {compraSeleccionada.compra.detalles.map(
+              (producto: any, index: number) => (
+                <tr
+                  key={producto.producto_id}
+                  className={
+                    index % 2 === 0 ? "bg-background-200" : "bg-background-300"
+                  }
+                >
+                  <td className="p-3 border border-background-300 text-text-100">
+                    {producto.producto_nombre} {producto.unidad_medida}
+                  </td>
+                  <td className="p-3 text-center border border-background-300 text-text-100">
+                    {producto.cantidad}
+                  </td>
+                  <td className="p-3 text-center border border-background-300 text-text-100">
+                    ${producto.precio_unitario}
+                  </td>
+                  <td className="p-3 text-center border border-background-300 text-text-100">
+                    ${producto.subtotal}
+                  </td>
+                </tr>
+              )
+            )}
           </tbody>
         </table>
       </div>

@@ -26,19 +26,21 @@ export const useCompras = () => {
     staleTime: 1000 * 60 * 5, // 5 minutos de caché
   });
 
-  const addCompra = async (compra: Partial<Compra>) => {
+  const addCompra = async (compra: {
+    usuario_id: number;
+    proveedor_id: number;
+    total: number;
+    detalles: {
+      producto_id: number;
+      cantidad: number;
+      unidad_compra: "caja" | "blister" | "unidad";
+      precio_unitario: number;
+      subtotal: number;
+    }[];
+  }) => {
     try {
-      const compraData = {
-        ...compra,
-        detalle_compra: compra.detalle_compra ?? [],
-      } as Omit<Compra, "id" | "creado_en" | "actualizado_en"> & {
-        detalle_compra: Omit<DetalleCompra, "id" | "compra_id">[];
-      };
-
-      await createCompra(compraData);
-      await queryClient.invalidateQueries({
-        queryKey: ["compras"],
-      });
+      await createCompra(compra);
+      await queryClient.invalidateQueries({ queryKey: ["compras"] });
     } catch (error) {
       const mensajeError = extractErrorMessage(error);
       MySwal.fire({
