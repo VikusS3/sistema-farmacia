@@ -39,8 +39,8 @@ export const CompraController = {
         res.status(404).json({ message: "Compra no encontrada" });
         return;
       }
-      const detalles = await CompraModel.getDetallesByCompraId(compra.id);
-      res.json({ compra, detalles });
+
+      res.json({ compra });
     } catch (error) {
       console.error("Error al obtener la compra:", error);
       res.status(500).json({ message: "Error al obtener la compra" });

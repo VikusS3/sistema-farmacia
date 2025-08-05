@@ -34,9 +34,9 @@ export interface Producto {
 export type Proovedor = {
   id?: number;
   nombre: string;
-  ruc: string;
-  telefono: string;
-  direccion: string;
+  ruc?: string;
+  telefono?: string;
+  direccion?: string;
 };
 
 export type Clientes = {
@@ -55,10 +55,11 @@ export interface Compra {
   usuario_id: number;
   fecha?: string;
   total: number;
+  detalles: DetalleCompra[];
 }
 export interface DetalleCompra {
   id?: number;
-  compra_id: number;
+  compra_id?: number;
   producto_id: number;
   cantidad: number; // cantidad en la unidad seleccionada
   unidad_compra: "caja" | "blister" | "unidad"; // NUEVO

@@ -1,3 +1,4 @@
+import { RowDataPacket } from "mysql2";
 import pool from "../config/db";
 import { Compra, DetalleCompra } from "../types";
 
@@ -90,13 +91,16 @@ export const CompraModel = {
 
   async getAll(): Promise<Compra[]> {
     const [rows] = await pool.query(
-      "SELECT * FROM compras ORDER BY fecha DESC"
+      `SELECT c.*, p.nombre AS proveedor_nombre
+       FROM compras c
+       JOIN proveedores p ON c.proveedor_id = p.id
+       ORDER BY c.fecha DESC`
     );
     return rows as Compra[];
   },
 
-  async getById(id: number): Promise<any> {
-    const [rows] = await pool.query(
+  async getById(id: number): Promise<Compra> {
+    const [compraRows] = await pool.query<RowDataPacket[]>(
       `SELECT c.*, p.nombre AS proveedor_nombre, u.nombre AS usuario_nombre
        FROM compras c
        JOIN proveedores p ON c.proveedor_id = p.id
@@ -104,7 +108,37 @@ export const CompraModel = {
        WHERE c.id = ?`,
       [id]
     );
-    return rows;
+
+    const [detalleRows] = await pool.query<RowDataPacket[]>(
+      `SELECT dc.*, pr.nombre AS producto_nombre
+       FROM detalle_compras dc
+       JOIN productos pr ON dc.producto_id = pr.id
+       WHERE dc.compra_id = ?`,
+      [id]
+    );
+
+    const compra = compraRows[0] as Compra;
+
+    return {
+      id: compra.id,
+      proveedor_id: compra.proveedor_id,
+      usuario_id: compra.usuario_id,
+      fecha: compra.fecha,
+      total: compra.total,
+      detalles: detalleRows.map(
+        (detalle: any) =>
+          ({
+            id: detalle.id,
+            compra_id: detalle.compra_id,
+            producto_id: detalle.producto_id,
+            cantidad: detalle.cantidad,
+            unidad_compra: detalle.unidad_compra,
+            precio_unitario: detalle.precio_unitario,
+            subtotal: detalle.subtotal,
+            producto_nombre: detalle.producto_nombre,
+          } as DetalleCompra)
+      ),
+    };
   },
 
   async getDetallesByCompraId(compraId: number): Promise<DetalleCompra[]> {
