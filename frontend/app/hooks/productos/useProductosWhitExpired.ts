@@ -17,6 +17,7 @@ export const useProductosWhitExpired = () => {
     queryKey: ["productosConVencimiento"],
     queryFn: getProductosWithExpired,
     staleTime: 1000 * 60 * 5, // 5 minutos
+    refetchOnWindowFocus: false,
   });
 
   if (error) {
