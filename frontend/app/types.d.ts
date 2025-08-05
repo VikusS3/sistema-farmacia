@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface Login {
   token: string;
   usuario: Usuario;
@@ -5,20 +6,19 @@ export interface Login {
 
 export interface Usuario {
   id: number;
-  nombres: string;
+  nombre: string;
   email: string;
   password: string;
   rol: string;
   actualizado_en?: Date;
   creado_en?: Date;
-  estado: 1 | 0;
 }
 
 export interface Proveedores {
   actualizado_en: Date;
   creado_en: Date;
   direccion: string;
-  email: string;
+  ruc: string;
   id: number;
   nombre: string;
   telefono: string;
@@ -33,14 +33,6 @@ export interface Clientes {
   nombre: string;
   telefono: string;
 }
-
-// export interface Categoria {
-//   actualizado_en: Date;
-//   creado_en: Date;
-//   descripcion: string;
-//   id: number;
-//   nombre: string;
-// }
 
 export interface Productos {
   id: number;
@@ -58,10 +50,11 @@ export interface Productos {
 }
 
 export interface DetalleCompra {
-  id?: number; // Opcional si lo genera la BD
-  compra_id?: number; // Opcional si se asigna después
+  id?: number;
+  compra_id?: number;
   producto_id: number;
-  cantidad: number;
+  cantidad: number; // cantidad en la unidad de compra
+  unidad_compra: "caja" | "blister" | "unidad"; // ✅ nuevo
   precio_unitario: number;
   subtotal: number;
 }
@@ -73,6 +66,7 @@ export interface CompraProducto {
 }
 
 export interface Compra {
+  [x: string]: any;
   actualizado_en: Date;
   creado_en: Date;
   fecha: string;
@@ -81,8 +75,15 @@ export interface Compra {
   proveedor_nombre: string;
   total: number;
   usuario_id: number;
-  detalle_compra: DetalleCompra[];
+  detalle_compra: DetalleCompra[]; // ahora con unidad_compra
 }
+
+export type CompraCreate = {
+  proveedor_id: number;
+  usuario_id: number;
+  total: number;
+  detalle_compra: Omit<DetalleCompra, "id" | "compra_id">[];
+};
 
 export interface Producto {
   actualizado_en: Date;
@@ -96,7 +97,8 @@ export interface Producto {
   producto_nombre: string;
   subtotal: string;
   venta_id: number;
-  unidad_venta: string;
+  unidad_venta: "caja" | "blister" | "unidad";
+  unidad_compra: "caja" | "blister" | "unidad";
   unidad_medida: string;
   factor_conversion: number;
 }
