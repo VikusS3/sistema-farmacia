@@ -36,10 +36,10 @@ export default function CompraSeleccionada({
                   }
                 >
                   <td className="p-3 border border-background-300 text-text-100">
-                    {producto.producto_nombre} {producto.unidad_medida}
+                    {producto.producto_nombre}
                   </td>
                   <td className="p-3 text-center border border-background-300 text-text-100">
-                    {producto.cantidad}
+                    {producto.cantidad} {producto.unidad_compra}(s)
                   </td>
                   <td className="p-3 text-center border border-background-300 text-text-100">
                     ${producto.precio_unitario}
