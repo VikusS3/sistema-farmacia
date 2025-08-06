@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import api from "../lib/axiosConfig";
 import { Venta, DetalleVenta, VentaProducto } from "../types";
 import { extractErrorMessage } from "../utils/errorHandler";
@@ -32,13 +33,27 @@ export const createVenta = async (
   }
 ): Promise<void> => {
   const ventaData = {
-    ...venta,
-    detalle_venta: venta.detalle_venta,
+    cliente_id: venta.cliente_id,
+    usuario_id: venta.usuario_id,
+    caja_id: (venta as any).caja_id ?? null,
+    fecha: venta.fecha,
+    adicional: venta.adicional ?? 0,
+    descuento: venta.descuento ?? 0,
+    metodo_pago: venta.metodo_pago,
+    total: venta.total,
+    detalle_venta: venta.detalle_venta.map((d) => ({
+      producto_id: d.producto_id,
+      cantidad: d.cantidad,
+      unidad_venta: (d as any).unidad_venta ?? "unidad",
+      precio_unitario: d.precio_unitario,
+      subtotal: d.subtotal,
+    })),
   };
 
   try {
     await api.post("/ventas", ventaData);
   } catch (error) {
+    console.error(error);
     const mensajeError = extractErrorMessage(error);
     console.error("Error lanzado desde createVenta:", mensajeError);
     throw new Error(mensajeError);

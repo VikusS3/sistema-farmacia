@@ -150,6 +150,7 @@ export interface Venta {
   total: number;
   usuario_id: number;
   detalle_venta: DetalleVenta[];
+  caja_id?: number;
 }
 
 export interface VentaV {

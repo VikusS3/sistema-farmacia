@@ -11,7 +11,11 @@ export const VentaController = {
     }
 
     try {
-      const ventaId = await VentaModel.create(parse.data, parse.data.detalles);
+      // ahora pasamos parse.data.detalle_venta
+      const ventaId = await VentaModel.create(
+        parse.data,
+        parse.data.detalle_venta
+      );
       res.status(201).json({ id: ventaId });
     } catch (error) {
       console.error("Error al registrar venta:", error);

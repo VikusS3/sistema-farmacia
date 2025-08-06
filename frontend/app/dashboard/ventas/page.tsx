@@ -4,7 +4,6 @@ import DetalleVenta from "@/app/components/ventas/DetalleVenta";
 import ProductosListVentas from "@/app/components/ventas/ProductosListVentas";
 import SelectCliente from "@/app/components/ventas/SelectCliente";
 import VentaEditando from "@/app/components/ventas/VentaEditando";
-import VentaForm from "@/app/components/ventas/VentaForm";
 import VentaList from "@/app/components/ventas/VentaList";
 import VentaSeleccionada from "@/app/components/ventas/VentaSeleccionada";
 import { useVentasForm } from "@/app/hooks/ventas/useVentasForm";
@@ -115,20 +114,18 @@ function VentasPage() {
         title="Detalle de la Venta"
         className="max-w-2xl"
       >
-        <VentaForm
-          adicional={adicional}
-          descuento={descuento}
-          metodoPago={metodoPago}
-          setAdicional={setAdicional}
-          setDescuento={setDescuento}
-          setMetodoPago={setMetodoPago}
-        />
         {detalleVenta.length > 0 ? (
           <DetalleVenta
             detalleVenta={detalleVenta}
             total={total}
             eliminarProducto={eliminarProducto}
             registrarVenta={registrarVenta}
+            descuento={descuento}
+            setDescuento={setDescuento}
+            adicional={adicional}
+            setAdicional={setAdicional}
+            metodoPago={metodoPago}
+            setMetodoPago={setMetodoPago}
           />
         ) : (
           <p className="text-text-200 italic text-center mt-4">

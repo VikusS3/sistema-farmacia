@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { useVentas } from "./useVentas";
 import { useProductos } from "../productos/useProductos";
@@ -41,7 +42,11 @@ export function useVentasForm() {
   const total = detalleVenta.reduce((acc, item) => acc + item.subtotal, 0);
 
   // Evita duplicados al agregar productos
-  const agregarProducto = (producto: Productos, cantidad: number) => {
+  const agregarProducto = (
+    producto: Productos,
+    cantidad: number,
+    unidadSeleccionada: string
+  ) => {
     if (cantidad <= 0) return;
 
     setDetalleVenta((prevDetalle) => {
@@ -49,9 +54,11 @@ export function useVentasForm() {
         (item) => item.producto_id === producto.id
       );
       if (existente) {
+        const nuevoSubtotal =
+          (existente.cantidad + cantidad) * existente.precio_unitario;
         MySwal.fire({
           title: "Producto Actualizado",
-          text: `Se actualizó la cantidad del producto ${producto.nombre}`,
+          text: `Se actualiz el producto ${producto.nombre} en el carrito. Nuevo subtotal: ${nuevoSubtotal}`,
           icon: "success",
         });
         return prevDetalle.map((item) =>
@@ -59,14 +66,15 @@ export function useVentasForm() {
             ? {
                 ...item,
                 cantidad: item.cantidad + cantidad,
-                subtotal: (item.cantidad + cantidad) * item.precio_unitario,
+                subtotal: nuevoSubtotal,
+                unidad_venta: unidadSeleccionada,
               }
             : item
         );
       } else {
         MySwal.fire({
           title: "Producto Agregado",
-          text: `Se agregó el producto ${producto.nombre}`,
+          text: `Se agreg  ${producto.nombre} al carrito`,
           icon: "success",
         });
         return [
@@ -77,7 +85,7 @@ export function useVentasForm() {
             cantidad,
             precio_unitario: producto.precio_venta,
             subtotal: producto.precio_venta * cantidad,
-            unidad_venta: producto.unidad_venta,
+            unidad_venta: unidadSeleccionada,
             unidad_medida: producto.unidad_medida,
             factor_conversion: producto.factor_conversion,
           },
@@ -111,13 +119,15 @@ export function useVentasForm() {
       });
       return;
     }
+
     const venta = {
       cliente_id: clienteId,
       usuario_id: Number(usuarioId),
+      caja_id: null, // 🔹 De momento sin caja abierta
       fecha: new Date().toISOString(),
       total: total + adicional - descuento,
-      descuento: descuento,
-      adicional: adicional,
+      descuento,
+      adicional,
       metodo_pago: metodoPago,
       detalle_venta: detalleVenta.map((item) => ({
         producto_id: item.producto_id,
@@ -129,12 +139,15 @@ export function useVentasForm() {
         factor_conversion: item.factor_conversion,
       })),
     };
-    await addVenta(venta);
+
+    await addVenta(venta as any);
+
     MySwal.fire({
       title: "Venta Registrada",
       text: "La venta ha sido registrada exitosamente.",
       icon: "success",
     });
+
     resetForm();
   };
 

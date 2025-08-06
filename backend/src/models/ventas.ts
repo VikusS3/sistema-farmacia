@@ -24,18 +24,20 @@ export const VentaModel = {
 
       // Insertar venta
       const [ventaResult] = await connection.query(
-        `INSERT INTO ventas (cliente_id, usuario_id, caja_id, fecha,adicional,descuento,metodo_pago,total)
-         VALUES (?, ?, ?, NOW(), ?, ?, ?, ?)`,
+        `INSERT INTO ventas (
+     cliente_id, usuario_id, caja_id, fecha, adicional, descuento, metodo_pago, total
+   ) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?)`,
         [
           venta.cliente_id,
           venta.usuario_id,
-          venta.caja_id,
+          venta.caja_id ?? null, // 🔹 Si no hay caja_id, se inserta NULL
           Number(venta.adicional || 0),
           Number(venta.descuento || 0),
           venta.metodo_pago,
           totalVenta,
         ]
       );
+
       const ventaId = (ventaResult as any).insertId;
 
       // Procesar cada detalle
@@ -103,7 +105,12 @@ export const VentaModel = {
   },
 
   async getAll(): Promise<Venta[]> {
-    const [rows] = await pool.query("SELECT * FROM ventas ORDER BY fecha DESC");
+    const [rows] = await pool.query(
+      `SELECT v.*, c.nombre AS cliente_nombre
+       FROM ventas v
+       JOIN clientes c ON v.cliente_id = c.id
+       ORDER BY v.fecha DESC`
+    );
     return rows as Venta[];
   },
 

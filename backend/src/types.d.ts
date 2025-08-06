@@ -88,11 +88,11 @@ export type ResumenVentas = {
 
 export interface VentaTicket {
   actualizado_en: Date;
-  adicional?: string;
+  adicional?: number;
   cliente_id: number;
   cliente_nombre: string;
   creado_en: Date;
-  descuento?: string;
+  descuento?: number;
   fecha: Date;
   id: number;
   metodo_pago: "efectivo" | "tarjeta" | "transferencia";
@@ -105,8 +105,8 @@ export interface Venta {
   cliente_id: number;
   usuario_id: number;
   caja_id: number | null;
-  adicional?: string;
-  descuento?: string;
+  adicional?: number;
+  descuento?: number;
   metodo_pago: "efectivo" | "tarjeta" | "transferencia";
   fecha?: string;
   total: number;
@@ -117,7 +117,7 @@ export interface DetalleVenta {
   venta_id: number;
   producto_id: number;
   cantidad: number; // cantidad en la unidad seleccionada
-  unidad_venta: "caja" | "blister" | "unidad"; // NUEVO
+  unidad_venta: "caja" | "blister" | "unidad" | "pastilla"; // NUEVO
   precio_unitario: number;
   subtotal: number;
   ganancia: number;
