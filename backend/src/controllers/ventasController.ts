@@ -31,7 +31,7 @@ export const VentaController = {
       return;
     }
 
-    const detalles = await VentaModel.getDetallesByVentaId(venta.id);
-    res.json({ venta, detalles });
+    //const detalles = await VentaModel.getDetallesByVentaId(venta.id);
+    res.json({ venta });
   },
 };

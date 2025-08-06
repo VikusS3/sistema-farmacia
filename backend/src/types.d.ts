@@ -88,14 +88,14 @@ export type ResumenVentas = {
 
 export interface VentaTicket {
   actualizado_en: Date;
-  adicional: string;
+  adicional?: string;
   cliente_id: number;
   cliente_nombre: string;
   creado_en: Date;
-  descuento: string;
+  descuento?: string;
   fecha: Date;
   id: number;
-  metodo_pago: string;
+  metodo_pago: "efectivo" | "tarjeta" | "transferencia";
   total: string;
   usuario_id: number;
 }
@@ -105,6 +105,9 @@ export interface Venta {
   cliente_id: number;
   usuario_id: number;
   caja_id: number | null;
+  adicional?: string;
+  descuento?: string;
+  metodo_pago: "efectivo" | "tarjeta" | "transferencia";
   fecha?: string;
   total: number;
 }

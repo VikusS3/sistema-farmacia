@@ -10,11 +10,31 @@ export const VentaModel = {
     try {
       await connection.beginTransaction();
 
+      // Calcular subtotal total
+      let subtotalVenta = 0;
+      for (const detalle of detalles) {
+        subtotalVenta += detalle.subtotal;
+      }
+
+      // Aplicar adicional y descuento en el backend
+      const totalVenta =
+        subtotalVenta +
+        Number(venta.adicional || 0) -
+        Number(venta.descuento || 0);
+
       // Insertar venta
       const [ventaResult] = await connection.query(
-        `INSERT INTO ventas (cliente_id, usuario_id, caja_id, fecha, total)
-         VALUES (?, ?, ?, NOW(), ?)`,
-        [venta.cliente_id, venta.usuario_id, venta.caja_id, venta.total]
+        `INSERT INTO ventas (cliente_id, usuario_id, caja_id, fecha,adicional,descuento,metodo_pago,total)
+         VALUES (?, ?, ?, NOW(), ?, ?, ?, ?)`,
+        [
+          venta.cliente_id,
+          venta.usuario_id,
+          venta.caja_id,
+          Number(venta.adicional || 0),
+          Number(venta.descuento || 0),
+          venta.metodo_pago,
+          totalVenta,
+        ]
       );
       const ventaId = (ventaResult as any).insertId;
 

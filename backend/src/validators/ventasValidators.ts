@@ -13,6 +13,9 @@ export const ventaSchema = z.object({
   cliente_id: z.number().int().positive(),
   usuario_id: z.number().int().positive(),
   caja_id: z.number().int().nullable(),
+  adicional: z.string().optional(),
+  descuento: z.string().optional(),
+  metodo_pago: z.enum(["efectivo", "tarjeta", "transferencia"]),
   total: z.number().nonnegative(),
   detalles: z.array(detalleVentaSchema).min(1),
 });
