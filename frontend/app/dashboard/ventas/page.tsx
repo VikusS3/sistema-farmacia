@@ -47,6 +47,7 @@ function VentasPage() {
   //   setVentaEditantdo(venta);
   //   setModalEdicionOpen(true);
   // };
+  const [montoPago, setMontoPago] = useState<number>(0);
   const [ventaSeleccionada, setVentaSeleccionada] =
     useState<VentaWhitProducts | null>(null);
 
@@ -109,7 +110,7 @@ function VentasPage() {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         title="Detalle de la Venta"
-        className="max-w-2xl"
+        className="max-w-3xl"
       >
         {detalleVenta.length > 0 ? (
           <DetalleVenta
@@ -123,6 +124,8 @@ function VentasPage() {
             setAdicional={setAdicional}
             metodoPago={metodoPago}
             setMetodoPago={setMetodoPago}
+            montoPago={montoPago}
+            setMontoPago={setMontoPago}
           />
         ) : (
           <p className="text-text-200 italic text-center mt-4">

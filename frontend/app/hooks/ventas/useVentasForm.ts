@@ -30,12 +30,14 @@ export function useVentasForm() {
     {
       producto_id: number;
       nombre: string;
+      unidad_seleccionada?: string;
       cantidad: number;
       precio_unitario: number;
       subtotal: number;
       unidad_venta: string;
       unidad_medida: string;
       factor_conversion: number;
+      factor_caja?: number;
     }[]
   >([]);
   const MySwal = withReactContent(Swal);
@@ -49,23 +51,38 @@ export function useVentasForm() {
   ) => {
     if (cantidad <= 0) return;
 
+    // Calcula el precio según la unidad seleccionada
+    let precioVenta = producto.precio_venta;
+
+    if (unidadSeleccionada !== producto.unidad_medida) {
+      precioVenta = producto.precio_venta * producto.factor_conversion;
+    }
+
+    if (unidadSeleccionada === "caja") {
+      precioVenta = producto.precio_venta * producto.factor_caja;
+    }
+
     setDetalleVenta((prevDetalle) => {
       const existente = prevDetalle.find(
         (item) => item.producto_id === producto.id
       );
       if (existente) {
-        const nuevoSubtotal =
-          (existente.cantidad + cantidad) * existente.precio_unitario;
+        const nuevoSubtotal = (existente.cantidad + cantidad) * precioVenta;
+
         MySwal.fire({
           title: "Producto Actualizado",
-          text: `Se actualiz el producto ${producto.nombre} en el carrito. Nuevo subtotal: ${nuevoSubtotal}`,
+          text: `Se actualizó el producto ${
+            producto.nombre
+          } en el carrito. Nuevo subtotal: ${nuevoSubtotal.toFixed(2)}`,
           icon: "success",
         });
+
         return prevDetalle.map((item) =>
           item.producto_id === producto.id
             ? {
                 ...item,
                 cantidad: item.cantidad + cantidad,
+                precio_unitario: precioVenta,
                 subtotal: nuevoSubtotal,
                 unidad_venta: unidadSeleccionada,
               }
@@ -74,17 +91,19 @@ export function useVentasForm() {
       } else {
         MySwal.fire({
           title: "Producto Agregado",
-          text: `Se agreg  ${producto.nombre} al carrito`,
+          text: `Se agregó ${producto.nombre} al carrito`,
           icon: "success",
         });
+
         return [
           ...prevDetalle,
           {
             producto_id: producto.id,
             nombre: producto.nombre,
+            unidad_seleccionada: unidadSeleccionada,
             cantidad,
-            precio_unitario: producto.precio_venta,
-            subtotal: producto.precio_venta * cantidad,
+            precio_unitario: precioVenta,
+            subtotal: precioVenta * cantidad,
             unidad_venta: unidadSeleccionada,
             unidad_medida: producto.unidad_medida,
             factor_conversion: producto.factor_conversion,
@@ -92,6 +111,40 @@ export function useVentasForm() {
         ];
       }
     });
+  };
+
+  //?POSIBLE INTEGRACION A FUTURO
+  const actualizarUnidadVenta = (productoId: number, nuevaUnidad: string) => {
+    setDetalleVenta((prev) =>
+      prev.map((item) => {
+        if (item.producto_id === productoId) {
+          // Precio base en unidad mínima (ya registrado al agregar producto)
+          let precioUnitario = item.precio_unitario;
+          let factor = 1;
+
+          // Ajustar factor según unidad seleccionada
+          if (nuevaUnidad === item.unidad_medida) {
+            factor = 1; // unidad mínima
+          } else if (nuevaUnidad === "blister") {
+            factor = item.factor_conversion; // blister → unidades mínimas
+          } else if (nuevaUnidad === "caja") {
+            factor = item.factor_caja || 1; // caja → unidades mínimas
+          }
+
+          // Calcular nuevo precio
+          precioUnitario = item.precio_unitario * factor;
+
+          return {
+            ...item,
+            unidad_venta: nuevaUnidad,
+            precio_unitario: precioUnitario,
+            subtotal: precioUnitario * item.cantidad,
+            ganancia: (precioUnitario - item.precio_unitario) * item.cantidad,
+          };
+        }
+        return item;
+      })
+    );
   };
 
   const eliminarProducto = (productoId: number) => {
@@ -219,5 +272,6 @@ export function useVentasForm() {
     adicional,
     setAdicional,
     refetchProductos,
+    actualizarUnidadVenta,
   };
 }

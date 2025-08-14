@@ -139,13 +139,12 @@ export default function ProductosListVentas({
                 </p>
               </div>
               {/* SELECTOR DE UNIDAD */}
-              {/* SELECTOR DE UNIDAD */}
               <div className="mb-3">
                 <label className="block text-sm text-text-300 mb-1">
                   Unidad
                 </label>
                 <select
-                  defaultValue={producto.unidad_venta}
+                  defaultValue={producto.unidad_medida}
                   ref={(el) => {
                     unidadRefs.current[producto.id] = el;
                   }}

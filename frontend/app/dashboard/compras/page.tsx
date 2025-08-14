@@ -108,7 +108,7 @@ function ComprasPage() {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         title="Detalle de la Compra"
-        className="max-w-2xl"
+        className="max-w-3xl"
       >
         {detalleCompra.length > 0 ? (
           <DetalleCompra

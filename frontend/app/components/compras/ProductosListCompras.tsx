@@ -155,7 +155,7 @@ export default function ProductosListCompra({
                 ref={(el) => {
                   unidadRefs.current[producto.id] = el;
                 }}
-                defaultValue="unidad"
+                defaultValue="caja"
                 className="mb-3 p-2 border border-background-300 rounded-lg bg-background-100 text-text-100"
               >
                 <option value="unidad">Unidad</option>
