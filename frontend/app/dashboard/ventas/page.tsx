@@ -3,11 +3,10 @@ import Modal from "@/app/components/Modal";
 import DetalleVenta from "@/app/components/ventas/DetalleVenta";
 import ProductosListVentas from "@/app/components/ventas/ProductosListVentas";
 import SelectCliente from "@/app/components/ventas/SelectCliente";
-import VentaEditando from "@/app/components/ventas/VentaEditando";
 import VentaList from "@/app/components/ventas/VentaList";
 import VentaSeleccionada from "@/app/components/ventas/VentaSeleccionada";
 import { useVentasForm } from "@/app/hooks/ventas/useVentasForm";
-import { VentaProducto } from "@/app/types";
+import { VentaWhitProducts } from "@/app/types";
 import { useState } from "react";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
 
@@ -28,7 +27,6 @@ function VentasPage() {
     clientes,
     registrarVenta,
     setModalOpen,
-    handleActualizarVenta,
     total,
     adicional,
     setAdicional,
@@ -39,19 +37,18 @@ function VentasPage() {
     refetchProductos,
   } = useVentasForm();
 
-  const [modalEdicionOpen, setModalEdicionOpen] = useState(false);
+  //const [modalEdicionOpen, setModalEdicionOpen] = useState(false);
   const [modalProductoOpen, setModalProductoOpen] = useState(false);
-  const [ventaEditantdo, setVentaEditantdo] = useState<VentaProducto | null>(
-    null
-  );
+  //const [ventaEditantdo, setVentaEditantdo] =
+  useState<VentaWhitProducts | null>(null);
 
-  const handleEditingCompra = async (ventaId: number) => {
-    const venta = await fetchVentasConProductos(ventaId);
-    setVentaEditantdo(venta);
-    setModalEdicionOpen(true);
-  };
+  // const handleEditingCompra = async (ventaId: number) => {
+  //   const venta = await fetchVentasConProductos(ventaId);
+  //   setVentaEditantdo(venta);
+  //   setModalEdicionOpen(true);
+  // };
   const [ventaSeleccionada, setVentaSeleccionada] =
-    useState<VentaProducto | null>(null);
+    useState<VentaWhitProducts | null>(null);
 
   const handleVerProductosCompra = async (ventaId: number) => {
     const venta = await fetchVentasConProductos(ventaId);
@@ -138,7 +135,6 @@ function VentasPage() {
       <div className="mt-6">
         <VentaList
           ventas={ventas}
-          handleEdit={handleEditingCompra}
           borrarVenta={eliminarVenta}
           handleVerProductosVenta={handleVerProductosCompra}
         />
@@ -159,7 +155,7 @@ function VentasPage() {
         </Modal>
       )}
 
-      {ventaEditantdo && (
+      {/* {ventaEditantdo && (
         <Modal
           isOpen={modalEdicionOpen}
           onClose={() => setModalEdicionOpen(false)}
@@ -173,7 +169,7 @@ function VentasPage() {
             setModalEdicionOpen={setModalEdicionOpen}
           />
         </Modal>
-      )}
+      )} */}
     </div>
   );
 }

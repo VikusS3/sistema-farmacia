@@ -177,6 +177,36 @@ export interface VentaProducto {
   total?: number;
 }
 
+export interface VentaWhitProducts {
+  venta: VentaModal;
+}
+
+export interface VentaModal {
+  adicional: number;
+  caja_id: null;
+  cliente_id: number;
+  cliente_nombre: string;
+  descuento: number;
+  fecha: Date;
+  id: number;
+  metodo_pago: string;
+  productos: Producto[];
+  total: string;
+  usuario_id: number;
+  usuario_nombre: string;
+}
+
+export interface ProductoModal {
+  cantidad: number;
+  id: number;
+  precio_unitario: string;
+  producto_id: number;
+  producto_nombre: string;
+  subtotal: string;
+  unidad_medida: string;
+  unidad_venta: string;
+}
+
 export interface Caja {
   actualizado_en: string;
   creado_en: string;

@@ -1,13 +1,21 @@
-import { VentaProducto } from "@/app/types";
+import { VentaWhitProducts } from "@/app/types";
 
 interface VentaSeleccionadaProps {
-  ventaSeleccionada: VentaProducto;
-  setVentaSeleccionada: (venta: VentaProducto | null) => void;
+  ventaSeleccionada: VentaWhitProducts;
+  setVentaSeleccionada: (venta: VentaWhitProducts | null) => void;
 }
 export default function VentaSeleccionada({
   ventaSeleccionada,
   setVentaSeleccionada,
 }: VentaSeleccionadaProps) {
+  // Si no hay venta seleccionada o productos, no mostramos nada
+  if (!ventaSeleccionada || !ventaSeleccionada.venta?.productos) {
+    return (
+      <div className="p-6 bg-background-100 rounded-lg shadow-md">
+        <p>No hay información de venta disponible</p>
+      </div>
+    );
+  }
   return (
     <div className="p-6 bg-background-100 rounded-lg shadow-md">
       <h2 className="text-2xl font-semibold text-primary-300 mb-4">
@@ -26,7 +34,7 @@ export default function VentaSeleccionada({
             </tr>
           </thead>
           <tbody>
-            {ventaSeleccionada.productos.map((producto, index) => (
+            {ventaSeleccionada.venta.productos.map((producto, index) => (
               <tr
                 key={producto.producto_id}
                 className={

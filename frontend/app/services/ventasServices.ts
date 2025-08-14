@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import api from "../lib/axiosConfig";
-import { Venta, DetalleVenta, VentaProducto } from "../types";
+import { Venta, DetalleVenta, VentaWhitProducts } from "../types";
 import { extractErrorMessage } from "../utils/errorHandler";
 
 export const fetchVentas = async (): Promise<Venta[]> => {
@@ -16,9 +16,9 @@ export const fetchVentas = async (): Promise<Venta[]> => {
 
 export const fetchVentasConProductos = async (
   id: number
-): Promise<VentaProducto> => {
+): Promise<VentaWhitProducts> => {
   try {
-    const response = await api.get(`ventas/venta/${id}/productos`);
+    const response = await api.get(`/ventas/venta/${id}/productos`);
     return response.data;
   } catch (error) {
     const mensajeError = extractErrorMessage(error);

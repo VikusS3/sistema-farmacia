@@ -115,7 +115,8 @@ export const VentaModel = {
   },
 
   async getById(id: number): Promise<any> {
-    const [rows] = await pool.query(
+    // Obtener información básica de la venta
+    const [ventaRows] = await pool.query(
       `SELECT v.*, c.nombre AS cliente_nombre, u.nombre AS usuario_nombre
        FROM ventas v
        JOIN clientes c ON v.cliente_id = c.id
@@ -123,7 +124,33 @@ export const VentaModel = {
        WHERE v.id = ?`,
       [id]
     );
-    return rows;
+
+    if (!Array.isArray(ventaRows) || ventaRows.length === 0) {
+      return null;
+    }
+
+    // Obtener los productos de la venta
+    const [productos] = await pool.query(
+      `SELECT 
+        dv.id,
+        dv.producto_id,
+        p.nombre AS producto_nombre,
+        p.unidad_medida,
+        dv.cantidad,
+        dv.precio_unitario,
+        dv.subtotal,
+        p.unidad_venta
+      FROM detalle_ventas dv
+      JOIN productos p ON dv.producto_id = p.id
+      WHERE dv.venta_id = ?`,
+      [id]
+    );
+
+    // Formatear la respuesta para el frontend
+    return {
+      ...ventaRows[0],
+      productos: Array.isArray(productos) ? productos : [],
+    };
   },
 
   async getVentaConProductosById(id: number): Promise<any> {

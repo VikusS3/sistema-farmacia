@@ -13,4 +13,10 @@ router.get(
   VentaController.generarTicket
 );
 
+router.get(
+  "/venta/:id/productos",
+  authMiddleware,
+  VentaController.getVentaConProductosById
+);
+
 export default router;

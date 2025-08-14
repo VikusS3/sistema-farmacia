@@ -57,4 +57,14 @@ export const VentaController = {
       res.status(500).json({ message: "Error al generar ticket de venta" });
     }
   },
+
+  async getVentaConProductosById(req: Request, res: Response): Promise<void> {
+    const id = Number(req.params.id);
+    const venta = await VentaModel.getById(id);
+    if (!venta) {
+      res.status(404).json({ message: "Venta no encontrada" });
+      return;
+    }
+    res.json({ venta });
+  },
 };

@@ -16,7 +16,7 @@ import { AnimatePresence, motion } from "framer-motion";
 
 interface VentaListProps {
   ventas: Venta[];
-  handleEdit: (id: number) => void;
+  handleEdit?: (id: number) => void;
   borrarVenta: (id: number) => void;
   handleVerProductosVenta: (id: number) => void;
 }
