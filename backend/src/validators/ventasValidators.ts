@@ -14,7 +14,7 @@ export const ventaSchema = z.object({
   caja_id: z.number().int().nullable(),
   adicional: z.number().nonnegative().optional().default(0),
   descuento: z.number().nonnegative().optional().default(0),
-  metodo_pago: z.enum(["efectivo", "tarjeta", "transferencia"]),
+  metodo_pago: z.enum(["efectivo", "tarjeta", "yape/plin"]),
   fecha: z.string().optional(),
   total: z.number().nonnegative(),
   detalle_venta: z.array(detalleVentaSchema).min(1),

@@ -95,7 +95,7 @@ export interface VentaTicket {
   descuento?: number;
   fecha: Date;
   id: number;
-  metodo_pago: "efectivo" | "tarjeta" | "transferencia";
+  metodo_pago: "efectivo" | "tarjeta" | "yape/plin";
   total: string;
   usuario_id: number;
 }
@@ -107,7 +107,7 @@ export interface Venta {
   caja_id: number | null;
   adicional?: number;
   descuento?: number;
-  metodo_pago: "efectivo" | "tarjeta" | "transferencia";
+  metodo_pago: "efectivo" | "tarjeta" | "yape/plin";
   fecha?: string;
   total: number;
 }
