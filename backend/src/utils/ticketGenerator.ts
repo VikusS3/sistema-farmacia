@@ -2,12 +2,12 @@ import PDFDocument from "pdfkit";
 import { Response } from "express";
 import fs from "fs";
 import path from "path";
-import { Producto, VentaTicket } from "../types";
+import { DetalleVenta, Venta } from "../types";
 
 export const generarTicketPDF = (
   res: Response,
-  venta: VentaTicket,
-  productos: Producto[]
+  venta: Venta,
+  detalles: DetalleVenta[]
 ) => {
   const doc = new PDFDocument({ size: [220, 600], margin: 5 });
   res.setHeader("Content-Type", "application/pdf");
@@ -54,11 +54,14 @@ export const generarTicketPDF = (
     .text("Telf.: 01 654 1807", { align: "center" })
     .moveDown(0.5);
 
+  const numeroTicket = venta.id
+    ? `001-${venta.id.toString().padStart(6, "0")}`
+    : "S/N";
   doc
     .text("R.U.C. 10437368461", { align: "center" })
     .text("BOLETA DE VENTA", { align: "center" })
     .font("Helvetica-Bold")
-    .text(`Nº: 001-${venta.id.toString().padStart(6, "0")}`, {
+    .text(`Nº: ${numeroTicket}`, {
       align: "center",
     })
     .moveDown(0.5);
@@ -82,15 +85,19 @@ export const generarTicketPDF = (
   doc.moveDown(0.2).font("Helvetica");
 
   // Detalle de productos
-  productos.forEach((prod: any) => {
+  detalles.forEach((detalle) => {
+    const unidad =
+      detalle.unidad_venta.charAt(0).toUpperCase() +
+      detalle.unidad_venta.slice(1);
+    const productoNombre = (detalle as any).producto_nombre || "Producto";
+
     doc
-      .font("Helvetica-Bold")
-      .text(
-        `${prod.producto_nombre} (${prod.unidad_medida}) x ${prod.cantidad}`,
-        { continued: true }
-      )
       .font("Helvetica")
-      .text(`  S/. ${prod.subtotal}`, { align: "right" });
+      .text(`${detalle.cantidad} x ${productoNombre} (${unidad})`, {
+        continued: true,
+      })
+      .text(`S/. ${detalle.precio_unitario}`, { align: "right" })
+      .text(`Subtotal: S/. ${detalle.subtotal}`, { align: "right" });
   });
 
   doc.moveDown(0.3);
@@ -98,7 +105,16 @@ export const generarTicketPDF = (
 
   // --- Totales ---
   doc.fontSize(8).font("Helvetica-Bold");
-  doc.text(`TOTAL S/. ${venta.total}`, { align: "right" }).moveDown(0.5);
+  if (venta.descuento && venta.descuento > 0) {
+    doc.text(`Subtotal: S/. ${venta.total + venta.descuento}`, {
+      align: "right",
+    });
+    doc.text(`Descuento: -S/. ${venta.descuento}`, { align: "right" });
+  }
+  if (venta.adicional && venta.adicional > 0) {
+    doc.text(`Adicional: +S/. ${venta.adicional}`, { align: "right" });
+  }
+  doc.text(`TOTAL: S/. ${venta.total}`, { align: "right" }).moveDown(0.5);
 
   // --- Pie de página ---
   doc

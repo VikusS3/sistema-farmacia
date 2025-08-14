@@ -7,5 +7,10 @@ const router = Router();
 router.get("/", authMiddleware, VentaController.getAll);
 router.get("/:id", authMiddleware, VentaController.getById);
 router.post("/", authMiddleware, VentaController.create);
+router.get(
+  "/:id/generar-ticket",
+  authMiddleware,
+  VentaController.generarTicket
+);
 
 export default router;

@@ -85,7 +85,7 @@ export const deleteVenta = async (id: number): Promise<void> => {
 };
 
 export const fetchVentaTicket = async (id: number): Promise<Blob> => {
-  const response = await api.get(`ventas/venta/${id}/ticket`, {
+  const response = await api.get(`ventas/${id}/generar-ticket`, {
     responseType: "blob", // 👈 esto es clave para PDFs
   });
   return response.data;

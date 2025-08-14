@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { VentaModel } from "../models/ventas";
 import { ventaSchema } from "../validators/ventasValidators";
+import { generarTicketPDF } from "../utils/ticketGenerator";
 
 export const VentaController = {
   async create(req: Request, res: Response): Promise<void> {
@@ -37,5 +38,23 @@ export const VentaController = {
 
     //const detalles = await VentaModel.getDetallesByVentaId(venta.id);
     res.json({ venta });
+  },
+
+  async generarTicket(req: Request, res: Response): Promise<void> {
+    const id = Number(req.params.id);
+
+    try {
+      const data = await VentaModel.getVentaConProductosById(id);
+
+      if (!data) {
+        res.status(404).json({ message: "Venta no encontrada" });
+        return;
+      }
+
+      generarTicketPDF(res, data.venta, data.productos);
+    } catch (error) {
+      console.error("Error al generar ticket:", error);
+      res.status(500).json({ message: "Error al generar ticket de venta" });
+    }
   },
 };

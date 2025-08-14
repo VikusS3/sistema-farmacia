@@ -126,14 +126,31 @@ export const VentaModel = {
     return rows;
   },
 
-  async getDetallesByVentaId(ventaId: number): Promise<DetalleVenta[]> {
-    const [rows] = await pool.query(
+  async getVentaConProductosById(id: number): Promise<any> {
+    const [ventaRows] = await pool.query(
+      `SELECT v.*, c.nombre AS cliente_nombre, u.nombre AS usuario_nombre
+       FROM ventas v
+       JOIN clientes c ON v.cliente_id = c.id
+       JOIN usuarios u ON v.usuario_id = u.id
+       WHERE v.id = ?`,
+      [id]
+    );
+
+    if (!Array.isArray(ventaRows) || ventaRows.length === 0) {
+      return null;
+    }
+
+    const [detalleRows] = await pool.query(
       `SELECT dv.*, p.nombre AS producto_nombre
        FROM detalle_ventas dv
        JOIN productos p ON dv.producto_id = p.id
        WHERE dv.venta_id = ?`,
-      [ventaId]
+      [id]
     );
-    return rows as DetalleVenta[];
+
+    return {
+      venta: ventaRows[0],
+      productos: detalleRows,
+    };
   },
 };
