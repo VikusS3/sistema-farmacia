@@ -1,94 +1,92 @@
+// src/hooks/useCaja.ts
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
-import { abrirCaja, cerrarCaja, fetchCajas } from "@/app/services/cajaServices";
+import {
+  fetchCajas,
+  fetchCaja,
+  abrirCaja,
+  cerrarCaja,
+  getCajaActivaByUser,
+} from "@/app/services/cajaServices";
 import {
   Caja,
   AbrirCajaInput,
   CerrarCajaInput,
   AbrirCajaResponse,
+  CajaActivaResponse,
 } from "@/app/types";
-import { extractErrorMessage } from "@/app/utils/errorHandler";
-import { useEffect } from "react";
 
-const MySwal = withReactContent(Swal);
-
+// 📦 Lista de todas las cajas
 export const useCajas = () => {
-  const queryClient = useQueryClient();
-
-  // ✅ Obtener lista de cajas
-  const {
-    data: cajas,
-    isLoading: isCajasLoading,
-    error: cajasError,
-    isError: isCajasError,
-    refetch: refetchCajas,
-  } = useQuery<Caja[], Error>({
+  return useQuery<Caja[]>({
     queryKey: ["cajas"],
     queryFn: fetchCajas,
-    staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
   });
+};
 
-  // ✅ Mutación para abrir caja
+// 📦 Detalle de una caja
+export const useCajaById = (id: number) => {
+  return useQuery<Caja>({
+    queryKey: ["caja", id],
+    queryFn: () => fetchCaja(id),
+    enabled: !!id,
+  });
+};
+
+// 📦 Caja activa de un usuario
+export const useCajaActiva = (usuarioId?: number) => {
+  return useQuery<CajaActivaResponse | null>({
+    queryKey: ["cajaActiva", usuarioId],
+    queryFn: () => getCajaActivaByUser(usuarioId!),
+    enabled: typeof usuarioId === "number" && usuarioId > 0, // evita llamar si es null o undefined
+    refetchOnWindowFocus: false,
+  });
+};
+
+// 🚀 Mutaciones de apertura y cierre
+export const useCajaMutations = (usuarioId?: number) => {
+  const queryClient = useQueryClient();
+
   const abrirCajaMutation = useMutation<
     AbrirCajaResponse,
     Error,
     AbrirCajaInput
   >({
     mutationFn: abrirCaja,
-    onSuccess: (data) => {
+    onSuccess: () => {
+      Swal.fire(
+        "Caja abierta",
+        "La caja se ha abierto correctamente",
+        "success"
+      );
       queryClient.invalidateQueries({ queryKey: ["cajas"] });
-      if (data?.id && data.message) {
-        queryClient.invalidateQueries({ queryKey: ["caja-activa", data.id] });
-      }
-      MySwal.fire("Éxito", "Caja abierta correctamente", "success");
+      queryClient.invalidateQueries({ queryKey: ["cajaActiva", usuarioId] });
     },
     onError: (error) => {
-      const message = extractErrorMessage(error);
-      MySwal.fire("Error", message, "error");
+      Swal.fire("Error", error.message, "error");
     },
   });
 
-  // ✅ Mutación para cerrar caja
   const cerrarCajaMutation = useMutation<Caja, Error, CerrarCajaInput>({
     mutationFn: cerrarCaja,
-    onSuccess: (closedCaja) => {
+    onSuccess: () => {
+      Swal.fire(
+        "Caja cerrada",
+        "La caja se ha cerrado correctamente",
+        "success"
+      );
       queryClient.invalidateQueries({ queryKey: ["cajas"] });
-      if (closedCaja?.usuario_id) {
-        queryClient.invalidateQueries({
-          queryKey: ["caja-activa", closedCaja.usuario_id],
-        });
-      }
-      MySwal.fire("Éxito", "Caja cerrada correctamente", "success");
+      queryClient.invalidateQueries({ queryKey: ["cajaActiva", usuarioId] });
     },
     onError: (error) => {
-      const message = extractErrorMessage(error);
-      MySwal.fire("Error", message, "error");
+      Swal.fire("Error", error.message, "error");
     },
   });
 
-  useEffect(() => {
-    fetchCajas().then((data) => console.log("CAJAS:", data));
-  }, []);
-
   return {
-    cajas,
-    isCajasLoading,
-    isCajasError,
-    cajasError,
-    refetchCajas,
-
-    abrirCaja: abrirCajaMutation.mutate,
-    cerrarCaja: cerrarCajaMutation.mutate,
-
-    isAbrirCajaLoading: abrirCajaMutation.isPending,
-    isAbrirCajaSuccess: abrirCajaMutation.isSuccess,
-    isAbrirCajaError: abrirCajaMutation.isError,
-
-    isCerrarCajaLoading: cerrarCajaMutation.isPending,
-    isCerrarCajaSuccess: cerrarCajaMutation.isSuccess,
-    isCerrarCajaError: cerrarCajaMutation.isError,
+    abrirCaja: abrirCajaMutation.mutateAsync,
+    cerrarCaja: cerrarCajaMutation.mutateAsync,
+    isLoadingAbrir: abrirCajaMutation.isPending,
+    isLoadingCerrar: cerrarCajaMutation.isPending,
   };
 };

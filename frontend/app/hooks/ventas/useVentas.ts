@@ -37,7 +37,7 @@ export const useVentas = () => {
       } = {
         cliente_id: venta.cliente_id!,
         usuario_id: venta.usuario_id!,
-        caja_id: (venta as any).caja_id ?? null,
+        caja_id: venta.caja_id!,
         fecha: venta.fecha!, // obligatorio según tipo
         adicional: venta.adicional ?? 0,
         descuento: venta.descuento ?? 0,

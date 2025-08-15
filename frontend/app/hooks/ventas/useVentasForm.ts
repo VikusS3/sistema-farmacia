@@ -6,6 +6,7 @@ import { useClientes } from "../clientes/useClientes";
 import { VentaProducto, Productos } from "@/app/types";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import { getCajaActivaByUser } from "@/app/services/cajaServices";
 export function useVentasForm() {
   const {
     actualizarVenta,
@@ -173,10 +174,35 @@ export function useVentasForm() {
       return;
     }
 
+    let cajaId = null;
+
+    try {
+      // Buscar caja abierta del usuario actual
+      const caja = await getCajaActivaByUser(Number(usuarioId));
+      if (caja) {
+        cajaId = caja.id;
+      } else {
+        MySwal.fire({
+          title: "Error",
+          text: "No tiene una caja abierta.",
+          icon: "error",
+        });
+        return;
+      }
+    } catch (error) {
+      console.error("Error verificando caja:", error);
+      MySwal.fire({
+        title: "Error",
+        text: "No se pudo verificar la caja abierta.",
+        icon: "error",
+      });
+      return;
+    }
+
     const venta = {
       cliente_id: clienteId,
       usuario_id: Number(usuarioId),
-      caja_id: null, // 🔹 De momento sin caja abierta
+      caja_id: cajaId, // 🔹 De momento sin caja abierta
       fecha: new Date().toISOString(),
       total: total + adicional - descuento,
       descuento,

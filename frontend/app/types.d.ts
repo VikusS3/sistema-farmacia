@@ -208,42 +208,35 @@ export interface ProductoModal {
 }
 
 export interface Caja {
-  actualizado_en: string;
-  creado_en: string;
-  estado: "abierta" | "cerrada";
-  fecha_apertura: string;
-  fecha_cierre: string | null;
   id: number;
+  usuario_id: number;
+  apertura: string;
+  cierre: string | null;
   monto_apertura: number;
   monto_cierre: number | null;
-  usuario_id: number;
+  total_sistema: number;
+  diferencia: number;
+  estado: "abierta" | "cerrada";
 }
 
-// cajaServices.ts o en un archivo de tipos aparte
-export type AbrirCajaInput = {
+export interface AbrirCajaInput {
   usuario_id: number;
   monto_apertura: number;
-  fecha_apertura?: string;
-};
+}
 
-export type CerrarCajaInput = {
-  id: number;
-  fecha_cierre?: string;
+export interface CerrarCajaInput {
+  caja_id: number;
   monto_cierre: number;
-};
+}
 
-export type AbrirCajaResponse = {
-  id: number;
+export interface AbrirCajaResponse {
   message: string;
-};
+  caja: Caja;
+}
 
 export interface CajaActivaResponse {
-  id: number;
-  message: string;
-  fecha_apertura: string;
   monto_apertura: number;
-  fecha_cierre: string | null;
-  monto_cierre: number | null;
-  estado: "abierta" | "cerrada";
-  usuario_id: number;
+  id: number;
+  fecha_apertura: string;
+  caja: Caja;
 }

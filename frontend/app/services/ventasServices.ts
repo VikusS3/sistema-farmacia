@@ -1,32 +1,38 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import api from "../lib/axiosConfig";
-import { Venta, DetalleVenta, VentaWhitProducts } from "../types";
-import { extractErrorMessage } from "../utils/errorHandler";
+import { DetalleVenta, Venta } from "../types";
 
-export const fetchVentas = async (): Promise<Venta[]> => {
+const extractErrorMessage = (error: any): string => {
+  return (
+    error?.response?.data?.message || error?.message || "Error desconocido"
+  );
+};
+
+// Obtener ventas
+export const fetchVentas = async () => {
   try {
     const response = await api.get("/ventas");
     return response.data;
   } catch (error) {
     const mensajeError = extractErrorMessage(error);
     console.error(mensajeError);
-    throw error;
+    throw new Error(mensajeError);
   }
 };
 
-export const fetchVentasConProductos = async (
-  id: number
-): Promise<VentaWhitProducts> => {
+// Obtener ventas con productos
+export const fetchVentasConProductos = async () => {
   try {
-    const response = await api.get(`/ventas/venta/${id}/productos`);
+    const response = await api.get("/ventas/con-productos");
     return response.data;
   } catch (error) {
     const mensajeError = extractErrorMessage(error);
     console.error(mensajeError);
-    throw error;
+    throw new Error(mensajeError);
   }
 };
 
+// Crear venta
 export const createVenta = async (
   venta: Omit<Venta, "id" | "creado_en" | "actualizado_en"> & {
     detalle_venta: Omit<DetalleVenta, "id" | "venta_id">[];
@@ -60,12 +66,24 @@ export const createVenta = async (
   }
 };
 
-export const updateVenta = async (
-  id: number,
-  venta: Partial<Venta> & { detalle_venta?: DetalleVenta[] }
-): Promise<void> => {
+// Actualizar venta
+export const updateVenta = async (id: number, venta: any) => {
   try {
-    await api.put(`/ventas/${id}`, venta);
+    const ventaData = {
+      cliente_id: venta.cliente_id ?? null,
+      usuario_id: venta.usuario_id,
+      caja_id: venta.caja_id ?? null,
+      total: venta.total,
+      productos: venta.detalle.map((d: any) => ({
+        producto_id: d.producto_id,
+        cantidad: d.cantidad,
+        precio_unitario: d.precio_unitario,
+        unidad_venta: d.unidad_venta,
+      })),
+    };
+
+    const response = await api.put(`/ventas/${id}`, ventaData);
+    return response.data;
   } catch (error) {
     const mensajeError = extractErrorMessage(error);
     console.error(mensajeError);
@@ -73,20 +91,28 @@ export const updateVenta = async (
   }
 };
 
-export const deleteVenta = async (id: number): Promise<void> => {
+// Eliminar venta
+export const deleteVenta = async (id: number) => {
   try {
-    await api.delete(`/ventas/${id}`);
+    const response = await api.delete(`/ventas/${id}`);
+    return response.data;
   } catch (error) {
-    console.error(error);
     const mensajeError = extractErrorMessage(error);
     console.error(mensajeError);
-    throw error;
+    throw new Error(mensajeError);
   }
 };
 
+// Obtener ticket en PDF
 export const fetchVentaTicket = async (id: number): Promise<Blob> => {
-  const response = await api.get(`ventas/${id}/generar-ticket`, {
-    responseType: "blob", // 👈 esto es clave para PDFs
-  });
-  return response.data;
+  try {
+    const response = await api.get(`ventas/${id}/generar-ticket`, {
+      responseType: "blob",
+    });
+    return response.data;
+  } catch (error) {
+    const mensajeError = extractErrorMessage(error);
+    console.error(mensajeError);
+    throw new Error(mensajeError);
+  }
 };

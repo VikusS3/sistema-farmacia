@@ -1,5 +1,7 @@
+// src/services/cajaService.ts
 import axios from "axios";
 import api from "../lib/axiosConfig";
+import { extractErrorMessage } from "../utils/errorHandler";
 import {
   Caja,
   AbrirCajaInput,
@@ -7,7 +9,6 @@ import {
   AbrirCajaResponse,
   CajaActivaResponse,
 } from "../types";
-import { extractErrorMessage } from "../utils/errorHandler";
 
 export const fetchCajas = async (): Promise<Caja[]> => {
   try {
@@ -46,9 +47,8 @@ export const abrirCaja = async (
 
 export const cerrarCaja = async (data: CerrarCajaInput): Promise<Caja> => {
   try {
-    const response = await api.put(`/cajas/cerrar`, data);
-    console.log(response.data);
-    return response.data; // caja actualizada completa
+    const response = await api.post("/cajas/cerrar", data);
+    return response.data; // Retorna la caja actualizada
   } catch (error: unknown) {
     const mensajeError = extractErrorMessage(error);
     console.error(mensajeError);
@@ -61,14 +61,14 @@ export const getCajaActivaByUser = async (
 ): Promise<CajaActivaResponse | null> => {
   try {
     const response = await api.get<CajaActivaResponse>(
-      `/cajas/activa/usuario/${usuario_id}`
+      `/cajas/abierta/${usuario_id}`
     );
     return response.data;
   } catch (error: unknown) {
     const mensajeError = extractErrorMessage(error);
     console.error("Error al obtener caja activa:", mensajeError);
     if (axios.isAxiosError(error) && error.response?.status === 404) {
-      return null;
+      return null; // No hay caja activa
     }
     throw error;
   }

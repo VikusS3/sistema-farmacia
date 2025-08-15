@@ -8,12 +8,11 @@ import dayjs from "dayjs";
 import { Caja } from "@/app/types";
 
 export default function GestionCajasPage() {
-  const { cajas, isCajasLoading, isCajasError, cajasError, refetchCajas } =
-    useCajas();
+  const { data: cajas, isLoading, error, refetch } = useCajas();
   const [pageIndex, setPageIndex] = useState(0);
 
-  if (isCajasLoading) return <div>Loading...</div>;
-  if (isCajasError) return <div>Error: {cajasError?.message}</div>;
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error?.message}</div>;
 
   const pageSize = 10;
   const totalPages = Math.ceil(cajas?.length || 0 / pageSize);
@@ -32,7 +31,7 @@ export default function GestionCajasPage() {
           <h1 className="text-3xl font-semibold">Gestión de Cajas</h1>
           <button
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-blue-400"
-            onClick={() => refetchCajas()}
+            onClick={() => refetch()}
             aria-label="Actualizar lista de cajas"
           >
             <RefreshCcw className="w-5 h-5" />
@@ -45,11 +44,13 @@ export default function GestionCajasPage() {
             <thead className="bg-blue-600 text-white text-left">
               <tr>
                 <th className="px-4 py-3">ID</th>
-                <th className="px-4 py-3">Estado</th>
                 <th className="px-4 py-3">Fecha Apertura</th>
                 <th className="px-4 py-3">Monto Apertura</th>
                 <th className="px-4 py-3">Fecha Cierre</th>
                 <th className="px-4 py-3">Monto Cierre</th>
+                <th className="px-4 py-3">Total Sistema</th>
+                <th className="px-4 py-3">Diferencia</th>
+                <th className="px-4 py-3">Estado</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -59,15 +60,31 @@ export default function GestionCajasPage() {
                   className="hover:bg-gray-100 transition-colors"
                 >
                   <td className="px-4 py-3">{caja.id}</td>
-                  <td className="px-4 py-3">{caja.estado}</td>
                   <td className="px-4 py-3">
-                    {dayjs(caja.fecha_apertura).format("DD/MM/YYYY HH:mm")}
+                    {dayjs(caja.apertura).format("DD/MM/YYYY HH:mm")}
                   </td>
                   <td className="px-4 py-3">{caja.monto_apertura}</td>
                   <td className="px-4 py-3">
-                    {dayjs(caja.fecha_cierre).format("DD/MM/YYYY HH:mm")}
+                    {dayjs(caja.cierre).format("DD/MM/YYYY HH:mm")}
                   </td>
                   <td className="px-4 py-3">{caja.monto_cierre}</td>
+                  <td className="px-4 py-3">{caja.total_sistema}</td>
+                  <td className="px-4 py-3">{caja.diferencia}</td>
+                  <td
+                    className={`px-4 py-3 ${
+                      caja.estado === "abierta" ? "bg-green-200" : "bg-red-200"
+                    }`}
+                  >
+                    <span
+                      className={`px-2 py-1 rounded-md ${
+                        caja.estado === "abierta"
+                          ? "bg-green-600 text-white"
+                          : "bg-red-600 text-white"
+                      }`}
+                    >
+                      {caja.estado}
+                    </span>
+                  </td>
                 </tr>
               ))}
             </tbody>
