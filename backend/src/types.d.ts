@@ -123,17 +123,17 @@ export interface DetalleVenta {
   ganancia: number;
 }
 
-export type Caja = {
-  id?: number;
+export interface Caja {
+  id: number;
   usuario_id: number;
-  fecha_apertura: string;
+  fecha_apertura: Date;
   monto_apertura: number;
-  fecha_cierre: string;
-  monto_cierre: number;
+  fecha_cierre: Date | null;
+  monto_cierre: number | null;
+  total_sistema: number | null;
+  diferencia: number | null;
   estado: "abierta" | "cerrada";
-  creado_en?: Date;
-  actualizado_en?: Date;
-};
+}
 
 // Interface para las métricas del dashboard
 export type CambioType = "positive" | "negative" | "warning";

@@ -4,23 +4,29 @@ import { ventaSchema } from "../validators/ventasValidators";
 import { generarTicketPDF } from "../utils/ticketGenerator";
 
 export const VentaController = {
-  async create(req: Request, res: Response): Promise<void> {
-    const parse = ventaSchema.safeParse(req.body);
-    if (!parse.success) {
-      res.status(400).json({ errors: parse.error.format() });
-      return;
-    }
-
+  async create(req: Request, res: Response) {
     try {
-      // ahora pasamos parse.data.detalle_venta
+      // Validar datos de la venta
+      const ventaData = ventaSchema.parse(req.body);
+
+      // caja_id inyectado por middleware verificarCajaAbierta
+      const caja_id = req.body.caja_id ?? null;
+
+      // Crear venta
       const ventaId = await VentaModel.create(
-        parse.data,
-        parse.data.detalle_venta
+        { ...ventaData, caja_id },
+        ventaData.detalle_venta
       );
-      res.status(201).json({ id: ventaId });
-    } catch (error) {
-      console.error("Error al registrar venta:", error);
-      res.status(500).json({ message: "Error al registrar venta" });
+
+      res.status(201).json({
+        message: "Venta registrada correctamente",
+        venta_id: ventaId,
+      });
+    } catch (error: any) {
+      console.error(error);
+      res.status(400).json({
+        error: error.message || "Error al registrar venta",
+      });
     }
   },
 

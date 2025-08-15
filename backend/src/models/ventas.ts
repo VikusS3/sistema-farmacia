@@ -10,13 +10,13 @@ export const VentaModel = {
     try {
       await connection.beginTransaction();
 
-      // Calcular subtotal total
+      // Calcular subtotal
       let subtotalVenta = 0;
       for (const detalle of detalles) {
         subtotalVenta += detalle.subtotal;
       }
 
-      // Aplicar adicional y descuento en el backend
+      // Calcular total
       const totalVenta =
         subtotalVenta +
         Number(venta.adicional || 0) -
@@ -25,12 +25,12 @@ export const VentaModel = {
       // Insertar venta
       const [ventaResult] = await connection.query(
         `INSERT INTO ventas (
-     cliente_id, usuario_id, caja_id, fecha, adicional, descuento, metodo_pago, total
-   ) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?)`,
+          cliente_id, usuario_id, caja_id, fecha, adicional, descuento, metodo_pago, total
+        ) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?)`,
         [
           venta.cliente_id,
           venta.usuario_id,
-          venta.caja_id ?? null, // 🔹 Si no hay caja_id, se inserta NULL
+          venta.caja_id ?? null, // viene del middleware verificarCajaAbierta
           Number(venta.adicional || 0),
           Number(venta.descuento || 0),
           venta.metodo_pago,
@@ -40,9 +40,9 @@ export const VentaModel = {
 
       const ventaId = (ventaResult as any).insertId;
 
-      // Procesar cada detalle
+      // Insertar detalles y actualizar stock
       for (const detalle of detalles) {
-        // Leer producto y bloquear la fila
+        // Bloquear producto
         const [rows] = await connection.query(
           `SELECT * FROM productos WHERE id = ? FOR UPDATE`,
           [detalle.producto_id]
@@ -69,10 +69,10 @@ export const VentaModel = {
         const ganancia =
           (producto.precio_venta - producto.precio_compra) * cantidadEnMinima;
 
-        // Insertar detalle de venta
+        // Insertar detalle
         await connection.query(
           `INSERT INTO detalle_ventas
-           (venta_id, producto_id, cantidad, unidad_venta, precio_unitario, subtotal, ganancia)
+            (venta_id, producto_id, cantidad, unidad_venta, precio_unitario, subtotal, ganancia)
            VALUES (?, ?, ?, ?, ?, ?, ?)`,
           [
             ventaId,
@@ -87,9 +87,7 @@ export const VentaModel = {
 
         // Actualizar stock
         await connection.query(
-          `UPDATE productos
-           SET stock = stock - ?
-           WHERE id = ?`,
+          `UPDATE productos SET stock = stock - ? WHERE id = ?`,
           [cantidadEnMinima, detalle.producto_id]
         );
       }

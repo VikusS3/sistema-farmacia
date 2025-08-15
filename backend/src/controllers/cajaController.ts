@@ -1,58 +1,75 @@
+// src/controllers/CajaController.ts
 import { Request, Response } from "express";
 import { CajaModel } from "../models/caja";
 import {
   aperturaCajaSchema,
   cierreCajaSchema,
+  getCajaAbiertaSchema,
 } from "../validators/cajaValidators";
 
 export const CajaController = {
-  async abrir(req: Request, res: Response): Promise<void> {
-    const parse = aperturaCajaSchema.safeParse(req.body);
-    if (!parse.success) {
-      res.status(400).json({ errors: parse.error.format() });
-      return;
-    }
-
+  // Apertura de caja
+  async abrirCaja(req: Request, res: Response) {
     try {
-      const id = await CajaModel.abrirCaja(
-        parse.data.usuario_id,
-        parse.data.monto_apertura
-      );
-      const caja = await CajaModel.getCajaAbierta(parse.data.usuario_id);
-      res.status(201).json(caja);
+      const { usuario_id, monto_apertura } = aperturaCajaSchema.parse(req.body);
+
+      const nuevaCajaId = await CajaModel.abrirCaja(usuario_id, monto_apertura);
+
+      res.status(201).json({
+        message: "Caja abierta correctamente",
+        caja_id: nuevaCajaId,
+      });
     } catch (error: any) {
-      res.status(400).json({ message: error.message });
+      console.error(error);
+      res.status(400).json({ error: error.message || "Error al abrir caja" });
     }
-    return;
   },
 
-  async cerrar(req: Request, res: Response): Promise<void> {
-    const parse = cierreCajaSchema.safeParse(req.body);
-    if (!parse.success) {
-      res.status(400).json({ errors: parse.error.format() });
-      return;
-    }
-
+  // Cierre de caja
+  async cerrarCaja(req: Request, res: Response) {
     try {
-      await CajaModel.cerrarCaja(parse.data.caja_id, parse.data.monto_cierre);
+      const { caja_id, monto_cierre } = cierreCajaSchema.parse(req.body);
+
+      await CajaModel.cerrarCaja(caja_id, monto_cierre);
+
       res.json({ message: "Caja cerrada correctamente" });
     } catch (error: any) {
-      res.status(400).json({ message: error.message });
+      console.error(error);
+      res.status(400).json({ error: error.message || "Error al cerrar caja" });
     }
-    return;
   },
 
+  // Obtener caja abierta de un usuario
   async getCajaAbierta(req: Request, res: Response): Promise<void> {
-    const usuarioId = Number(req.params.usuario_id);
-    const caja = await CajaModel.getCajaAbierta(usuarioId);
-    if (!caja) res.status(404).json({ message: "No hay caja abierta" });
-    res.json(caja);
-    return;
+    try {
+      const { usuario_id } = getCajaAbiertaSchema.parse(req.params);
+
+      const caja = await CajaModel.getCajaAbierta(Number(usuario_id));
+
+      if (!caja) {
+        res
+          .status(404)
+          .json({ message: "No hay caja abierta para este usuario" });
+        return;
+      }
+
+      res.json(caja);
+    } catch (error: any) {
+      console.error(error);
+      res
+        .status(400)
+        .json({ error: error.message || "Error al obtener caja abierta" });
+    }
   },
 
-  async getAll(req: Request, res: Response): Promise<void> {
-    const cajas = await CajaModel.getAll();
-    res.json(cajas);
-    return;
+  // Listar todas las cajas
+  async getAll(req: Request, res: Response) {
+    try {
+      const cajas = await CajaModel.getAll();
+      res.json(cajas);
+    } catch (error: any) {
+      console.error(error);
+      res.status(500).json({ error: "Error al obtener lista de cajas" });
+    }
   },
 };
