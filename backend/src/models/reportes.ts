@@ -11,40 +11,61 @@ import {
 } from "../types";
 
 export const ReportesModel = {
+  // Top productos más vendidos
   async getTopProductosMasVendidos(limit = 5): Promise<RowDataPacket[]> {
     const [rows] = await pool.query<RowDataPacket[]>(
-      `SELECT 
-        p.id,
-        p.nombre,
-        p.unidad_medida,
-  
-        SUM(CASE 
-          WHEN v.fecha BETWEEN CURDATE() - INTERVAL WEEKDAY(CURDATE()) DAY 
-                          AND CURDATE()
-          THEN dv.cantidad
-          ELSE 0
-        END) AS ventas_semana_actual,
-  
-        SUM(CASE 
-          WHEN v.fecha BETWEEN CURDATE() - INTERVAL (WEEKDAY(CURDATE()) + 7) DAY 
-                          AND CURDATE() - INTERVAL (WEEKDAY(CURDATE()) + 1) DAY
-          THEN dv.cantidad
-          ELSE 0
-        END) AS ventas_semana_pasada
-  
-      FROM detalle_ventas dv
-      JOIN ventas v ON dv.venta_id = v.id
-      JOIN productos p ON dv.producto_id = p.id
-      GROUP BY p.id
-      ORDER BY ventas_semana_actual DESC
+      `WITH ventas_mes_actual AS (
+        SELECT 
+          p.id,
+          p.nombre,
+          p.unidad_medida,
+          SUM(dv.cantidad) AS cantidad_mes_actual,
+          COUNT(DISTINCT v.id) AS num_ventas_mes_actual
+        FROM detalle_ventas dv
+        JOIN ventas v ON dv.venta_id = v.id
+        JOIN productos p ON dv.producto_id = p.id
+        WHERE v.fecha >= DATE_FORMAT(CURRENT_DATE, '%Y-%m-01')
+          AND v.fecha < DATE_FORMAT(CURRENT_DATE + INTERVAL 1 MONTH, '%Y-%m-01')
+        GROUP BY p.id, p.nombre, p.unidad_medida
+      ),
+      ventas_mes_pasado AS (
+        SELECT 
+          p.id,
+          SUM(dv.cantidad) AS cantidad_mes_pasado
+        FROM detalle_ventas dv
+        JOIN ventas v ON dv.venta_id = v.id
+        JOIN productos p ON dv.producto_id = p.id
+        WHERE v.fecha >= DATE_FORMAT(CURRENT_DATE - INTERVAL 1 MONTH, '%Y-%m-01')
+          AND v.fecha < DATE_FORMAT(CURRENT_DATE, '%Y-%m-01')
+        GROUP BY p.id
+      )
+      SELECT 
+        a.id,
+        a.nombre,
+        a.unidad_medida,
+        a.cantidad_mes_actual AS total_vendido,
+        COALESCE(
+          ROUND(
+            ((a.cantidad_mes_actual - COALESCE(p.cantidad_mes_pasado, 0)) / 
+            NULLIF(COALESCE(p.cantidad_mes_pasado, 0), 0)) * 100,
+            2
+          ),
+          CASE 
+            WHEN a.cantidad_mes_actual > 0 THEN 100 
+            ELSE 0 
+          END
+        ) AS cambio_porcentual
+      FROM ventas_mes_actual a
+      LEFT JOIN ventas_mes_pasado p ON a.id = p.id
+      ORDER BY a.cantidad_mes_actual DESC
       LIMIT ?`,
-
       [limit]
     );
 
     return rows;
   },
 
+  // Ventas por mes
   async getVentasMensuales(): Promise<RowDataPacket[]> {
     const [rows] = await pool.query<RowDataPacket[]>(
       `SELECT 
@@ -59,70 +80,88 @@ export const ReportesModel = {
     return rows;
   },
 
+  // Métricas dashboard
   async obtenerMetricasDashboard(): Promise<MetricasDashboard> {
     const [ventasMesActual] = await pool.query<
       (VentasQueryResult & RowDataPacket)[]
     >(
-      `SELECT SUM(total) AS total, COUNT(*) AS cantidad FROM ventas
-     WHERE MONTH(fecha) = MONTH(CURDATE()) AND YEAR(fecha) = YEAR(CURDATE())`
+      `SELECT SUM(total) AS total, COUNT(*) AS cantidad 
+       FROM ventas
+       WHERE MONTH(fecha) = MONTH(CURDATE()) 
+         AND YEAR(fecha) = YEAR(CURDATE())`
     );
 
     const [ventasMesPasado] = await pool.query<
       (VentasQueryResult & RowDataPacket)[]
     >(
-      `SELECT SUM(total) AS total, COUNT(*) AS cantidad FROM ventas
+      `SELECT SUM(total) AS total, COUNT(*) AS cantidad 
+       FROM ventas
        WHERE MONTH(fecha) = MONTH(CURDATE() - INTERVAL 1 MONTH)
-       AND YEAR(fecha) = YEAR(CURDATE() - INTERVAL 1 MONTH)`
+         AND YEAR(fecha) = YEAR(CURDATE() - INTERVAL 1 MONTH)`
     );
 
     const [clientesMesActual] = await pool.query<
       (ClientesQueryResult & RowDataPacket)[]
     >(
-      `SELECT COUNT(DISTINCT cliente_id) AS total FROM ventas
-       WHERE MONTH(fecha) = MONTH(CURDATE()) AND YEAR(fecha) = YEAR(CURDATE())`
+      `SELECT COUNT(DISTINCT cliente_id) AS total 
+       FROM ventas
+       WHERE MONTH(fecha) = MONTH(CURDATE()) 
+         AND YEAR(fecha) = YEAR(CURDATE())`
     );
 
     const [clientesMesPasado] = await pool.query<
       (ClientesQueryResult & RowDataPacket)[]
     >(
-      `SELECT COUNT(DISTINCT cliente_id) AS total FROM ventas
+      `SELECT COUNT(DISTINCT cliente_id) AS total 
+       FROM ventas
        WHERE MONTH(fecha) = MONTH(CURDATE() - INTERVAL 1 MONTH)
-       AND YEAR(fecha) = YEAR(CURDATE() - INTERVAL 1 MONTH)`
+         AND YEAR(fecha) = YEAR(CURDATE() - INTERVAL 1 MONTH)`
+    );
+
+    const [valorInventario] = await pool.query<
+      (RowDataPacket & { total: number })[]
+    >(
+      `SELECT 
+      IFNULL(SUM(stock * precio_venta), 0) AS total
+   FROM productos`
     );
 
     const [inventarioActivo] = await pool.query<
       (InventarioQueryResult & RowDataPacket)[]
     >(`SELECT SUM(stock) AS total FROM productos`);
 
+    // ⚠️ Stock bajo: ya no existe stock_minimo → usamos umbral fijo (ej: < 10)
     const [stockBajo] = await pool.query<
       (StockBajoQueryResult & RowDataPacket)[]
-    >(`SELECT COUNT(*) AS total FROM productos WHERE stock <= stock_minimo`);
+    >(`SELECT COUNT(*) AS total FROM productos WHERE stock < 10`);
 
+    // Ganancia e ingresos del mes actual (ya viene de detalle_ventas.ganancia)
     const [gananciaMesActual] = await pool.query<
       (GananciaQueryResult & RowDataPacket)[]
     >(
       `SELECT 
-        SUM((dv.precio_unitario - p.precio_compra) * dv.cantidad) AS ganancia,
-        SUM(dv.precio_unitario * dv.cantidad) AS ingreso
+        SUM(dv.ganancia) AS ganancia,
+        SUM(dv.subtotal) AS ingreso
        FROM detalle_ventas dv
-       JOIN productos p ON p.id = dv.producto_id
        JOIN ventas v ON v.id = dv.venta_id
-       WHERE MONTH(v.fecha) = MONTH(CURDATE()) AND YEAR(v.fecha) = YEAR(CURDATE())`
+       WHERE MONTH(v.fecha) = MONTH(CURDATE()) 
+         AND YEAR(v.fecha) = YEAR(CURDATE())`
     );
 
+    // Ganancia e ingresos del mes pasado
     const [gananciaMesPasado] = await pool.query<
       (GananciaQueryResult & RowDataPacket)[]
     >(
       `SELECT 
-        SUM((dv.precio_unitario - p.precio_compra) * dv.cantidad) AS ganancia,
-        SUM(dv.precio_unitario * dv.cantidad) AS ingreso
+        SUM(dv.ganancia) AS ganancia,
+        SUM(dv.subtotal) AS ingreso
        FROM detalle_ventas dv
-       JOIN productos p ON p.id = dv.producto_id
        JOIN ventas v ON v.id = dv.venta_id
        WHERE MONTH(v.fecha) = MONTH(CURDATE() - INTERVAL 1 MONTH)
-       AND YEAR(v.fecha) = YEAR(CURDATE() - INTERVAL 1 MONTH)`
+         AND YEAR(v.fecha) = YEAR(CURDATE() - INTERVAL 1 MONTH)`
     );
 
+    // 🔽 Funciones auxiliares (igual que antes)
     const calcCambio = (actual: number, anterior: number): number => {
       if (anterior === 0 || anterior === null) return actual > 0 ? 100 : 0;
       return ((actual - anterior) / anterior) * 100;
@@ -134,11 +173,13 @@ export const ReportesModel = {
       return "warning";
     };
 
+    // Variables resultado
     const ventasActual = ventasMesActual[0];
     const ventasPasado = ventasMesPasado[0];
     const clientesActual = clientesMesActual[0];
     const clientesPasado = clientesMesPasado[0];
     const inventario = inventarioActivo[0];
+    const valorInventarioTotal = valorInventario[0];
     const stock = stockBajo[0];
     const gananciaActual = gananciaMesActual[0];
     const gananciaPasado = gananciaMesPasado[0];
@@ -172,6 +213,11 @@ export const ReportesModel = {
       },
       inventarioActivo: {
         value: inventario.total || 0,
+        change: 0,
+        changeType: "warning",
+      },
+      valorInventarioTotal: {
+        value: valorInventarioTotal.total || 0,
         change: 0,
         changeType: "warning",
       },

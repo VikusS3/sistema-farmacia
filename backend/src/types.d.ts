@@ -144,6 +144,11 @@ export interface MetricasDashboard {
     change: number;
     changeType: CambioType;
   };
+  valorInventarioTotal: {
+    value: number;
+    change: number;
+    changeType: CambioType;
+  };
   prescripciones: {
     value: number;
     change: number;

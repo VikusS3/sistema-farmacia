@@ -9,7 +9,6 @@ import {
   DollarSign,
   Package,
   FileText,
-  Users,
   TrendingUp,
   AlertTriangle,
 } from "lucide-react";
@@ -26,7 +25,7 @@ function DashboardContent() {
 
   const mappedMetrics = [
     {
-      title: "Ventas Totales",
+      title: "Ganancias Totales",
       value: metrics?.ventasTotales?.value
         ? `$${parseFloat(metrics?.ventasTotales?.value as string).toFixed(2)}`
         : "$0.00",
@@ -41,7 +40,7 @@ function DashboardContent() {
       icon: DollarSign,
     },
     {
-      title: "Prescripciones",
+      title: "Ventas",
       value: metrics?.prescripciones?.value
         ? metrics?.prescripciones?.value.toLocaleString()
         : "0",
@@ -69,18 +68,19 @@ function DashboardContent() {
       icon: Package,
     },
     {
-      title: "Pacientes",
-      value: metrics?.pacientes?.value.toLocaleString(),
+      title: "Valor Inventario",
+      value: `S/.${metrics?.valorInventarioTotal?.value.toLocaleString()}`,
       change: `${
-        metrics?.pacientes?.change === undefined
+        metrics?.valorInventarioTotal?.change === undefined
           ? ""
-          : metrics?.pacientes.change > 0
+          : metrics?.valorInventarioTotal.change > 0
           ? "+"
           : ""
-      }${metrics?.pacientes?.change}`,
-      changeType: metrics?.pacientes?.changeType,
-      icon: Users,
+      }${metrics?.valorInventarioTotal?.change}`,
+      changeType: metrics?.valorInventarioTotal?.changeType,
+      icon: DollarSign,
     },
+
     {
       title: "Margen de Ganancia",
       value: `${metrics?.margenGanancia?.value.toFixed(1)}%`,

@@ -16,6 +16,7 @@ interface MetricItem<T = number> {
 
 export interface MetricasDashboard {
   ventasTotales: MetricItem<string | number>;
+  valorInventarioTotal: MetricItem<number>;
   prescripciones: MetricItem<number>;
   inventarioActivo: MetricItem<number>;
   pacientes: MetricItem<number>;

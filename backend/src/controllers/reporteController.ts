@@ -1,4 +1,4 @@
-import { Request, Response, RequestHandler } from "express";
+import { RequestHandler } from "express";
 import { ReportesModel } from "../models/reportes";
 import { meses } from "../constants/estadisticas";
 
@@ -8,27 +8,16 @@ export const ReportesController = {
       const limit = parseInt(req.query.limit as string) || 5;
       const productos = await ReportesModel.getTopProductosMasVendidos(limit);
 
-      const productosConCambio = productos.map((p: any) => {
-        const actual = p.ventas_semana_actual || 0;
-        const pasada = p.ventas_semana_pasada || 0;
+      // Formatear la respuesta para el frontend
+      const productosFormateados = productos.map((p: any) => ({
+        id: p.id,
+        nombre: p.nombre,
+        unidades_vendidas: p.total_vendido || 0,
+        unidad_medida: p.unidad_medida,
+        cambio: p.cambio_porcentual !== null ? Number(p.cambio_porcentual).toFixed(2) : '0.00',
+      }));
 
-        let cambio = 0;
-        if (pasada > 0) {
-          cambio = ((actual - pasada) / pasada) * 100;
-        } else if (actual > 0) {
-          cambio = 100; // si antes no hubo ventas
-        }
-
-        return {
-          id: p.id,
-          nombre: p.nombre,
-          unidades_vendidas: actual,
-          unidad_medida: p.unidad_medida,
-          cambio: cambio.toFixed(2), // lo devolvemos como string con dos decimales
-        };
-      });
-
-      res.json(productosConCambio);
+      res.json(productosFormateados);
     } catch (error) {
       console.error(error);
       res

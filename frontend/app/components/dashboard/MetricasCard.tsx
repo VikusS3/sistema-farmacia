@@ -6,7 +6,7 @@ interface MetricasCardProps {
   title: string;
   value: string | undefined;
   change: string;
-  changeType: undefined | "positive" | "negative" | "warning";
+  changeType?: "positive" | "negative" | "warning";
   icon: LucideIcon;
 }
 

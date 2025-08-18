@@ -21,9 +21,9 @@ export const fetchVentas = async () => {
 };
 
 // Obtener ventas con productos
-export const fetchVentasConProductos = async () => {
+export const fetchVentasConProductos = async (id: number) => {
   try {
-    const response = await api.get("/ventas/con-productos");
+    const response = await api.get(`/ventas/venta/${id}/productos`);
     return response.data;
   } catch (error) {
     const mensajeError = extractErrorMessage(error);
