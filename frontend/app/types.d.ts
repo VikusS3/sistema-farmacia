@@ -24,6 +24,12 @@ export interface Proveedores {
   telefono: string;
 }
 
+export interface Categorias {
+  actualizado_en: Date;
+  creado_en: Date;
+  id: number;
+  nombre: string;
+}
 export interface Clientes {
   actualizado_en: Date;
   creado_en: Date;

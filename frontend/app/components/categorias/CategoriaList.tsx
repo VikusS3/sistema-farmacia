@@ -7,12 +7,12 @@ import {
   getPaginationRowModel,
   flexRender,
 } from "@tanstack/react-table";
-import { Categoria } from "@/app/types";
+import { Categorias } from "@/app/types";
 import { AnimatePresence, motion } from "framer-motion";
 import { Pencil, Trash } from "lucide-react";
 
 interface CategoriaListProps {
-  categorias: Categoria[];
+  categorias: Categorias[];
   handleEdit: (id: number) => void;
   borrarCategoria: (id: number) => void;
 }
