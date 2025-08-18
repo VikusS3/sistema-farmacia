@@ -9,5 +9,10 @@ router.get("/:id", authMiddleware, ProductoController.getById);
 router.post("/", authMiddleware, ProductoController.create);
 router.put("/:id", authMiddleware, ProductoController.update);
 router.delete("/:id", authMiddleware, ProductoController.delete);
+router.get(
+  "/vencimiento/with-experied",
+  authMiddleware,
+  ProductoController.getProductosWhitExpired
+);
 
 export default router;

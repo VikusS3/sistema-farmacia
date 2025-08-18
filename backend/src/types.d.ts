@@ -52,6 +52,7 @@ export type Clientes = {
 export interface Compra {
   id?: number;
   proveedor_id: number;
+  proveedor_nombre?: string;
   usuario_id: number;
   fecha?: string;
   total: number;

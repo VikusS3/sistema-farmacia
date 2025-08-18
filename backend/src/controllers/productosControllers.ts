@@ -16,6 +16,12 @@ export const ProductoController = {
     return;
   },
 
+  async getProductosWhitExpired(req: Request, res: Response): Promise<void> {
+    const productos = await ProductoModel.getProductosWhitExpired();
+    res.json(productos);
+    return;
+  },
+
   async create(req: Request, res: Response): Promise<void> {
     const parse = productoSchema.safeParse(req.body);
     if (!parse.success) {

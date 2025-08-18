@@ -122,6 +122,7 @@ export const CompraModel = {
     return {
       id: compra.id,
       proveedor_id: compra.proveedor_id,
+      proveedor_nombre: compra.proveedor_nombre,
       usuario_id: compra.usuario_id,
       fecha: compra.fecha,
       total: compra.total,

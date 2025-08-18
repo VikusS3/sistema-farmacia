@@ -16,6 +16,13 @@ export const ProductoModel = {
     return rows.length ? (rows[0] as Producto) : null;
   },
 
+  async getProductosWhitExpired(): Promise<Producto[]> {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      "SELECT * FROM productos WHERE fecha_vencimiento < NOW()"
+    );
+    return rows as Producto[];
+  },
+
   async create(producto: Omit<Producto, "id">): Promise<number> {
     const [result] = await pool.query(
       `INSERT INTO productos 
