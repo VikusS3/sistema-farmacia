@@ -1,8 +1,8 @@
 import api from "../lib/axiosConfig";
-import { Categoria } from "../types";
+import { Categorias } from "../types";
 import { extractErrorMessage } from "../utils/errorHandler";
 
-export const fetchCategorias = async (): Promise<Categoria[]> => {
+export const fetchCategorias = async (): Promise<Categorias[]> => {
   try {
     const response = await api.get("/categorias");
     return response.data;
@@ -13,7 +13,7 @@ export const fetchCategorias = async (): Promise<Categoria[]> => {
   }
 };
 
-export const fetchCategoria = async (id: number): Promise<Categoria> => {
+export const fetchCategoria = async (id: number): Promise<Categorias> => {
   try {
     const response = await api.get(`/categorias/${id}`);
     return response.data;
@@ -25,7 +25,7 @@ export const fetchCategoria = async (id: number): Promise<Categoria> => {
 };
 
 export const createCategoria = async (
-  categoria: Partial<Categoria>
+  categoria: Partial<Categorias>
 ): Promise<void> => {
   try {
     await api.post("/categorias", categoria);
@@ -38,7 +38,7 @@ export const createCategoria = async (
 
 export const updateCategoria = async (
   id: number,
-  categoria: Partial<Categoria>
+  categoria: Partial<Categorias>
 ): Promise<void> => {
   try {
     await api.put(`/categorias/${id}`, categoria);
