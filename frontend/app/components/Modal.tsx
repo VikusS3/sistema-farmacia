@@ -41,31 +41,32 @@ const Modal: React.FC<ModalProps> = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="fixed inset-0 z-50 flex items-start justify-center bg-black bg-opacity-50 backdrop-blur-sm overflow-y-auto"
+        className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 backdrop-blur-sm overflow-y-auto"
       >
         <motion.div
-          initial={{ y: -30, opacity: 0 }}
+          initial={{ y: -40, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -30, opacity: 0 }}
+          exit={{ y: -40, opacity: 0 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
           onClick={(e) => e.stopPropagation()}
-          className={`bg-background-200 text-text-100 p-6 rounded-md shadow-lg max-h-screen overflow-y-auto ${
+          className={`bg-background-100 text-text-200 p-6 rounded-xl shadow-2xl border border-background-300 max-h-screen overflow-y-auto ${
             className || "w-96"
-          } relative mt-10 mb-10`} // margen arriba y abajo
+          } relative mt-10 mb-10`}
         >
           {/* Botón de cierre */}
           <button
             onClick={onClose}
-            className="absolute top-2 right-2 p-1 text-text-200 hover:text-accent-100 transition"
+            className="absolute top-3 right-3 p-2 text-text-300 hover:text-primary-100 transition"
             aria-label="Cerrar modal"
           >
             <CircleX className="h-6 w-6" />
           </button>
 
           {/* Título */}
-          <h2 className="text-xl font-semibold mb-4">{title}</h2>
+          <h2 className="text-xl font-semibold text-text-100 mb-4">{title}</h2>
 
           {/* Contenido */}
-          {children}
+          <div className="text-text-200">{children}</div>
         </motion.div>
       </motion.div>
     </AnimatePresence>

@@ -20,7 +20,7 @@ function ProovedoresPage() {
   const form = useCrudForm({
     initialValues: {
       nombre: "",
-      email: "",
+      ruc: "",
       direccion: "",
       telefono: "",
     },
@@ -37,9 +37,9 @@ function ProovedoresPage() {
       <div className="mb-4">
         <button
           onClick={form.openModalForCreate}
-          className="bg-primary-100 text-text-100 py-2 px-4 rounded-md hover:bg-primary-200 transition-all focus:outline-none focus:ring-2 focus:ring-primary-300"
+          className="bg-primary-100 text-white py-2 px-4 rounded-md shadow hover:bg-primary-200 transition-all focus:outline-none focus:ring-2 focus:ring-primary-300"
         >
-          + Agregar Usuarios
+          + Agregar Proveedor
         </button>
       </div>
 

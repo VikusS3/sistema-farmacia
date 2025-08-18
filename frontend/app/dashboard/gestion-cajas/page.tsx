@@ -14,11 +14,12 @@ export default function GestionCajasPage() {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error?.message}</div>;
 
-  const pageSize = 10;
-  const totalPages = Math.ceil(cajas?.length || 0 / pageSize);
+  const pageSize = 5;
+  const totalItems = cajas?.length || 0;
+  const totalPages = Math.ceil(totalItems / pageSize);
   const startIndex = pageIndex * pageSize;
   const endIndex = startIndex + pageSize;
-  const currentPageItems = cajas?.slice(startIndex, endIndex);
+  const currentPageItems = cajas?.slice(startIndex, endIndex) || [];
 
   const handlePageChange = (newPageIndex: number) => {
     setPageIndex(newPageIndex);
@@ -43,7 +44,6 @@ export default function GestionCajasPage() {
           <table className="min-w-full border border-gray-300 rounded-lg overflow-hidden">
             <thead className="bg-blue-600 text-white text-left">
               <tr>
-                <th className="px-4 py-3">ID</th>
                 <th className="px-4 py-3">Fecha Apertura</th>
                 <th className="px-4 py-3">Monto Apertura</th>
                 <th className="px-4 py-3">Fecha Cierre</th>
@@ -59,7 +59,6 @@ export default function GestionCajasPage() {
                   key={caja.id}
                   className="hover:bg-gray-100 transition-colors"
                 >
-                  <td className="px-4 py-3">{caja.id}</td>
                   <td className="px-4 py-3">
                     {dayjs(caja.apertura).format("DD/MM/YYYY HH:mm")}
                   </td>

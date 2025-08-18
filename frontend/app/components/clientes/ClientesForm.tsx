@@ -22,9 +22,9 @@ export default function ClienteForm({
 }: ClienteFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Nombre */}
       <div>
-        {/* Nombre */}
-        <label htmlFor="nombre" className="block text-white mb-2">
+        <label htmlFor="nombre" className="block text-primary-200 mb-2">
           Nombre:
         </label>
         <input
@@ -33,13 +33,15 @@ export default function ClienteForm({
           name="nombre"
           value={values.nombre}
           onChange={handleChange}
-          className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-300"
           placeholder="Ingresa el nombre"
           required
         />
+      </div>
 
-        {/* Correo Electrónico */}
-        <label htmlFor="email" className="block text-white mb-2">
+      {/* Correo Electrónico */}
+      <div>
+        <label htmlFor="email" className="block text-primary-200 mb-2">
           Correo Electrónico:
         </label>
         <input
@@ -48,13 +50,15 @@ export default function ClienteForm({
           name="email"
           value={values.email}
           onChange={handleChange}
-          className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-300"
           placeholder="Ingresa el correo electrónico"
           required
         />
+      </div>
 
-        {/* Dirección */}
-        <label htmlFor="direccion" className="block text-white mb-2">
+      {/* Dirección */}
+      <div>
+        <label htmlFor="direccion" className="block text-primary-200 mb-2">
           Dirección:
         </label>
         <input
@@ -63,30 +67,33 @@ export default function ClienteForm({
           name="direccion"
           value={values.direccion}
           onChange={handleChange}
-          className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-300"
           placeholder="Ingresa la dirección"
           required
         />
+      </div>
 
-        {/* Teléfono */}
-        <label htmlFor="telefono" className="block text-white mb-2">
+      {/* Teléfono */}
+      <div>
+        <label htmlFor="telefono" className="block text-primary-200 mb-2">
           Teléfono:
         </label>
         <input
-          type="text"
+          type="tel"
           id="telefono"
           name="telefono"
           maxLength={9}
+          pattern="[0-9]{9}"
           value={values.telefono}
           onChange={handleChange}
-          className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Ingresa el teléfono"
+          className="w-full px-4 py-2 rounded-md bg-background-100 text-text-100 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-300"
+          placeholder="Ejemplo: 987654321"
           required
         />
       </div>
 
       {/* Botones */}
-      <div className="flex justify-end gap-3">
+      <div className="flex justify-end gap-3 pt-4">
         {closeModal && (
           <button
             type="button"
@@ -98,10 +105,10 @@ export default function ClienteForm({
         )}
         <button
           type="submit"
-          className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
           disabled={loading}
         >
-          {editingClienteId ? "Editar" : "Agregar"}
+          {editingClienteId ? "Editar Cliente" : "Agregar Cliente"}
         </button>
       </div>
     </form>

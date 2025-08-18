@@ -9,7 +9,6 @@ import {
   LayoutDashboard,
   Contact,
   Truck,
-  ChartColumnStacked,
   Store,
   PackageOpen,
   Boxes,
@@ -58,12 +57,6 @@ const links = [
     href: "/dashboard/proveedores",
     label: "Proveedores",
     icon: Truck,
-  },
-  {
-    name: "Categorias",
-    href: "/dashboard/categorias",
-    label: "Categorias",
-    icon: ChartColumnStacked,
   },
   {
     name: "Reportes",

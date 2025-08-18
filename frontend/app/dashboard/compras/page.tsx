@@ -108,7 +108,7 @@ function ComprasPage() {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         title="Detalle de la Compra"
-        className="max-w-3xl"
+        className="max-w-4xl"
       >
         {detalleCompra.length > 0 ? (
           <DetalleCompra
@@ -137,7 +137,7 @@ function ComprasPage() {
         <Modal
           isOpen={Boolean(compraSeleccionada)}
           onClose={() => setCompraSeleccionada(null)}
-          title={`${compraSeleccionada.compra.proveedor_nombre}`}
+          title={`Proveedor: ${compraSeleccionada.compra.proveedor_nombre}`}
           className="max-w-4xl"
         >
           <CompraSeleccionada

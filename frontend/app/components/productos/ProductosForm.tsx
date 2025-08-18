@@ -48,18 +48,18 @@ export default function ProductosForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Sección: Datos Generales */}
-      <div className="bg-gray-800 p-4 rounded-lg space-y-4">
-        <h2 className="text-lg font-semibold text-white">Datos Generales</h2>
+      <div className="bg-background-100 p-5 rounded-xl shadow border border-background-300 space-y-4">
+        <h2 className="text-lg font-semibold text-text-100">Datos Generales</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Nombre */}
           <div>
-            <label className="block text-white mb-1">Nombre:</label>
+            <label className="block text-text-300 mb-1">Nombre:</label>
             <input
               type="text"
               name="nombre"
               value={values.nombre}
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded-md bg-gray-900 text-white border border-gray-600"
+              className="w-full px-4 py-2 rounded-md bg-background-200 text-text-200 border border-background-300 focus:border-primary-100 focus:ring-2 focus:ring-primary-200 transition"
               placeholder="Ej: Amoxicilina 500mg"
               required
             />
@@ -67,12 +67,12 @@ export default function ProductosForm({
 
           {/* Descripción */}
           <div>
-            <label className="block text-white mb-1">Descripción:</label>
+            <label className="block text-text-300 mb-1">Descripción:</label>
             <textarea
               name="descripcion"
               value={values.descripcion}
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded-md bg-gray-900 text-white border border-gray-600"
+              className="w-full px-4 py-2 rounded-md bg-background-200 text-text-200 border border-background-300 focus:border-primary-100 focus:ring-2 focus:ring-primary-200 transition"
               placeholder="Ej: Caja con 10 blisters de 10 pastillas"
               required
             />
@@ -81,21 +81,21 @@ export default function ProductosForm({
       </div>
 
       {/* Sección: Unidades y Conversión */}
-      <div className="bg-gray-800 p-4 rounded-lg space-y-4">
-        <h2 className="text-lg font-semibold text-white">
+      <div className="bg-background-100 p-5 rounded-xl shadow border border-background-300 space-y-4">
+        <h2 className="text-lg font-semibold text-text-100">
           Unidades y Conversión
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Unidad mínima */}
           <div>
-            <label className="block text-white mb-1">
+            <label className="block text-text-300 mb-1">
               Unidad mínima de control:
             </label>
             <select
               name="unidad_medida"
               value={values.unidad_medida}
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded-md bg-gray-900 text-white border border-gray-600"
+              className="w-full px-4 py-2 rounded-md bg-background-200 text-text-200 border border-background-300 focus:border-primary-100 focus:ring-2 focus:ring-primary-200 transition"
             >
               <option value="unidad">Unidad</option>
               <option value="pastilla">Pastilla</option>
@@ -104,12 +104,12 @@ export default function ProductosForm({
 
           {/* Unidad de venta */}
           <div>
-            <label className="block text-white mb-1">Unidad de venta:</label>
+            <label className="block text-text-300 mb-1">Unidad de venta:</label>
             <select
               name="unidad_venta"
               value={values.unidad_venta}
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded-md bg-gray-900 text-white border border-gray-600"
+              className="w-full px-4 py-2 rounded-md bg-background-200 text-text-200 border border-background-300 focus:border-primary-100 focus:ring-2 focus:ring-primary-200 transition"
             >
               <option value="unidad">Unidad</option>
               <option value="blister">Blister</option>
@@ -119,7 +119,7 @@ export default function ProductosForm({
 
           {/* Factor conversión */}
           <div>
-            <label className="block text-white mb-1">
+            <label className="block text-text-300 mb-1">
               Unidades mínimas por unidad de venta:
             </label>
             <input
@@ -128,14 +128,14 @@ export default function ProductosForm({
               value={values.factor_conversion}
               onChange={handleChange}
               min={1}
-              className="w-full px-4 py-2 rounded-md bg-gray-900 text-white border border-gray-600"
+              className="w-full px-4 py-2 rounded-md bg-background-200 text-text-200 border border-background-300 focus:border-primary-100 focus:ring-2 focus:ring-primary-200 transition"
               placeholder="Ej: 10 si un blister tiene 10 pastillas"
             />
           </div>
 
           {/* Factor caja */}
           <div>
-            <label className="block text-white mb-1">
+            <label className="block text-text-300 mb-1">
               Unidades mínimas por caja:
             </label>
             <input
@@ -144,20 +144,21 @@ export default function ProductosForm({
               value={values.factor_caja}
               onChange={handleChange}
               min={1}
-              className="w-full px-4 py-2 rounded-md bg-gray-900 text-white border border-gray-600"
+              className="w-full px-4 py-2 rounded-md bg-background-200 text-text-200 border border-background-300 focus:border-primary-100 focus:ring-2 focus:ring-primary-200 transition"
               placeholder="Ej: 100 si la caja tiene 10 blisters de 10 pastillas"
             />
           </div>
-          {/*Stock */}
+
+          {/* Stock */}
           <div>
-            <label className="block text-white mb-1">Stock:</label>
+            <label className="block text-text-300 mb-1">Stock:</label>
             <input
               type="number"
               name="stock"
               value={values.stock}
               onChange={handleChange}
               min={0}
-              className={`w-full px-4 py-2 rounded-md bg-gray-900 text-white border border-gray-600 ${
+              className={`w-full px-4 py-2 rounded-md bg-background-200 text-text-200 border border-background-300 focus:border-primary-100 focus:ring-2 focus:ring-primary-200 transition ${
                 disabledStock ? "opacity-50 cursor-not-allowed" : ""
               }`}
               placeholder="Ej: 100"
@@ -168,19 +169,19 @@ export default function ProductosForm({
       </div>
 
       {/* Sección: Precios */}
-      <div className="bg-gray-800 p-4 rounded-lg space-y-4">
-        <h2 className="text-lg font-semibold text-white">Precios</h2>
+      <div className="bg-background-100 p-5 rounded-xl shadow border border-background-300 space-y-4">
+        <h2 className="text-lg font-semibold text-text-100">Precios</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Precio venta */}
           <div>
-            <label className="block text-white mb-1">Precio de Venta:</label>
+            <label className="block text-text-300 mb-1">Precio de Venta:</label>
             <input
               type="number"
               name="precio_venta"
               value={values.precio_venta}
               onChange={handleChange}
               step="0.01"
-              className="w-full px-4 py-2 rounded-md bg-gray-900 text-white border border-gray-600"
+              className="w-full px-4 py-2 rounded-md bg-background-200 text-text-200 border border-background-300 focus:border-primary-100 focus:ring-2 focus:ring-primary-200 transition"
               required
             />
           </div>
@@ -188,14 +189,14 @@ export default function ProductosForm({
           {/* Precio compra solo lectura si edición */}
           {editingProductoId && (
             <div>
-              <label className="block text-white mb-1">
+              <label className="block text-text-300 mb-1">
                 Precio de Compra (auto):
               </label>
               <input
                 type="number"
                 value={values.precio_compra}
                 readOnly
-                className="w-full px-4 cursor-not-allowed py-2 rounded-md bg-gray-700 text-gray-400 border border-gray-600"
+                className="w-full px-4 cursor-not-allowed py-2 rounded-md bg-background-300 text-text-400 border border-background-300"
               />
             </div>
           )}
@@ -203,12 +204,14 @@ export default function ProductosForm({
           {/* Ganancia solo lectura si edición */}
           {editingProductoId && (
             <div>
-              <label className="block text-white mb-1">Ganancia (auto):</label>
+              <label className="block text-text-300 mb-1">
+                Ganancia (auto):
+              </label>
               <input
                 type="number"
                 value={values.ganancia}
                 readOnly
-                className="w-full px-4 py-2 rounded-md bg-gray-700 text-gray-400 border border-gray-600"
+                className="w-full px-4 py-2 rounded-md bg-background-300 text-text-400 border border-background-300"
               />
             </div>
           )}
@@ -216,8 +219,8 @@ export default function ProductosForm({
       </div>
 
       {/* Sección: Fecha de vencimiento */}
-      <div className="bg-gray-800 p-4 rounded-lg space-y-4">
-        <h2 className="text-lg font-semibold text-white">
+      <div className="bg-background-100 p-5 rounded-xl shadow border border-background-300 space-y-4">
+        <h2 className="text-lg font-semibold text-text-100">
           Fecha de Vencimiento
         </h2>
         <input
@@ -225,7 +228,7 @@ export default function ProductosForm({
           name="fecha_vencimiento"
           value={values.fecha_vencimiento}
           onChange={handleChange}
-          className="w-full px-4 py-2 rounded-md bg-gray-900 text-white border border-gray-600"
+          className="w-full px-4 py-2 rounded-md bg-background-200 text-text-200 border border-background-300 focus:border-primary-100 focus:ring-2 focus:ring-primary-200 transition"
           required
         />
       </div>
@@ -236,14 +239,14 @@ export default function ProductosForm({
           <button
             type="button"
             onClick={closeModal}
-            className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700"
+            className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
           >
             Cancelar
           </button>
         )}
         <button
           type="submit"
-          className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700"
+          className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
           disabled={loading}
         >
           {editingProductoId ? "Editar" : "Agregar"}
