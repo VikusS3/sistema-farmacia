@@ -57,22 +57,26 @@ export default function VentaList({
           return date.toLocaleDateString();
         },
       },
-      { accessorKey: "total", header: "Total" },
+      {
+        accessorKey: "total",
+        header: "Total",
+        cell: ({ cell }: { cell: any }) => `S/. ${cell.getValue()}`,
+      },
       {
         id: "acciones",
         header: "Acciones",
         cell: ({ row }: { row: any }) => (
-          <div className="flex gap-3">
+          <div className="flex gap-3 items-center">
             <button
               onClick={() => handleVerProductosVenta(row.original.id)}
-              className="bg-primary-200 text-white py-2 px-4 rounded-md shadow-sm hover:bg-primary-100 transition-all duration-200 focus:ring-2 focus:ring-primary-300 focus:outline-none"
+              className="bg-primary-100 text-white py-2 px-4 rounded-lg shadow-sm hover:bg-primary-100/90 transition-all duration-200 focus:ring-2 focus:ring-primary-300 focus:outline-none"
               aria-label="Ver productos"
             >
               Ver productos
             </button>
             <button
               onClick={() => handleVerTicket(row.original.id)}
-              className=" flex items-center gap-2 bg-blue-600 text-white py-2 px-4 rounded-md shadow-sm hover:bg-blue-700 transition-all duration-200 focus:ring-2 focus:ring-blue-300 focus:outline-none"
+              className=" flex items-center gap-2 bg-blue-600 text-white py-2 px-4 rounded-lg shadow-sm hover:bg-blue-700 transition-all duration-200 focus:ring-2 focus:ring-blue-300 focus:outline-none"
               aria-label="Ver boleta de venta"
             >
               <Printer size={16} />
@@ -104,7 +108,7 @@ export default function VentaList({
   });
 
   return (
-    <div className="p-6 bg-background-200 rounded-2xl shadow-xl text-text-100">
+    <div className="p-6 bg-zinc-200/50 rounded-2xl shadow-xl text-text-100">
       {/* Búsqueda global */}
       <div className="mb-4">
         <input
@@ -125,7 +129,7 @@ export default function VentaList({
                 {headerGroup.headers.map((column) => (
                   <th
                     key={column.id}
-                    className="p-3 text-sm font-semibold uppercase tracking-wide"
+                    className="p-3 text-base font-bold uppercase tracking-wide"
                   >
                     {flexRender(
                       column.column.columnDef.header,
@@ -148,10 +152,10 @@ export default function VentaList({
                     transition={{ duration: 0.1 }}
                     className={`border-t border-background-300 transition-all ${
                       idx % 2 === 0 ? "bg-background-100" : "bg-background-200"
-                    } hover:bg-background-300`}
+                    } `}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="p-3 text-sm">
+                      <td key={cell.id} className="p-3 text-base">
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()

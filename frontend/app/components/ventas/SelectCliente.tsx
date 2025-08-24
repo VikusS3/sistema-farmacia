@@ -20,13 +20,13 @@ export default function SelectCliente({
       <select
         value={clienteId}
         onChange={handleClienteChange}
-        className="p-3 border border-primary-200 bg-background-300 text-text-100 rounded-lg w-full shadow-sm focus:ring-2 focus:ring-primary-300 transition-all"
+        className="p-3 border border-primary-200 bg-background-300  rounded-lg w-full shadow-sm focus:ring-2 focus:ring-primary-300 transition-all"
       >
         <option value={0} className="text-black">
           Selecciona un cliente
         </option>
         {clientes.map((cliente) => (
-          <option key={cliente.id} value={cliente.id} className="text-white">
+          <option key={cliente.id} value={cliente.id} className="text-black">
             {cliente.nombre}
           </option>
         ))}

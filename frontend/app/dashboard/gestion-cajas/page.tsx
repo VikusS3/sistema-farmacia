@@ -69,11 +69,7 @@ export default function GestionCajasPage() {
                   <td className="px-4 py-3">{caja.monto_cierre}</td>
                   <td className="px-4 py-3">{caja.total_sistema}</td>
                   <td className="px-4 py-3">{caja.diferencia}</td>
-                  <td
-                    className={`px-4 py-3 ${
-                      caja.estado === "abierta" ? "bg-green-200" : "bg-red-200"
-                    }`}
-                  >
+                  <td className="px-4 py-3">
                     <span
                       className={`px-2 py-1 rounded-md ${
                         caja.estado === "abierta"

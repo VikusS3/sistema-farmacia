@@ -3,6 +3,7 @@
 import { useAuth } from "../context/AuthContext";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import GeneralSkeleton from "./skeletons/GeneralSkeleton";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -19,7 +20,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }, [isAuthenticated, loading, router]);
 
   if (loading) {
-    return <div>Loading...</div>; // Mostrar mientras verificamos el token
+    return <GeneralSkeleton />; // Mostrar mientras verificamos el token
   }
 
   if (!isAuthenticated) {

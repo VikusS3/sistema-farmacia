@@ -10,9 +10,11 @@ export default function SideNav() {
         <Image
           src="/logofarmacia.webp"
           alt="Logo"
+          className="w-48 h-16"
           width={150}
           height={150}
-          className="w-48 h-16"
+          priority={false}
+          loading="lazy"
         />
       </div>
 

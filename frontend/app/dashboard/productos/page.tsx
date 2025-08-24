@@ -8,6 +8,7 @@ import ProductosForm from "@/app/components/productos/ProductosForm";
 
 import ProductosList from "@/app/components/productos/ProductosList";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
+import TableSkeleton from "@/app/components/skeletons/TableSkeleton";
 
 function ProductosPage() {
   const {
@@ -83,17 +84,19 @@ function ProductosPage() {
   return (
     <div className="p-6 bg-background-100 text-text-200 rounded-xl shadow-lg border border-background-300">
       {/* Título */}
-      <h1 className="text-2xl font-bold mb-6 text-text-100">Productos</h1>
+      <h1 className="text-2xl font-bold mb-6 text-text-100">
+        Lista de Productos
+      </h1>
 
       {/* Mensajes de estado */}
-      {loading && <p className="text-primary-200">Cargando...</p>}
+      {loading && <TableSkeleton />}
       {error && <p className="text-red-600">{error}</p>}
 
       {/* Botón */}
       <div className="mb-6">
         <button
           onClick={openModalForCreate}
-          className="bg-primary-100 text-white py-2 px-4 rounded-md shadow hover:bg-primary-200 transition-all focus:outline-none focus:ring-2 focus:ring-primary-300"
+          className="bg-primary-50 text-white py-2 px-4 rounded-md shadow hover:bg-primary-100 transition-all focus:outline-none focus:ring-2 focus:ring-primary-300"
         >
           + Agregar Producto
         </button>

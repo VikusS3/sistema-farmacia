@@ -67,19 +67,19 @@ export default function ProductosList({
           return etiquetas[value as string] || value;
         },
       },
-      {
-        accessorKey: "unidad_medida",
-        header: "Unidad Medida",
-        cell: ({ cell }: { cell: any }) => {
-          const value = cell.getValue();
-          const etiquetas: Record<string, string> = {
-            pastilla: "Unidad/Pastilla",
-            caja: "Caja",
-            blister: "Blíster",
-          };
-          return etiquetas[value as string] || value;
-        },
-      },
+      // {
+      //   accessorKey: "unidad_medida",
+      //   header: "Unidad Medida",
+      //   cell: ({ cell }: { cell: any }) => {
+      //     const value = cell.getValue();
+      //     const etiquetas: Record<string, string> = {
+      //       pastilla: "Unidad/Pastilla",
+      //       caja: "Caja",
+      //       blister: "Blíster",
+      //     };
+      //     return etiquetas[value as string] || value;
+      //   },
+      // },
       {
         accessorKey: "fecha_vencimiento",
         header: "Fecha Vencimiento",
@@ -88,14 +88,14 @@ export default function ProductosList({
           return date.toLocaleDateString();
         },
       },
-      { accessorKey: "factor_conversion", header: "Conversion de Unidad" },
-      { accessorKey: "factor_caja", header: "Converson de Caja" },
-      {
-        accessorKey: "ganancia",
-        header: "Ganancia",
-        cell: ({ cell }: { cell: any }) =>
-          `${Number(cell.getValue()).toFixed(2)} %`,
-      },
+      // { accessorKey: "factor_conversion", header: "Conversion de Unidad" },
+      // { accessorKey: "factor_caja", header: "Converson de Caja" },
+      // {
+      //   accessorKey: "ganancia",
+      //   header: "Ganancia",
+      //   cell: ({ cell }: { cell: any }) =>
+      //     `${Number(cell.getValue()).toFixed(2)} %`,
+      // },
       {
         id: "acciones",
         header: "Acciones",
@@ -110,7 +110,7 @@ export default function ProductosList({
             </button>
             <button
               onClick={() => borrarProductos(row.original.id)}
-              className="rounded-lg bg-accent-100 px-4 py-2 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 transition"
+              className="rounded-lg bg-red-500 px-4 py-2 text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 transition"
               aria-label="Borrar producto"
             >
               <Trash className="w-4 h-4" />

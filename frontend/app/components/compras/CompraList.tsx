@@ -38,17 +38,17 @@ export default function CompraList({
       {
         accessorKey: "total",
         header: "Total",
-        cell: ({ cell }: { cell: any }) =>
-          `S/ ${parseFloat(cell.getValue()).toFixed(2)}`,
+        cell: ({ cell }: { cell: any }) => `S/ ${cell.getValue()}`,
       },
       {
         id: "acciones",
         header: "Acciones",
         cell: ({ row }: { row: any }) => (
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <button
               onClick={() => handleVerProductosCompra(row.original.id)}
-              className="px-3 py-1.5 bg-primary-200 text-white rounded-xl shadow hover:bg-primary-100 transition duration-200 text-sm"
+              className="bg-primary-100 text-white py-2 px-4 rounded-lg shadow-sm hover:bg-primary-100/90 transition-all duration-200 focus:ring-2 focus:ring-primary-300 focus:outline-none"
+              aria-label="Ver productos"
             >
               Ver productos
             </button>
@@ -70,7 +70,7 @@ export default function CompraList({
   });
 
   return (
-    <div className="p-6 bg-background-200 rounded-2xl shadow-xl text-text-100">
+    <div className="p-6 bg-background-200/50 rounded-2xl shadow-xl text-text-100">
       {/* Búsqueda global */}
       <div className="mb-4">
         <input
@@ -91,7 +91,7 @@ export default function CompraList({
                 {headerGroup.headers.map((column) => (
                   <th
                     key={column.id}
-                    className="p-3 text-sm font-semibold uppercase tracking-wide"
+                    className="p-3 text-base font-semibold uppercase tracking-wide"
                   >
                     {flexRender(
                       column.column.columnDef.header,
@@ -114,10 +114,10 @@ export default function CompraList({
                     transition={{ duration: 0.1 }}
                     className={`border-t border-background-300 transition-all ${
                       idx % 2 === 0 ? "bg-background-100" : "bg-background-200"
-                    } hover:bg-background-300`}
+                    } `}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="p-3 text-sm">
+                      <td key={cell.id} className="p-3 text-base">
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()

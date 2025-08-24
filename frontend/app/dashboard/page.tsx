@@ -12,11 +12,12 @@ import {
   TrendingUp,
   AlertTriangle,
 } from "lucide-react";
+import MetricasDashboardSkeleton from "../components/skeletons/MetricasDashboardSkeleton";
 function DashboardContent() {
   const { data: metrics, isLoading, error } = useMetricasDashboard();
 
   if (isLoading) {
-    return <div>Cargando...</div>;
+    return <MetricasDashboardSkeleton />;
   }
 
   if (error) {

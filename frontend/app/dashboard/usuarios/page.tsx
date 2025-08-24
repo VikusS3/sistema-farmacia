@@ -6,7 +6,8 @@ import UsuarioForm from "@/app/components/usuario/UsuarioForm";
 import { useCrudForm } from "@/app/hooks/useCrudForm";
 import UsuarioList from "@/app/components/usuario/UsuarioList";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
-
+import { createBackup } from "@/app/services/backUpService";
+import Swal from "sweetalert2";
 function UsuariosPage() {
   const {
     error,
@@ -37,12 +38,32 @@ function UsuariosPage() {
       {loading && <p className="text-primary-300">Cargando...</p>}
       {error && <p className="text-accent-100">{error}</p>}
 
-      <div className="mb-4">
+      <div className="mb-4 flex flex-row gap-2">
         <button
           onClick={form.openModalForCreate}
-          className="bg-primary-100 text-white py-2 px-4 rounded-md hover:bg-primary-200 transition-all focus:outline-none focus:ring-2 focus:ring-primary-300"
+          className="bg-primary-50 text-white py-2 px-4 rounded-md hover:bg-primary-100 transition-all focus:outline-none focus:ring-2 focus:ring-primary-300"
         >
           + Agregar Usuarios
+        </button>
+        <button
+          onClick={() =>
+            Swal.fire({
+              title: "¿Confirmar creación de backup?",
+              text: "Esta acción generará un backup de la base de datos.",
+              icon: "warning",
+              showCancelButton: true,
+              confirmButtonColor: "#3085d6",
+              cancelButtonColor: "#d33",
+              confirmButtonText: "Sí, crear backup",
+            }).then((result) => {
+              if (result.isConfirmed) {
+                createBackup();
+              }
+            })
+          }
+          className="bg-yellow-400 text-white py-2 px-4 rounded-md hover:bg-yellow-500 transition-all focus:outline-none focus:ring-2 focus:ring-primary-300"
+        >
+          + Crear Backup Base de Datos
         </button>
       </div>
 

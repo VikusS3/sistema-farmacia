@@ -11,6 +11,8 @@ import { useCompraForm } from "@/app/hooks/compras/useCompraForm";
 import { CompraProducto } from "@/app/types";
 import { useState } from "react";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
+import { Plus, Eye } from "lucide-react";
+import GeneralSkeleton from "@/app/components/skeletons/GeneralSkeleton";
 
 function ComprasPage() {
   const {
@@ -58,14 +60,14 @@ function ComprasPage() {
   };
   return (
     <div className="p-6 font-sans max-w-4xl mx-auto bg-background-200 shadow-lg rounded-xl">
-      <h1 className="text-3xl font-bold text-text-100 mb-6 border-b border-primary-200 pb-2">
+      <h1 className="text-3xl font-bold text-text-100 mb-4 border-b border-primary-200 pb-2">
         Registrar Compra
       </h1>
-      {loading && <p className="text-primary-300 animate-pulse">Cargando...</p>}
+      {loading && <GeneralSkeleton />}
       {error && <p className="text-accent-100 font-semibold">{error}</p>}
 
       {/* Selector de proveedor */}
-      <div className="mb-6">
+      <div className="mb-4">
         <SelectProveedor
           proveedores={proveedores}
           proveedorId={proveedorId}
@@ -73,14 +75,32 @@ function ComprasPage() {
         />
       </div>
 
-      {/* Lista de productos */}
+      <div className="w-full flex flex-row gap-4">
+        <button
+          onClick={showModalProductos}
+          className="w-full flex flex-row items-center justify-center gap-2 p-3 bg-primary-50 text-white rounded-lg hover:bg-primary-50/80 transition-all font-semibold "
+        >
+          <Plus className="w-4 h-4" /> Agrega productos
+        </button>
 
-      <button
-        onClick={showModalProductos}
-        className="w-full p-3 bg-primary-100 text-white rounded-lg hover:bg-primary-200 transition-all font-semibold mb-5"
-      >
-        Agrega productos a la compra
-      </button>
+        {/* Botón para abrir modal */}
+        <button
+          onClick={() => setModalOpen(true)}
+          className="w-full flex flex-row items-center justify-center gap-2 p-3 bg-primary-50/80 text-white rounded-lg hover:bg-primary-50/90 transition-all font-semibold"
+        >
+          <Eye className="w-4 h-4" /> Ver Compra y Registrar
+        </button>
+      </div>
+
+      {/* Lista de compras */}
+      <div className="mt-6">
+        <CompraList
+          compras={compras}
+          handleVerProductosCompra={handleVerProductosCompra}
+          handleEdit={handleEditingCompra}
+          borrarCompra={eliminarCompra}
+        />
+      </div>
 
       <Modal
         isOpen={modalProductoOpen}
@@ -94,14 +114,6 @@ function ComprasPage() {
           refetchProductos={refetchProductos}
         />
       </Modal>
-
-      {/* Botón para abrir modal */}
-      <button
-        onClick={() => setModalOpen(true)}
-        className="w-full p-3 bg-primary-100 text-white rounded-lg hover:bg-primary-200 transition-all font-semibold"
-      >
-        Ver Detalle de la compra y Registrar
-      </button>
 
       {/* Modal con el detalle de la compra */}
       <Modal
@@ -121,16 +133,6 @@ function ComprasPage() {
           <p className="text-gray-500">No hay productos agregados.</p>
         )}
       </Modal>
-
-      {/* Lista de compras */}
-      <div className="mt-6">
-        <CompraList
-          compras={compras}
-          handleVerProductosCompra={handleVerProductosCompra}
-          handleEdit={handleEditingCompra}
-          borrarCompra={eliminarCompra}
-        />
-      </div>
 
       {/* Modal con el detalle de la compra */}
       {compraSeleccionada && (

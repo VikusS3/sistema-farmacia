@@ -9,6 +9,7 @@ import { useVentasForm } from "@/app/hooks/ventas/useVentasForm";
 import { VentaWhitProducts } from "@/app/types";
 import { useState } from "react";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
+import { Eye, Plus } from "lucide-react";
 
 function VentasPage() {
   const {
@@ -62,14 +63,14 @@ function VentasPage() {
 
   return (
     <div className="p-6 font-sans max-w-4xl mx-auto bg-background-200 shadow-lg rounded-xl">
-      <h1 className="text-3xl font-bold text-text-100 mb-6 border-b border-primary-200 pb-2">
+      <h1 className="text-3xl font-bold text-text-100 mb-4 border-b border-primary-200 pb-2">
         Registrar Venta
       </h1>
 
       {loading && <p className="text-primary-300 animate-pulse">Cargando...</p>}
       {error && <p className="text-accent-100 font-semibold">{error}</p>}
 
-      <div className="mb-6">
+      <div className="mb-4">
         <SelectCliente
           clientes={clientes}
           clienteId={clienteId}
@@ -78,12 +79,23 @@ function VentasPage() {
       </div>
 
       {/* Lista de productos */}
-      <button
-        onClick={showModalProductos}
-        className="w-full p-3 bg-primary-100 text-white rounded-lg hover:bg-primary-200 transition-all font-semibold mb-5"
-      >
-        Agrega productos a la venta
-      </button>
+      <div className="w-full flex flex-row gap-4">
+        <button
+          onClick={showModalProductos}
+          className="w-full flex flex-row items-center justify-center gap-2 p-3 bg-primary-50 text-white rounded-lg hover:bg-primary-50/80 transition-all font-semibold "
+        >
+          <Plus className="w-4 h-4" /> Agrega productos
+        </button>
+
+        {/* Botón para abrir modal */}
+        <button
+          onClick={() => setModalOpen(true)}
+          className="w-full flex flex-row items-center justify-center gap-2 p-3 bg-primary-50/80 text-white rounded-lg hover:bg-primary-50/90 transition-all font-semibold"
+        >
+          <Eye className="w-4 h-4" /> Ver Venta y Registrar
+        </button>
+      </div>
+
       <Modal
         isOpen={modalProductoOpen}
         onClose={() => setModalProductoOpen(false)}
@@ -96,14 +108,6 @@ function VentasPage() {
           agregarProducto={agregarProducto}
         />
       </Modal>
-
-      {/* Botón para abrir modal */}
-      <button
-        onClick={() => setModalOpen(true)}
-        className="w-full p-3 bg-primary-100 text-white rounded-lg hover:bg-primary-200 transition-all font-semibold"
-      >
-        Ver Detalle y Registrar
-      </button>
 
       {/* Modal con el detalle de la venta */}
       <Modal
