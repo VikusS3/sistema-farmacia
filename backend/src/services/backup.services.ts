@@ -1,66 +1,66 @@
 import { spawn } from "child_process";
 import path from "path";
 import fs from "fs";
+import { findMysqldump } from "./diagnostic.services";
 
-export const backupMySQL = () => {
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const backupDir = path.join(__dirname, "../../backups");
-  const filePath = path.join(backupDir, `backup-${timestamp}.sql`);
+export interface BackupResult {
+  success: boolean;
+  filePath: string;
+  fileName: string;
+  message?: string;
+  error?: string;
+}
 
-  fs.mkdirSync(backupDir, { recursive: true });
+export const backupMySQL = (): Promise<BackupResult> => {
+  return new Promise((resolve, reject) => {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const backupDir = path.join(__dirname, "../../backups");
+    const filePath = path.join(backupDir, `backup-${timestamp}.sql`);
 
-  // 🧠 Ruta absoluta a mysqldump.exe
-  const mysqldumpPath = "D:\\xamp\\mysql\\bin\\mysqldump.exe";
+    // Crear directorio si no existe
+    fs.mkdirSync(backupDir, { recursive: true });
 
-  const dump = spawn(mysqldumpPath, ["-u", "root", "farmacia"]);
+    // 🧠 Ruta absoluta a mysqldump.exe
+    // const mysqldumpPath = "D:\\xamp\\mysql\\bin\\mysqldump.exe";
+    const mysqldumpPath = findMysqldump();
 
-  const writeStream = fs.createWriteStream(filePath);
+    const dump = spawn(mysqldumpPath, ["-u", "root", "farmacia"]);
+    const writeStream = fs.createWriteStream(filePath);
 
-  dump.stdout.pipe(writeStream);
+    dump.stdout.pipe(writeStream);
 
-  dump.stderr.on("data", (data) => {
-    console.error("❌ mysqldump stderr:", data.toString());
-  });
+    let errorOutput = "";
 
-  dump.on("error", (err) => {
-    console.error("❌ Error al ejecutar mysqldump:", err.message);
-  });
+    dump.stderr.on("data", (data) => {
+      errorOutput += data.toString();
+      console.error("❌ mysqldump stderr:", data.toString());
+    });
 
-  dump.on("close", (code) => {
-    if (code === 0) {
-      console.log("✅ Backup creado correctamente en:", filePath);
-    } else {
-      console.error("❌ mysqldump terminó con código:", code);
-    }
+    dump.on("error", (err) => {
+      console.error("❌ Error al ejecutar mysqldump:", err.message);
+      reject(new Error(`Error ejecutando mysqldump: ${err.message}`));
+    });
+
+    dump.on("close", (code) => {
+      if (code === 0) {
+        console.log("✅ Backup creado correctamente en:", filePath);
+        resolve({
+          success: true,
+          filePath,
+          fileName: `backup-${timestamp}.sql`,
+          message: "Backup creado exitosamente",
+        });
+      } else {
+        console.error("❌ mysqldump terminó con código:", code);
+        console.error("❌ Error output:", errorOutput);
+        reject(new Error(`mysqldump falló con código ${code}: ${errorOutput}`));
+      }
+    });
+
+    // Manejar errores del stream de escritura
+    writeStream.on("error", (err) => {
+      console.error("❌ Error escribiendo archivo:", err);
+      reject(new Error(`Error escribiendo archivo: ${err.message}`));
+    });
   });
 };
-
-//Otra forma de probar para descargar desde el navegador
-// import { Request, Response } from "express";
-// import { spawn } from "child_process";
-
-// export const descargarBackup = (req: Request, res: Response) => {
-//   const fileName = `backup-farmacia-${new Date().toISOString().replace(/[:.]/g, "-")}.sql`;
-
-//   res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
-//   res.setHeader("Content-Type", "application/sql");
-
-//   const dump = spawn("mysqldump", ["-u", "root", "farmacia"]);
-
-//   dump.stdout.pipe(res); // Redirigimos la salida al navegador
-
-//   dump.stderr.on("data", (data) => {
-//     console.error(`stderr: ${data}`);
-//   });
-
-//   dump.on("error", (err) => {
-//     console.error("Error al ejecutar mysqldump:", err);
-//     res.status(500).send("Error al crear el backup");
-//   });
-
-//   dump.on("close", (code) => {
-//     if (code !== 0) {
-//       console.error(`mysqldump cerró con código: ${code}`);
-//     }
-//   });
-//};
