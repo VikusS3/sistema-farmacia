@@ -24,7 +24,7 @@ export default function ClienteForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Nombre */}
       <div>
-        <label htmlFor="nombre" className="block text-primary-200 mb-2">
+        <label htmlFor="nombre" className="block text-primary-100 mb-2">
           Nombre:
         </label>
         <input
@@ -41,7 +41,7 @@ export default function ClienteForm({
 
       {/* Correo Electrónico */}
       <div>
-        <label htmlFor="email" className="block text-primary-200 mb-2">
+        <label htmlFor="email" className="block text-primary-100 mb-2">
           Correo Electrónico:
         </label>
         <input
@@ -58,7 +58,7 @@ export default function ClienteForm({
 
       {/* Dirección */}
       <div>
-        <label htmlFor="direccion" className="block text-primary-200 mb-2">
+        <label htmlFor="direccion" className="block text-primary-100 mb-2">
           Dirección:
         </label>
         <input
@@ -75,7 +75,7 @@ export default function ClienteForm({
 
       {/* Teléfono */}
       <div>
-        <label htmlFor="telefono" className="block text-primary-200 mb-2">
+        <label htmlFor="telefono" className="block text-primary-100 mb-2">
           Teléfono:
         </label>
         <input
@@ -108,7 +108,7 @@ export default function ClienteForm({
           className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
           disabled={loading}
         >
-          {editingClienteId ? "Editar Cliente" : "Agregar Cliente"}
+          {editingClienteId ? "Editar " : "Registrar "}
         </button>
       </div>
     </form>

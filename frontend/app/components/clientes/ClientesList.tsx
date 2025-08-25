@@ -46,7 +46,7 @@ export default function ClientesList({
             </button>
             <button
               onClick={() => borrarCliente(row.original.id)}
-              className="rounded-lg bg-accent-100 px-4 py-2 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 transition"
+              className="rounded-lg bg-red-500 px-4 py-2 text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 transition"
               aria-label="Borrar cliente"
             >
               <Trash className="w-4 h-4" />
