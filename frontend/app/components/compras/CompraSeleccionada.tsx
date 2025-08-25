@@ -18,7 +18,7 @@ export default function CompraSeleccionada({
   }
   return (
     <div className="bg-background-100 ">
-      <h2 className="text-2xl font-semibold text-primary-300 mb-4">
+      <h2 className="text-2xl font-semibold text-primary-100 mb-4">
         Detalles de Compra
       </h2>
 
@@ -26,7 +26,7 @@ export default function CompraSeleccionada({
       <div className="overflow-x-auto">
         <table className="w-full border border-background-300 rounded-lg shadow-md">
           <thead>
-            <tr className="bg-primary-100 text-text-100">
+            <tr className="bg-primary-50 text-white">
               <th className="p-3 text-left">Producto</th>
               <th className="p-3 text-center">Cantidad</th>
               <th className="p-3 text-center">Precio Unitario</th>

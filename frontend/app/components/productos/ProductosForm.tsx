@@ -53,7 +53,9 @@ export default function ProductosForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Nombre */}
           <div>
-            <label className="block text-text-300 mb-1">Nombre:</label>
+            <label className="block text-text-300 font-bold mb-1">
+              Nombre del producto:
+            </label>
             <input
               type="text"
               name="nombre"
@@ -67,7 +69,9 @@ export default function ProductosForm({
 
           {/* Descripción */}
           <div>
-            <label className="block text-text-300 mb-1">Descripción:</label>
+            <label className="block text-text-300 font-bold mb-1">
+              Descripción del producto:
+            </label>
             <textarea
               name="descripcion"
               value={values.descripcion}
@@ -88,8 +92,8 @@ export default function ProductosForm({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Unidad mínima */}
           <div>
-            <label className="block text-text-300 mb-1">
-              Unidad mínima de control:
+            <label className="block text-text-300 font-bold mb-1">
+              Unidad básica:
             </label>
             <select
               name="unidad_medida"
@@ -104,7 +108,9 @@ export default function ProductosForm({
 
           {/* Unidad de venta */}
           <div>
-            <label className="block text-text-300 mb-1">Unidad de venta:</label>
+            <label className="block text-text-300 font-bold mb-1">
+              Presentación de venta:
+            </label>
             <select
               name="unidad_venta"
               value={values.unidad_venta}
@@ -119,8 +125,8 @@ export default function ProductosForm({
 
           {/* Factor conversión */}
           <div>
-            <label className="block text-text-300 mb-1">
-              Unidades mínimas por unidad de venta:
+            <label className="block text-text-300 font-bold mb-1">
+              Cantidad por presentacion:
             </label>
             <input
               type="number"
@@ -135,8 +141,8 @@ export default function ProductosForm({
 
           {/* Factor caja */}
           <div>
-            <label className="block text-text-300 mb-1">
-              Unidades mínimas por caja:
+            <label className="block text-text-300 font-bold mb-1">
+              Cantidad total por caja:
             </label>
             <input
               type="number"
@@ -151,7 +157,7 @@ export default function ProductosForm({
 
           {/* Stock */}
           <div>
-            <label className="block text-text-300 mb-1">Stock:</label>
+            <label className="block text-text-300 font-bold mb-1">Stock:</label>
             <input
               type="number"
               name="stock"
@@ -174,7 +180,9 @@ export default function ProductosForm({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Precio venta */}
           <div>
-            <label className="block text-text-300 mb-1">Precio de Venta:</label>
+            <label className="block text-text-300 font-bold mb-1">
+              Precio de venta al público:
+            </label>
             <input
               type="number"
               name="precio_venta"
@@ -189,7 +197,7 @@ export default function ProductosForm({
           {/* Precio compra solo lectura si edición */}
           {editingProductoId && (
             <div>
-              <label className="block text-text-300 mb-1">
+              <label className="block text-text-300 font-bold mb-1">
                 Precio de Compra (auto):
               </label>
               <input
@@ -204,7 +212,7 @@ export default function ProductosForm({
           {/* Ganancia solo lectura si edición */}
           {editingProductoId && (
             <div>
-              <label className="block text-text-300 mb-1">
+              <label className="block text-text-300 font-bold mb-1">
                 Ganancia (auto):
               </label>
               <input
@@ -221,7 +229,7 @@ export default function ProductosForm({
       {/* Sección: Fecha de vencimiento */}
       <div className="bg-background-100 p-5 rounded-xl shadow border border-background-300 space-y-4">
         <h2 className="text-lg font-semibold text-text-100">
-          Fecha de Vencimiento
+          Fecha de Caducidad:
         </h2>
         <input
           type="date"
