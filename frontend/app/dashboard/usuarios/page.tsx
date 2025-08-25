@@ -63,7 +63,7 @@ function UsuariosPage() {
           }
           className="bg-yellow-400 text-white py-2 px-4 rounded-md hover:bg-yellow-500 transition-all focus:outline-none focus:ring-2 focus:ring-primary-300"
         >
-          + Crear Backup Base de Datos
+          Crear Backup Base de Datos
         </button>
       </div>
 
