@@ -11,7 +11,7 @@ export const ReportePdfModel = {
         v.adicional,
         v.metodo_pago,
         c.nombre AS cliente_nombre,
-        u.nombres AS usuario_nombre
+        u.nombre AS usuario_nombre
       FROM ventas v
       INNER JOIN clientes c ON v.cliente_id = c.id
       INNER JOIN usuarios u ON v.usuario_id = u.id
@@ -31,7 +31,7 @@ export const ReportePdfModel = {
         v.adicional,
         v.metodo_pago,
         c.nombre AS cliente_nombre,
-        u.nombres AS usuario_nombre
+        u.nombre AS usuario_nombre
       FROM ventas v
       INNER JOIN clientes c ON v.cliente_id = c.id
       INNER JOIN usuarios u ON v.usuario_id = u.id
@@ -51,7 +51,7 @@ export const ReportePdfModel = {
         v.adicional,
         v.metodo_pago,
         c.nombre AS cliente_nombre,
-        u.nombres AS usuario_nombre
+        u.nombre AS usuario_nombre
       FROM ventas v
       INNER JOIN clientes c ON v.cliente_id = c.id
       INNER JOIN usuarios u ON v.usuario_id = u.id
@@ -67,7 +67,6 @@ export const ReportePdfModel = {
         p.id,
         p.nombre,
         p.stock,
-        p.stock_minimo,
         p.unidad_medida,
         p.precio_compra,
         p.precio_venta,
