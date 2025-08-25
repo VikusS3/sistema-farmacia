@@ -21,7 +21,7 @@ export default function ProveedoresForm({
   closeModal,
 }: ProveedoresFormProps) {
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-4">
       {/* Nombre */}
       <div className="flex flex-col">
         <label htmlFor="nombre" className="text-text-100 font-medium mb-1">
@@ -100,7 +100,7 @@ export default function ProveedoresForm({
           <button
             type="button"
             onClick={closeModal}
-            className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400"
+            className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
           >
             Cancelar
           </button>
