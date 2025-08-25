@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/hooks/useAuth.tsx
 import { useAuth as useAuthContext } from "@/app/context/AuthContext";
 import api from "@/app/lib/axiosConfig";
@@ -5,6 +6,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import { ROLES_AUTH } from "@/app/constants/roles";
 
 export const useAuth = () => {
   const { login, logout, isAuthenticated, loading } = useAuthContext();
@@ -26,6 +28,7 @@ export const useAuth = () => {
       localStorage.setItem("token", token);
       localStorage.setItem("usuario_id", response.data.usuario.id);
       localStorage.setItem("usuario", response.data.usuario.nombre);
+      localStorage.setItem("rol", response.data.usuario.rol);
 
       MySwal.fire({
         icon: "success",
@@ -34,8 +37,11 @@ export const useAuth = () => {
         confirmButtonText: "Aceptar",
       });
 
-      router.push("/dashboard/");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (response.data.usuario.rol === ROLES_AUTH.EMPLEADO) {
+        router.push("/dashboard-empleado/");
+      } else {
+        router.push("/dashboard/");
+      }
     } catch (error: any) {
       setError(error.response?.data?.message || "Error de login");
       MySwal.fire({
@@ -52,6 +58,7 @@ export const useAuth = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("usuario_id");
     localStorage.removeItem("usuario");
+    localStorage.removeItem("rol");
     router.push("/");
   };
 
