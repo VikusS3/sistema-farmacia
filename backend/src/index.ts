@@ -13,6 +13,7 @@ import backUpRoutes from "./routes/backUpRoutes";
 import cajaRoutes from "./routes/cajaRoutes";
 import reporteRoutes from "./routes/reporteRoutes";
 import reportePdfRoutes from "./routes/reportePdfRoutes";
+import alertasRoutes from "./routes/alertasRoutes";
 dotenv.config();
 
 const app = express();
@@ -33,6 +34,7 @@ app.use("/api/", backUpRoutes);
 app.use("/api/cajas", cajaRoutes);
 app.use("/api/reportes", reporteRoutes);
 app.use("/api/reportesPdf", reportePdfRoutes);
+app.use("/api/alertas", alertasRoutes);
 
 const PORT = process.env.PORT || 5000;
 
