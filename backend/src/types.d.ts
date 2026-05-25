@@ -23,7 +23,7 @@ export interface Producto {
   id?: number;
   nombre: string;
   descripcion?: string;
-  
+
   // Legacy fields (for backward compatibility)
   unidad_venta?: string;
   unidad_medida?: string;
@@ -32,15 +32,15 @@ export interface Producto {
   stock: number;
   precio_compra: number;
   precio_venta: number;
-  
+
   // Enhanced multi-unit pricing
-  precio_unidad?: number | null;      // Price per single unit (pill)
-  precio_blister?: number | null;     // Price per blister
-  precio_caja?: number | null;        // Price per box
-  unidades_por_blister?: number;      // How many pills per blister
-  unidades_por_caja?: number;         // How many pills per box
-  require_lote?: boolean;             // Requires lot/expiration tracking
-  
+  precio_unidad?: number | null; // Price per single unit (pill)
+  precio_blister?: number | null; // Price per blister
+  precio_caja?: number | null; // Price per box
+  unidades_por_blister?: number; // How many pills per blister
+  unidades_por_caja?: number; // How many pills per box
+  require_lote?: boolean; // Requires lot/expiration tracking
+
   // Stock management
   stock_minimo: number;
   fecha_vencimiento?: string | null;

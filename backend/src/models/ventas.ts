@@ -7,17 +7,25 @@ import { InventarioModel } from "./inventario";
 export const VentaModel = {
   async create(
     venta: Omit<Venta, "id">,
-    detalles: { producto_id: number; cantidad: number; unidad_venta: UnidadVenta; subtotal: number }[]
+    detalles: {
+      producto_id: number;
+      cantidad: number;
+      unidad_venta: UnidadVenta;
+      subtotal: number;
+    }[],
   ): Promise<number> {
     const connection = await pool.getConnection();
-    
+
     try {
       await connection.beginTransaction();
 
-      const subtotalVenta = detalles.reduce((sum, d) => sum + (d.subtotal || 0), 0);
-      const totalVenta = 
-        subtotalVenta + 
-        Number(venta.adicional || 0) - 
+      const subtotalVenta = detalles.reduce(
+        (sum, d) => sum + (d.subtotal || 0),
+        0,
+      );
+      const totalVenta =
+        subtotalVenta +
+        Number(venta.adicional || 0) -
         Number(venta.descuento || 0);
 
       const [ventaResult] = await connection.query(
@@ -32,30 +40,33 @@ export const VentaModel = {
           Number(venta.descuento || 0),
           venta.metodo_pago,
           totalVenta,
-        ]
+        ],
       );
 
       const ventaId = (ventaResult as any).insertId;
 
       for (const detalle of detalles) {
-        const [productoRows] = await connection.query(
+        const [productoRows] = (await connection.query(
           `SELECT * FROM productos WHERE id = ? FOR UPDATE`,
-          [detalle.producto_id]
-        ) as [any[], any];
+          [detalle.producto_id],
+        )) as [any[], any];
 
         const producto = productoRows[0] as Producto;
-        
+
         if (!producto) {
           throw new Error(`Producto ID ${detalle.producto_id} no encontrado`);
         }
 
-        const precioUnitario = ProductoModel.calculatePrice(producto, detalle.unidad_venta);
+        const precioUnitario = ProductoModel.calculatePrice(
+          producto,
+          detalle.unidad_venta,
+        );
         const subtotal = precioUnitario * detalle.cantidad;
-        
+
         const cantidadBase = ProductoModel.convertToBaseUnits(
-          detalle.cantidad, 
-          detalle.unidad_venta, 
-          producto
+          detalle.cantidad,
+          detalle.unidad_venta,
+          producto,
         );
 
         const costoBase = producto.precio_compra * cantidadBase;
@@ -73,16 +84,20 @@ export const VentaModel = {
             precioUnitario,
             subtotal,
             ganancia,
-          ]
+          ],
         );
 
         await connection.query(
           `UPDATE productos SET stock = stock - ? WHERE id = ?`,
-          [cantidadBase, detalle.producto_id]
+          [cantidadBase, detalle.producto_id],
         );
 
         if (producto.require_lote) {
-          await ProductoModel.consumeLote(detalle.producto_id, cantidadBase, connection);
+          await ProductoModel.consumeLote(
+            detalle.producto_id,
+            cantidadBase,
+            connection,
+          );
         }
       }
 
@@ -98,25 +113,25 @@ export const VentaModel = {
 
   async getAll(): Promise<Venta[]> {
     const [rows] = await pool.query<RowDataPacket[]>(
-      `SELECT v.*, c.nombre AS cliente_nombre, u.nombres AS usuario_nombre
+      `SELECT v.*, c.nombre AS cliente_nombre, u.nombre AS usuario_nombre
        FROM ventas v
        LEFT JOIN clientes c ON v.cliente_id = c.id
        JOIN usuarios u ON v.usuario_id = u.id
-       ORDER BY v.fecha DESC, v.id DESC`
+       ORDER BY v.fecha DESC, v.id DESC`,
     );
     return rows as Venta[];
   },
 
   async getById(id: number): Promise<any> {
     const [ventaRows] = await pool.query<RowDataPacket[]>(
-      `SELECT v.*, c.nombre AS cliente_nombre, u.nombres AS usuario_nombre,
+      `SELECT v.*, c.nombre AS cliente_nombre, u.nombre AS usuario_nombre,
               ca.monto_apertura as caja_apertura
        FROM ventas v
        LEFT JOIN clientes c ON v.cliente_id = c.id
        JOIN usuarios u ON v.usuario_id = u.id
        LEFT JOIN cajas ca ON v.caja_id = ca.id
        WHERE v.id = ?`,
-      [id]
+      [id],
     );
 
     if (!Array.isArray(ventaRows) || ventaRows.length === 0) {
@@ -136,7 +151,7 @@ export const VentaModel = {
        FROM detalle_ventas dv
        JOIN productos p ON dv.producto_id = p.id
        WHERE dv.venta_id = ?`,
-      [id]
+      [id],
     );
 
     return {
@@ -147,12 +162,12 @@ export const VentaModel = {
 
   async getVentaConProductosById(id: number): Promise<any> {
     const [ventaRows] = await pool.query<RowDataPacket[]>(
-      `SELECT v.*, c.nombre AS cliente_nombre, u.nombres AS usuario_nombre
+      `SELECT v.*, c.nombre AS cliente_nombre, u.nombre AS usuario_nombre
        FROM ventas v
        LEFT JOIN clientes c ON v.cliente_id = c.id
        JOIN usuarios u ON v.usuario_id = u.id
        WHERE v.id = ?`,
-      [id]
+      [id],
     );
 
     if (!Array.isArray(ventaRows) || ventaRows.length === 0) {
@@ -164,7 +179,7 @@ export const VentaModel = {
        FROM detalle_ventas dv
        JOIN productos p ON dv.producto_id = p.id
        WHERE dv.venta_id = ?`,
-      [id]
+      [id],
     );
 
     return {
@@ -174,17 +189,17 @@ export const VentaModel = {
   },
 
   async getVentasByDateRange(
-    fechaInicio: string, 
-    fechaFin: string
+    fechaInicio: string,
+    fechaFin: string,
   ): Promise<Venta[]> {
     const [rows] = await pool.query<RowDataPacket[]>(
-      `SELECT v.*, c.nombre AS cliente_nombre, u.nombres AS usuario_nombre
+      `SELECT v.*, c.nombre AS cliente_nombre, u.nombre AS usuario_nombre
        FROM ventas v
        LEFT JOIN clientes c ON v.cliente_id = c.id
        JOIN usuarios u ON v.usuario_id = u.id
        WHERE DATE(v.fecha) BETWEEN ? AND ?
        ORDER BY v.fecha DESC`,
-      [fechaInicio, fechaFin]
+      [fechaInicio, fechaFin],
     );
     return rows as Venta[];
   },
@@ -196,26 +211,26 @@ export const VentaModel = {
        LEFT JOIN clientes c ON v.cliente_id = c.id
        WHERE v.usuario_id = ?
        ORDER BY v.fecha DESC`,
-      [usuario_id]
+      [usuario_id],
     );
     return rows as Venta[];
   },
 
   async getVentasPorCliente(cliente_id: number): Promise<Venta[]> {
     const [rows] = await pool.query<RowDataPacket[]>(
-      `SELECT v.*, u.nombres AS usuario_nombre
+      `SELECT v.*, u.nombre AS usuario_nombre
        FROM ventas v
        JOIN usuarios u ON v.usuario_id = u.id
        WHERE v.cliente_id = ?
        ORDER BY v.fecha DESC`,
-      [cliente_id]
+      [cliente_id],
     );
     return rows as Venta[];
   },
 
   async getEstadisticasVenta(
-    fechaInicio: string, 
-    fechaFin: string
+    fechaInicio: string,
+    fechaFin: string,
   ): Promise<{
     total_ventas: number;
     total_articulos: number;
@@ -231,27 +246,28 @@ export const VentaModel = {
        FROM ventas v
        LEFT JOIN detalle_ventas dv ON v.id = dv.venta_id
        WHERE DATE(v.fecha) BETWEEN ? AND ?`,
-      [fechaInicio, fechaFin]
+      [fechaInicio, fechaFin],
     );
 
     const row = rows[0] as any;
     return {
       total_ventas: parseFloat(row.total_ventas || 0),
       total_articulos: parseInt(row.total_articulos || 0),
-      promedio_venta: row.num_ventas > 0 ? parseFloat(row.total_ventas) / row.num_ventas : 0,
+      promedio_venta:
+        row.num_ventas > 0 ? parseFloat(row.total_ventas) / row.num_ventas : 0,
       ganancia_total: parseFloat(row.ganancia_total || 0),
     };
   },
 
   async cancelVenta(venta_id: number, usuario_id: number): Promise<void> {
     const connection = await pool.getConnection();
-    
+
     try {
       await connection.beginTransaction();
 
       const [ventaRows] = await connection.query<RowDataPacket[]>(
         `SELECT * FROM ventas WHERE id = ?`,
-        [venta_id]
+        [venta_id],
       );
 
       if (ventaRows.length === 0) {
@@ -259,8 +275,8 @@ export const VentaModel = {
       }
 
       const venta = ventaRows[0] as Venta;
-      
-      if (venta.estado === 'cancelada') {
+
+      if (venta.estado === "cancelada") {
         throw new Error("La venta ya ha sido cancelada");
       }
 
@@ -269,33 +285,40 @@ export const VentaModel = {
          FROM detalle_ventas dv
          JOIN productos p ON dv.producto_id = p.id
          WHERE dv.venta_id = ?`,
-        [venta_id]
+        [venta_id],
       );
 
       for (const detalle of detalles as any[]) {
         const cantidadBase = detalle.cantidad;
-        
+
         await connection.query(
           `UPDATE productos SET stock = stock + ? WHERE id = ?`,
-          [cantidadBase, detalle.producto_id]
+          [cantidadBase, detalle.producto_id],
         );
 
         if (detalle.require_lote) {
-          await ProductoModel.returnToLote(detalle.producto_id, cantidadBase, connection);
+          await ProductoModel.returnToLote(
+            detalle.producto_id,
+            cantidadBase,
+            connection,
+          );
         }
 
-        await InventarioModel.registrarMovimiento({
-          producto_id: detalle.producto_id,
-          movimiento: "ajuste",
-          cantidad: cantidadBase,
-          motivo: `Cancelación de venta #${venta_id}`,
-          fecha_movimiento: new Date().toISOString().split('T')[0],
-        }, connection);
+        await InventarioModel.registrarMovimiento(
+          {
+            producto_id: detalle.producto_id,
+            movimiento: "ajuste",
+            cantidad: cantidadBase,
+            motivo: `Cancelación de venta #${venta_id}`,
+            fecha_movimiento: new Date().toISOString().split("T")[0],
+          },
+          connection,
+        );
       }
 
       await connection.query(
         `UPDATE ventas SET estado = 'cancelada', total = 0 WHERE id = ?`,
-        [venta_id]
+        [venta_id],
       );
 
       await connection.commit();

@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 
 interface JwtPayload {
   id?: number;
-  nombres: string;
+  nombre: string;
   email: string;
   password: string;
   rol?: "admin" | "empleado";
@@ -14,7 +14,7 @@ interface JwtPayload {
 export const authMiddleware = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void => {
   const authHeader = req.headers.authorization;
 
