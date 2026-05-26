@@ -1,21 +1,21 @@
-import { Request, Response, RequestHandler } from "express";
+import { Request, Response } from "express";
 import { UsuarioModel } from "../models/usuarios";
 import {
   createUsuarioSchema,
   updateUsuarioSchema,
 } from "../validators/usuarioValidators";
 
-export class UsuarioController {
-  static getAll: RequestHandler = async (req: Request, res: Response) => {
+export const UsuarioController = {
+  async getAll(req: Request, res: Response) {
     try {
       const usuarios = await UsuarioModel.findAll();
       res.json(usuarios);
     } catch (error) {
       res.status(500).json({ error: "Error al obtener los usuarios" });
     }
-  };
+  },
 
-  static getById: RequestHandler = async (req: Request, res: Response) => {
+  async getById(req: Request, res: Response) {
     try {
       const { id } = req.params;
       const usuario = await UsuarioModel.findById(parseInt(id));
@@ -27,9 +27,9 @@ export class UsuarioController {
     } catch (error) {
       res.status(500).json({ error: "Error al obtener el usuario" });
     }
-  };
+  },
 
-  static login: RequestHandler = async (req: Request, res: Response) => {
+  async login(req: Request, res: Response) {
     try {
       const { email, password } = req.body;
       const { usuario, token } = await UsuarioModel.login(email, password);
@@ -37,49 +37,59 @@ export class UsuarioController {
         res.status(401).json({ message: "Credenciales incorrectas" });
         return;
       }
-      // Ocultar la contraseña en la respuesta
       const { password: _, ...usuarioSinPassword } = usuario;
-
       res.json({ usuario: usuarioSinPassword, token });
     } catch (error) {
       res.status(500).json({ error: "Error al iniciar sesión" });
     }
-  };
+  },
 
-  static create: RequestHandler = async (req: Request, res: Response) => {
+  async create(req: Request, res: Response) {
     try {
-      const validatedData = createUsuarioSchema.parse(req.body);
-      const id = await UsuarioModel.create(validatedData);
+      const parse = createUsuarioSchema.safeParse(req.body);
+      if (!parse.success) {
+        res.status(400).json({
+          errors: parse.error.flatten().fieldErrors,
+          message: "Datos de usuario inválidos",
+        });
+        return;
+      }
+
+      const id = await UsuarioModel.create(parse.data);
       res.status(201).json({ id, message: "Usuario creado exitosamente" });
     } catch (error: any) {
       if (error.code === "ER_DUP_ENTRY") {
         res.status(409).json({ error: "El email ya está registrado" });
       } else {
-        res.status(400).json({
-          error: (error as any).errors || "Error al crear el usuario",
-        });
+        res.status(500).json({ error: "Error al crear el usuario" });
       }
     }
-  };
+  },
 
-  static update: RequestHandler = async (req: Request, res: Response) => {
+  async update(req: Request, res: Response) {
     try {
       const id = parseInt(req.params.id);
-      const validatedData = updateUsuarioSchema.parse(req.body);
-      const updated = await UsuarioModel.update(id, validatedData);
+      const parse = updateUsuarioSchema.safeParse(req.body);
+      if (!parse.success) {
+        res.status(400).json({
+          errors: parse.error.flatten().fieldErrors,
+          message: "Datos de usuario inválidos",
+        });
+        return;
+      }
+
+      const updated = await UsuarioModel.update(id, parse.data);
       if (!updated) {
         res.status(404).json({ message: "Usuario no encontrado" });
         return;
       }
       res.json({ message: "Usuario actualizado exitosamente" });
     } catch (error) {
-      res.status(400).json({
-        error: (error as any).errors || "Error al actualizar el usuario",
-      });
+      res.status(500).json({ error: "Error al actualizar el usuario" });
     }
-  };
+  },
 
-  static delete: RequestHandler = async (req: Request, res: Response) => {
+  async delete(req: Request, res: Response) {
     try {
       const id = parseInt(req.params.id);
       const deleted = await UsuarioModel.delete(id);
@@ -91,5 +101,5 @@ export class UsuarioController {
     } catch (error) {
       res.status(500).json({ error: "Error al eliminar el usuario" });
     }
-  };
-}
+  },
+};

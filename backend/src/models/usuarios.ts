@@ -6,13 +6,15 @@ import jwt from "jsonwebtoken";
 
 export const UsuarioModel = {
   async findAll(): Promise<Usuario[]> {
-    const [rows] = await pool.query<RowDataPacket[]>("SELECT * FROM usuarios");
+    const [rows] = await pool.query<RowDataPacket[]>(
+      "SELECT id, nombre, email, rol, estado, creado_en, actualizado_en FROM usuarios"
+    );
     return rows as Usuario[];
   },
 
   async findById(id: number): Promise<Usuario | null> {
     const [rows] = await pool.query<RowDataPacket[]>(
-      "SELECT * FROM usuarios WHERE id = ?",
+      "SELECT id, nombre, email, rol, estado, creado_en, actualizado_en FROM usuarios WHERE id = ?",
       [id]
     );
     return rows[0] as Usuario | null;
@@ -29,13 +31,11 @@ export const UsuarioModel = {
     const usuario = rows[0] as Usuario | null;
     if (!usuario) return { usuario: null, token: null };
 
-    //Comparar las contraseñas ingresadas con la contraseña almacenada
     const esCorrecta = await bcrypt.compare(password, usuario.password);
     if (!esCorrecta) return { usuario: null, token: null };
 
-    // Crear el token
     const token = jwt.sign(
-      { id: usuario.id, email: usuario.email },
+      { id: usuario.id, email: usuario.email, rol: usuario.rol },
       process.env.JWT_SECRET!,
       { expiresIn: "1d" }
     );
@@ -57,9 +57,23 @@ export const UsuarioModel = {
   },
 
   async update(id: number, usuario: Partial<Usuario>): Promise<boolean> {
+    const fields: string[] = [];
+    const values: any[] = [];
+    const allowedFields = ["nombre", "email", "password", "rol"];
+
+    for (const field of allowedFields) {
+      if ((usuario as any)[field] !== undefined) {
+        fields.push(`${field} = ?`);
+        values.push((usuario as any)[field]);
+      }
+    }
+
+    if (fields.length === 0) return false;
+
+    values.push(id);
     const [result] = await pool.query<any>(
-      "UPDATE usuarios SET ? WHERE id = ?",
-      [usuario, id]
+      `UPDATE usuarios SET ${fields.join(", ")} WHERE id = ?`,
+      values
     );
     return result.affectedRows > 0;
   },

@@ -2,7 +2,6 @@ import pool from "../config/db";
 import { RowDataPacket } from "mysql2";
 import { Venta, DetalleVenta, Producto, UnidadVenta } from "../types";
 import { ProductoModel } from "./productos";
-import { InventarioModel } from "./inventario";
 
 export const VentaModel = {
   async create(
@@ -30,14 +29,15 @@ export const VentaModel = {
 
       const [ventaResult] = await connection.query(
         `INSERT INTO ventas (
-          cliente_id, usuario_id, caja_id, fecha, adicional, descuento, metodo_pago, total
-        ) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?)`,
+          cliente_id, usuario_id, caja_id, fecha, subtotal, descuento, adicional, metodo_pago, total
+        ) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?)`,
         [
           venta.cliente_id,
           venta.usuario_id,
           venta.caja_id,
-          Number(venta.adicional || 0),
+          subtotalVenta,
           Number(venta.descuento || 0),
+          Number(venta.adicional || 0),
           venta.metodo_pago,
           totalVenta,
         ],
@@ -63,25 +63,47 @@ export const VentaModel = {
         );
         const subtotal = precioUnitario * detalle.cantidad;
 
-        const cantidadBase = ProductoModel.convertToBaseUnits(
+        const unidadesBase = ProductoModel.convertToBaseUnits(
           detalle.cantidad,
           detalle.unidad_venta,
           producto,
         );
 
-        const costoBase = producto.precio_compra * cantidadBase;
-        const ganancia = subtotal - costoBase;
+        let costoRealUnitario = 0;
+        let loteId: number | null = null;
+
+        if (producto.require_lote) {
+          costoRealUnitario = await ProductoModel.getCostoUnitarioLote(detalle.producto_id);
+          const [loteRows] = await connection.query<RowDataPacket[]>(
+            `SELECT id FROM lotes
+             WHERE producto_id = ? AND cantidad_disponible > 0
+             ORDER BY fecha_vencimiento ASC LIMIT 1`,
+            [detalle.producto_id]
+          );
+          if (loteRows.length > 0) {
+            loteId = loteRows[0].id;
+          }
+        }
+
+        const costoTotal = costoRealUnitario * unidadesBase;
+        const ganancia = subtotal - costoTotal;
 
         await connection.query(
           `INSERT INTO detalle_ventas
-            (venta_id, producto_id, cantidad, unidad_venta, precio_unitario, subtotal, ganancia)
-           VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            (venta_id, producto_id, lote_id, unidad_venta, cantidad, unidades_base,
+             precio_unitario, costo_real_unitario, descuento, adicional, subtotal, ganancia)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             ventaId,
             detalle.producto_id,
-            detalle.cantidad,
+            loteId,
             detalle.unidad_venta,
+            detalle.cantidad,
+            unidadesBase,
             precioUnitario,
+            costoRealUnitario,
+            0,
+            0,
             subtotal,
             ganancia,
           ],
@@ -89,13 +111,37 @@ export const VentaModel = {
 
         await connection.query(
           `UPDATE productos SET stock = stock - ? WHERE id = ?`,
-          [cantidadBase, detalle.producto_id],
+          [unidadesBase, detalle.producto_id],
+        );
+
+        const [stockRow] = await connection.query<RowDataPacket[]>(
+          `SELECT stock FROM productos WHERE id = ?`,
+          [detalle.producto_id]
+        );
+        const stockNuevo = stockRow.length > 0 ? Number(stockRow[0].stock) : 0;
+        const stockAnterior = stockNuevo + unidadesBase;
+
+        await connection.query(
+          `INSERT INTO inventario
+            (producto_id, lote_id, usuario_id, movimiento, tipo_referencia, referencia_id,
+             cantidad, stock_anterior, stock_nuevo, motivo, fecha_movimiento)
+           VALUES (?, ?, ?, 'venta', 'venta', ?, ?, ?, ?, ?, NOW())`,
+          [
+            detalle.producto_id,
+            loteId,
+            venta.usuario_id,
+            ventaId,
+            -unidadesBase,
+            stockAnterior,
+            stockNuevo,
+            `Venta #${ventaId}`,
+          ]
         );
 
         if (producto.require_lote) {
           await ProductoModel.consumeLote(
             detalle.producto_id,
-            cantidadBase,
+            unidadesBase,
             connection,
           );
         }
@@ -139,15 +185,11 @@ export const VentaModel = {
     }
 
     const [productos] = await pool.query<RowDataPacket[]>(
-      `SELECT 
-        dv.id,
-        dv.producto_id,
-        p.nombre AS producto_nombre,
-        dv.cantidad,
-        dv.unidad_venta,
-        dv.precio_unitario,
-        dv.subtotal,
-        dv.ganancia
+      `SELECT
+        dv.id, dv.producto_id, p.nombre AS producto_nombre,
+        dv.lote_id, dv.unidad_venta, dv.cantidad, dv.unidades_base,
+        dv.precio_unitario, dv.costo_real_unitario,
+        dv.descuento, dv.adicional, dv.subtotal, dv.ganancia
        FROM detalle_ventas dv
        JOIN productos p ON dv.producto_id = p.id
        WHERE dv.venta_id = ?`,
@@ -238,7 +280,7 @@ export const VentaModel = {
     ganancia_total: number;
   }> {
     const [rows] = await pool.query<RowDataPacket[]>(
-      `SELECT 
+      `SELECT
          COALESCE(SUM(v.total), 0) as total_ventas,
          COUNT(*) as num_ventas,
          COALESCE(SUM(dv.cantidad), 0) as total_articulos,
@@ -289,31 +331,44 @@ export const VentaModel = {
       );
 
       for (const detalle of detalles as any[]) {
-        const cantidadBase = detalle.cantidad;
+        const unidadesBase = detalle.unidades_base || detalle.cantidad;
 
         await connection.query(
           `UPDATE productos SET stock = stock + ? WHERE id = ?`,
-          [cantidadBase, detalle.producto_id],
+          [unidadesBase, detalle.producto_id],
+        );
+
+        const [stockRow] = await connection.query<RowDataPacket[]>(
+          `SELECT stock FROM productos WHERE id = ?`,
+          [detalle.producto_id]
+        );
+        const stockNuevo = stockRow.length > 0 ? Number(stockRow[0].stock) : 0;
+        const stockAnterior = stockNuevo - unidadesBase;
+
+        await connection.query(
+          `INSERT INTO inventario
+            (producto_id, lote_id, usuario_id, movimiento, tipo_referencia, referencia_id,
+             cantidad, stock_anterior, stock_nuevo, motivo, fecha_movimiento)
+           VALUES (?, ?, ?, 'devolucion', 'venta', ?, ?, ?, ?, ?, NOW())`,
+          [
+            detalle.producto_id,
+            detalle.lote_id || null,
+            usuario_id,
+            venta_id,
+            unidadesBase,
+            stockAnterior,
+            stockNuevo,
+            `Cancelación de venta #${venta_id}`,
+          ]
         );
 
         if (detalle.require_lote) {
           await ProductoModel.returnToLote(
             detalle.producto_id,
-            cantidadBase,
+            unidadesBase,
             connection,
           );
         }
-
-        await InventarioModel.registrarMovimiento(
-          {
-            producto_id: detalle.producto_id,
-            movimiento: "ajuste",
-            cantidad: cantidadBase,
-            motivo: `Cancelación de venta #${venta_id}`,
-            fecha_movimiento: new Date().toISOString().split("T")[0],
-          },
-          connection,
-        );
       }
 
       await connection.query(

@@ -2,6 +2,8 @@ import pool from "../config/db";
 import { RowDataPacket } from "mysql2";
 import { Clientes } from "../types";
 
+const CLIENTES_UPDATEABLE_FIELDS = ["nombre", "email", "telefono", "direccion"];
+
 export const ClientesModel = {
   async findAll(): Promise<Clientes[]> {
     const [rows] = await pool.query<RowDataPacket[]>("SELECT * FROM clientes");
@@ -20,15 +22,28 @@ export const ClientesModel = {
     const { nombre, email, telefono, direccion } = cliente;
     const [result] = await pool.query<any>(
       "INSERT INTO clientes (nombre, email, telefono, direccion) VALUES (?, ?, ?, ?)",
-      [nombre, email, telefono, direccion]
+      [nombre, email || null, telefono || null, direccion || null]
     );
     return result.insertId;
   },
 
   async update(id: number, cliente: Partial<Clientes>): Promise<boolean> {
+    const fields: string[] = [];
+    const values: any[] = [];
+
+    for (const field of CLIENTES_UPDATEABLE_FIELDS) {
+      if ((cliente as any)[field] !== undefined) {
+        fields.push(`${field} = ?`);
+        values.push((cliente as any)[field]);
+      }
+    }
+
+    if (fields.length === 0) return false;
+
+    values.push(id);
     const [result] = await pool.query<any>(
-      "UPDATE clientes SET ? WHERE id = ?",
-      [cliente, id]
+      `UPDATE clientes SET ${fields.join(", ")} WHERE id = ?`,
+      values
     );
     return result.affectedRows > 0;
   },

@@ -1,8 +1,9 @@
 import pool from "../config/db";
+import { RowDataPacket } from "mysql2";
 
 export const ReportePdfModel = {
   async obtenerVentasPorFecha(desde: string, hasta: string) {
-    const [rows] = await pool.query(
+    const [rows] = await pool.query<RowDataPacket[]>(
       `SELECT 
         v.id,
         v.fecha,
@@ -22,7 +23,7 @@ export const ReportePdfModel = {
   },
 
   async obtenerVentasPorMes(mes: string, anio: string) {
-    const [rows] = await pool.query(
+    const [rows] = await pool.query<RowDataPacket[]>(
       `SELECT 
         v.id,
         v.fecha,
@@ -42,7 +43,7 @@ export const ReportePdfModel = {
   },
 
   async obtenerVentasPorAnio(anio: string) {
-    const [rows] = await pool.query(
+    const [rows] = await pool.query<RowDataPacket[]>(
       `SELECT 
         v.id,
         v.fecha,
@@ -62,16 +63,22 @@ export const ReportePdfModel = {
   },
 
   async controlInventario() {
-    const [rows] = await pool.query(
+    const [rows] = await pool.query<RowDataPacket[]>(
       `SELECT 
         p.id,
         p.nombre,
         p.stock,
+        p.stock_minimo,
         p.unidad_medida,
-        p.precio_compra,
-        p.precio_venta,
-        p.fecha_vencimiento
-      FROM productos p`
+        p.precio_unidad,
+        p.precio_blister,
+        p.precio_caja,
+        l.fecha_vencimiento,
+        l.numero_lote,
+        l.cantidad_disponible
+      FROM productos p
+      LEFT JOIN lotes l ON l.producto_id = p.id AND l.estado = 'activo'
+      ORDER BY p.nombre, l.fecha_vencimiento`
     );
     return rows;
   },

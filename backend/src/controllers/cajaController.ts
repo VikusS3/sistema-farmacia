@@ -51,12 +51,7 @@ export const CajaController = {
         return;
       }
 
-      const { caja_id, monto_cierre, usuario_id } = parse.data as any;
-      
-      if (!usuario_id) {
-        res.status(400).json({ message: "ID de usuario requerido" });
-        return;
-      }
+      const { caja_id, monto_cierre, usuario_id } = parse.data;
 
       const result = await CajaModel.cerrarCaja(caja_id, monto_cierre, usuario_id);
 

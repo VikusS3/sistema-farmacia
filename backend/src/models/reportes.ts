@@ -11,7 +11,6 @@ import {
 } from "../types";
 
 export const ReportesModel = {
-  // Top productos más vendidos
   async getTopProductosMasVendidos(limit = 5): Promise<RowDataPacket[]> {
     const [rows] = await pool.query<RowDataPacket[]>(
       `WITH ventas_mes_actual AS (
@@ -65,7 +64,6 @@ export const ReportesModel = {
     return rows;
   },
 
-  // Ventas por mes
   async getVentasMensuales(): Promise<RowDataPacket[]> {
     const [rows] = await pool.query<RowDataPacket[]>(
       `SELECT 
@@ -80,7 +78,6 @@ export const ReportesModel = {
     return rows;
   },
 
-  // Métricas dashboard
   async obtenerMetricasDashboard(): Promise<MetricasDashboard> {
     const [ventasMesActual] = await pool.query<
       (VentasQueryResult & RowDataPacket)[]
@@ -121,21 +118,18 @@ export const ReportesModel = {
     const [valorInventario] = await pool.query<
       (RowDataPacket & { total: number })[]
     >(
-      `SELECT 
-      IFNULL(SUM(stock * precio_venta), 0) AS total
-   FROM productos`
+      `SELECT IFNULL(SUM(stock * precio_unidad), 0) AS total
+       FROM productos`
     );
 
     const [inventarioActivo] = await pool.query<
       (InventarioQueryResult & RowDataPacket)[]
     >(`SELECT SUM(stock) AS total FROM productos`);
 
-    // ⚠️ Stock bajo: ya no existe stock_minimo → usamos umbral fijo (ej: < 10)
     const [stockBajo] = await pool.query<
       (StockBajoQueryResult & RowDataPacket)[]
-    >(`SELECT COUNT(*) AS total FROM productos WHERE stock < 10`);
+    >(`SELECT COUNT(*) AS total FROM productos WHERE stock < stock_minimo`);
 
-    // Ganancia e ingresos del mes actual (ya viene de detalle_ventas.ganancia)
     const [gananciaMesActual] = await pool.query<
       (GananciaQueryResult & RowDataPacket)[]
     >(
@@ -148,7 +142,6 @@ export const ReportesModel = {
          AND YEAR(v.fecha) = YEAR(CURDATE())`
     );
 
-    // Ganancia e ingresos del mes pasado
     const [gananciaMesPasado] = await pool.query<
       (GananciaQueryResult & RowDataPacket)[]
     >(
@@ -161,7 +154,6 @@ export const ReportesModel = {
          AND YEAR(v.fecha) = YEAR(CURDATE() - INTERVAL 1 MONTH)`
     );
 
-    // 🔽 Funciones auxiliares (igual que antes)
     const calcCambio = (actual: number, anterior: number): number => {
       if (anterior === 0 || anterior === null) return actual > 0 ? 100 : 0;
       return ((actual - anterior) / anterior) * 100;
@@ -173,7 +165,6 @@ export const ReportesModel = {
       return "warning";
     };
 
-    // Variables resultado
     const ventasActual = ventasMesActual[0];
     const ventasPasado = ventasMesPasado[0];
     const clientesActual = clientesMesActual[0];

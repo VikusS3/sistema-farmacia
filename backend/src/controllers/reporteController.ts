@@ -8,7 +8,6 @@ export const ReportesController = {
       const limit = parseInt(req.query.limit as string) || 5;
       const productos = await ReportesModel.getTopProductosMasVendidos(limit);
 
-      // Formatear la respuesta para el frontend
       const productosFormateados = productos.map((p: any) => ({
         id: p.id,
         nombre: p.nombre,
@@ -30,12 +29,10 @@ export const ReportesController = {
     try {
       const ventasPorMes = await ReportesModel.getVentasMensuales();
 
-      // Mapeo inicial: todos los meses con total 0
       const datosCompletos = meses.map((nombre, index) => {
         return { name: nombre, total: 0 };
       });
 
-      // Reemplazar con datos reales
       ventasPorMes.forEach((row: any) => {
         const i = row.mes - 1;
         datosCompletos[i].total = row.total ? parseFloat(row.total) : 0;

@@ -53,11 +53,14 @@ export const VentaController = {
         })
       );
 
+      const subtotalTotal = detallesConPrecios.reduce((s, d) => s + d.subtotal, 0);
+
       const ventaId = await VentaModel.create(
         {
           cliente_id,
           usuario_id,
           caja_id,
+          subtotal: subtotalTotal,
           descuento: descuento || 0,
           adicional: adicional || 0,
           metodo_pago,

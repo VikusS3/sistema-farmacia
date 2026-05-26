@@ -1,6 +1,7 @@
 import { RowDataPacket } from "mysql2";
 import pool from "../config/db";
-import { Compra, DetalleCompra } from "../types";
+import { Compra, DetalleCompra, Producto, UnidadVenta } from "../types";
+import { ProductoModel } from "./productos";
 
 export const CompraModel = {
   async create(
@@ -11,17 +12,22 @@ export const CompraModel = {
     try {
       await connection.beginTransaction();
 
-      // Insertar compra
       const [compraResult] = await connection.query(
-        `INSERT INTO compras (proveedor_id, usuario_id, fecha, total)
-         VALUES (?, ?, NOW(), ?)`,
-        [compra.proveedor_id, compra.usuario_id, compra.total]
+        `INSERT INTO compras (proveedor_id, usuario_id, caja_id, fecha, subtotal, descuento, total, observaciones)
+         VALUES (?, ?, ?, NOW(), ?, ?, ?, ?)`,
+        [
+          compra.proveedor_id,
+          compra.usuario_id,
+          compra.caja_id || null,
+          compra.subtotal || compra.total,
+          compra.descuento || 0,
+          compra.total,
+          compra.observaciones || null,
+        ]
       );
       const compraId = (compraResult as any).insertId;
 
-      // Procesar cada detalle
       for (const detalle of detalles) {
-        // Obtener producto usando la misma conexión
         const [rows] = await connection.query(
           `SELECT * FROM productos WHERE id = ? FOR UPDATE`,
           [detalle.producto_id]
@@ -32,49 +38,83 @@ export const CompraModel = {
           throw new Error(`Producto ID ${detalle.producto_id} no encontrado`);
         }
 
-        // Calcular cantidad en unidades mínimas
-        let cantidadEnMinima = detalle.cantidad;
-        if (detalle.unidad_compra === "blister") {
-          cantidadEnMinima *= producto.factor_conversion;
-        } else if (detalle.unidad_compra === "caja" && producto.factor_caja) {
-          cantidadEnMinima *= producto.factor_caja;
+        const unidadesPorBlister = producto.unidades_por_blister ?? 1;
+        const blistersPorCaja = producto.blisters_por_caja ?? 1;
+
+        let factorConversion = 1;
+        if (detalle.tipo_compra === "blister") {
+          factorConversion = unidadesPorBlister;
+        } else if (detalle.tipo_compra === "caja") {
+          factorConversion = unidadesPorBlister * blistersPorCaja;
         }
 
-        if (cantidadEnMinima <= 0) {
-          throw new Error("Cantidad mínima calculada inválida");
+        const unidadesTotales = detalle.cantidad * factorConversion;
+        const costoUnitarioCompra = detalle.subtotal > 0 && unidadesTotales > 0
+          ? detalle.subtotal / unidadesTotales
+          : 0;
+
+        let loteId: number | null = null;
+
+        if (producto.require_lote && detalle.numero_lote && detalle.fecha_vencimiento) {
+          loteId = await ProductoModel.createLote({
+            producto_id: detalle.producto_id,
+            compra_id: compraId,
+            numero_lote: detalle.numero_lote,
+            fecha_vencimiento: detalle.fecha_vencimiento,
+            cantidad_inicial: unidadesTotales,
+            cantidad_disponible: unidadesTotales,
+            costo_unitario: costoUnitarioCompra,
+          });
+
+          await connection.query(
+            `INSERT INTO movimiento_lotes (lote_id, tipo, cantidad, motivo) VALUES (?, 'entrada', ?, ?)`,
+            [loteId, unidadesTotales, `Compra #${compraId}`]
+          );
         }
 
-        // Calcular nuevo precio_compra y ganancia
-        const nuevoPrecioCompra = detalle.precio_unitario / cantidadEnMinima;
-        const nuevaGanancia = producto.precio_venta - nuevoPrecioCompra;
-
-        // Insertar detalle de compra usando la misma conexión
         await connection.query(
           `INSERT INTO detalle_compras
-           (compra_id, producto_id, cantidad, unidad_compra, precio_unitario, subtotal)
-           VALUES (?, ?, ?, ?, ?, ?)`,
+           (compra_id, producto_id, lote_id, tipo_compra, cantidad, factor_conversion, unidades_totales, costo_unitario_compra, subtotal)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             compraId,
             detalle.producto_id,
+            loteId,
+            detalle.tipo_compra,
             detalle.cantidad,
-            detalle.unidad_compra,
-            detalle.precio_unitario,
+            factorConversion,
+            unidadesTotales,
+            costoUnitarioCompra,
             detalle.subtotal,
           ]
         );
 
-        // Actualizar stock y precios del producto
+        const [stockRow] = await connection.query<RowDataPacket[]>(
+          `SELECT stock FROM productos WHERE id = ?`,
+          [detalle.producto_id]
+        );
+        const stockAnterior = stockRow.length > 0 ? Number(stockRow[0].stock) : 0;
+        const stockNuevo = stockAnterior + unidadesTotales;
+
         await connection.query(
-          `UPDATE productos
-           SET stock = stock + ?,
-               precio_compra = ?,
-               ganancia = ?
-           WHERE id = ?`,
+          `UPDATE productos SET stock = stock + ? WHERE id = ?`,
+          [unidadesTotales, detalle.producto_id]
+        );
+
+        await connection.query(
+          `INSERT INTO inventario
+            (producto_id, lote_id, usuario_id, movimiento, tipo_referencia, referencia_id,
+             cantidad, stock_anterior, stock_nuevo, motivo, fecha_movimiento)
+           VALUES (?, ?, ?, 'compra', 'compra', ?, ?, ?, ?, ?, NOW())`,
           [
-            cantidadEnMinima,
-            nuevoPrecioCompra,
-            nuevaGanancia,
             detalle.producto_id,
+            loteId,
+            compra.usuario_id,
+            compraId,
+            unidadesTotales,
+            stockAnterior,
+            stockNuevo,
+            `Compra #${compraId}`,
           ]
         );
       }
@@ -99,7 +139,7 @@ export const CompraModel = {
     return rows as Compra[];
   },
 
-  async getById(id: number): Promise<Compra> {
+  async getById(id: number): Promise<any> {
     const [compraRows] = await pool.query<RowDataPacket[]>(
       `SELECT c.*, p.nombre AS proveedor_nombre, u.nombre AS usuario_nombre
        FROM compras c
@@ -109,36 +149,20 @@ export const CompraModel = {
       [id]
     );
 
+    if (compraRows.length === 0) return null;
+
     const [detalleRows] = await pool.query<RowDataPacket[]>(
-      `SELECT dc.*, pr.nombre AS producto_nombre
+      `SELECT dc.*, pr.nombre AS producto_nombre, l.numero_lote
        FROM detalle_compras dc
        JOIN productos pr ON dc.producto_id = pr.id
+       LEFT JOIN lotes l ON dc.lote_id = l.id
        WHERE dc.compra_id = ?`,
       [id]
     );
 
-    const compra = compraRows[0] as Compra;
-
     return {
-      id: compra.id,
-      proveedor_id: compra.proveedor_id,
-      proveedor_nombre: compra.proveedor_nombre,
-      usuario_id: compra.usuario_id,
-      fecha: compra.fecha,
-      total: compra.total,
-      detalles: detalleRows.map(
-        (detalle: any) =>
-          ({
-            id: detalle.id,
-            compra_id: detalle.compra_id,
-            producto_id: detalle.producto_id,
-            cantidad: detalle.cantidad,
-            unidad_compra: detalle.unidad_compra,
-            precio_unitario: detalle.precio_unitario,
-            subtotal: detalle.subtotal,
-            producto_nombre: detalle.producto_nombre,
-          } as DetalleCompra)
-      ),
+      ...compraRows[0],
+      detalles: detalleRows,
     };
   },
 

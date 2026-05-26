@@ -1,4 +1,3 @@
-// src/middlewares/verificarCajaAbierta.ts
 import { Request, Response, NextFunction } from "express";
 import { CajaModel } from "../models/caja";
 
@@ -8,11 +7,11 @@ export const verificarCajaAbierta = async (
   next: NextFunction
 ) => {
   try {
-    const usuario_id = req.body.usuario_id;
+    const usuario_id = req.user?.id;
 
     if (!usuario_id) {
       res.status(400).json({
-        error: "El ID de usuario es requerido para validar la caja",
+        error: "Token de autenticación inválido para validar la caja",
       });
       return;
     }
@@ -21,13 +20,13 @@ export const verificarCajaAbierta = async (
 
     if (!caja) {
       res.status(403).json({
-        error:
-          "No tienes una caja abierta. Abre una caja antes de registrar ventas.",
+        error: "No tienes una caja abierta. Abre una caja antes de registrar ventas.",
       });
       return;
     }
 
     req.body.caja_id = caja.id;
+    req.body.usuario_id = usuario_id;
 
     next();
   } catch (error) {

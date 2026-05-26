@@ -23,37 +23,32 @@ export interface Producto {
   id?: number;
   nombre: string;
   descripcion?: string;
-
-  // Legacy fields (for backward compatibility)
-  unidad_venta?: string;
-  unidad_medida?: string;
-  factor_conversion?: number;
-  factor_caja?: number | null;
+  categoria_id?: number | null;
+  categoria_nombre?: string;
   stock: number;
-  precio_compra: number;
-  precio_venta: number;
-
-  // Enhanced multi-unit pricing
-  precio_unidad?: number | null; // Price per single unit (pill)
-  precio_blister?: number | null; // Price per blister
-  precio_caja?: number | null; // Price per box
-  unidades_por_blister?: number; // How many pills per blister
-  unidades_por_caja?: number; // How many pills per box
-  require_lote?: boolean; // Requires lot/expiration tracking
-
-  // Stock management
   stock_minimo: number;
-  fecha_vencimiento?: string | null;
+  unidad_medida: string;
+  unidades_por_blister: number;
+  blisters_por_caja: number;
+  precio_unidad?: number;
+  precio_blister?: number;
+  precio_caja?: number;
+  require_lote: boolean;
+  creado_en?: Date;
+  actualizado_en?: Date;
 }
 
 export interface Lote {
   id?: number;
   producto_id: number;
+  producto_nombre?: string;
+  compra_id?: number | null;
   numero_lote: string;
   fecha_vencimiento: string;
   cantidad_inicial: number;
   cantidad_disponible: number;
-  precio_unitario: number;
+  costo_unitario: number;
+  estado: "activo" | "agotado" | "vencido";
   created_at?: Date;
   updated_at?: Date;
 }
@@ -70,12 +65,14 @@ export interface AlertaStock {
   created_at?: Date;
 }
 
-export type Proovedor = {
+export type Proveedor = {
   id?: number;
   nombre: string;
-  ruc?: string;
+  email?: string;
   telefono?: string;
   direccion?: string;
+  creado_en?: Date;
+  actualizado_en?: Date;
 };
 
 export type Clientes = {
@@ -93,9 +90,13 @@ export interface Compra {
   proveedor_id: number;
   proveedor_nombre?: string;
   usuario_id: number;
+  usuario_nombre?: string;
   caja_id?: number | null;
   fecha?: string;
+  subtotal: number;
+  descuento: number;
   total: number;
+  observaciones?: string;
   detalles: DetalleCompra[];
 }
 
@@ -103,29 +104,39 @@ export interface DetalleCompra {
   id?: number;
   compra_id?: number;
   producto_id: number;
+  producto_nombre?: string;
+  lote_id?: number | null;
+  tipo_compra: UnidadVenta;
   cantidad: number;
-  unidad_compra: UnidadVenta;
-  precio_unitario: number;
+  factor_conversion?: number;
+  unidades_totales?: number;
+  costo_unitario_compra?: number;
   subtotal: number;
+  numero_lote?: string;
+  fecha_vencimiento?: string;
 }
 
 export interface Inventario {
   id?: number;
   producto_id: number;
+  producto_nombre?: string;
   lote_id?: number | null;
-  movimiento: "compra" | "venta" | "ajuste";
+  usuario_id?: number | null;
+  movimiento: "compra" | "venta" | "ajuste" | "vencido" | "devolucion";
+  tipo_referencia: "compra" | "venta" | "manual";
+  referencia_id?: number | null;
   cantidad: number;
-  unidades_base?: number;
+  stock_anterior: number;
+  stock_nuevo: number;
   motivo?: string;
   fecha_movimiento: string;
-  creado_en?: Date;
-  actualizado_en?: Date;
+  created_at?: Date;
 }
 
 export type ResumenVentas = {
   id?: number;
   fecha: string;
-  total_diario: number;
+  total_dia: number;
   creado_en?: Date;
   actualizado_en?: Date;
 };
@@ -139,7 +150,7 @@ export interface VentaTicket {
   descuento?: number;
   fecha: Date;
   id: number;
-  metodo_pago: "efectivo" | "tarjeta" | "yape/plin";
+  metodo_pago: "efectivo" | "tarjeta" | "transferencia";
   total: string;
   usuario_id: number;
 }
@@ -147,13 +158,16 @@ export interface VentaTicket {
 export interface Venta {
   id?: number;
   cliente_id: number;
+  cliente_nombre?: string;
   usuario_id: number;
+  usuario_nombre?: string;
   caja_id: number | null;
-  adicional?: number;
-  descuento?: number;
-  metodo_pago: "efectivo" | "tarjeta" | "transferencia";
   fecha?: string;
+  subtotal: number;
+  descuento: number;
+  adicional: number;
   total: number;
+  metodo_pago: "efectivo" | "tarjeta" | "transferencia";
   estado?: "completada" | "cancelada";
 }
 
@@ -161,11 +175,19 @@ export interface DetalleVenta {
   id?: number;
   venta_id: number;
   producto_id: number;
-  cantidad: number;
+  producto_nombre?: string;
+  lote_id?: number | null;
   unidad_venta: UnidadVenta;
+  cantidad: number;
+  unidades_base: number;
   precio_unitario: number;
+  costo_real_unitario: number;
+  descuento: number;
+  adicional: number;
   subtotal: number;
   ganancia: number;
+  creado_en?: Date;
+  actualizado_en?: Date;
 }
 
 export interface Caja {
@@ -186,41 +208,13 @@ export interface Caja {
 export type CambioType = "positive" | "negative" | "warning";
 
 export interface MetricasDashboard {
-  ventasTotales: {
-    value: number;
-    change: number;
-    changeType: CambioType;
-  };
-  valorInventarioTotal: {
-    value: number;
-    change: number;
-    changeType: CambioType;
-  };
-  prescripciones: {
-    value: number;
-    change: number;
-    changeType: CambioType;
-  };
-  inventarioActivo: {
-    value: number;
-    change: number;
-    changeType: CambioType;
-  };
-  pacientes: {
-    value: number;
-    change: number;
-    changeType: CambioType;
-  };
-  margenGanancia: {
-    value: number;
-    change: number;
-    changeType: CambioType;
-  };
-  stockBajo: {
-    value: number;
-    change: number;
-    changeType: CambioType;
-  };
+  ventasTotales: { value: number; change: number; changeType: CambioType };
+  valorInventarioTotal: { value: number; change: number; changeType: CambioType };
+  prescripciones: { value: number; change: number; changeType: CambioType };
+  inventarioActivo: { value: number; change: number; changeType: CambioType };
+  pacientes: { value: number; change: number; changeType: CambioType };
+  margenGanancia: { value: number; change: number; changeType: CambioType };
+  stockBajo: { value: number; change: number; changeType: CambioType };
 }
 
 export interface VentasQueryResult {
@@ -251,12 +245,12 @@ export interface ProductoConStock {
   descripcion: string;
   stock: number;
   stock_minimo: number;
-  precio_unidad: number | null;
-  precio_blister: number | null;
-  precio_caja: number | null;
+  precio_unidad?: number;
+  precio_blister?: number;
+  precio_caja?: number;
   unidades_por_blister: number;
-  unidades_por_caja: number;
-  tiene_lotes: boolean;
+  blisters_por_caja: number;
+  require_lote: boolean;
   lotes_disponibles?: Lote[];
 }
 
@@ -272,4 +266,22 @@ export interface VentaCreateInput {
     cantidad: number;
     unidad_venta: UnidadVenta;
   }[];
+}
+
+export interface MovimientoLote {
+  id?: number;
+  lote_id: number;
+  tipo: "entrada" | "salida" | "ajuste" | "vencido";
+  cantidad: number;
+  motivo?: string;
+  fecha?: Date;
+}
+
+export interface HistorialPrecio {
+  id?: number;
+  producto_id: number;
+  tipo_precio: "precio_unidad" | "precio_blister" | "precio_caja";
+  precio_anterior: number;
+  precio_nuevo: number;
+  fecha_cambio?: Date;
 }

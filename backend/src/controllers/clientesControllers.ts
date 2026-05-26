@@ -1,21 +1,21 @@
-import { Request, Response, RequestHandler } from "express";
+import { Request, Response } from "express";
 import { ClientesModel } from "../models/clientes";
 import {
   createClientesSchema,
   updateClientesSchema,
 } from "../validators/clientesValidators";
 
-export class ClienteController {
-  static getAll: RequestHandler = async (req: Request, res: Response) => {
+export const ClienteController = {
+  async getAll(req: Request, res: Response) {
     try {
       const clientes = await ClientesModel.findAll();
       res.json(clientes);
     } catch (error) {
       res.status(500).json({ error: "Error al obtener los clientes" });
     }
-  };
+  },
 
-  static getById: RequestHandler = async (req: Request, res: Response) => {
+  async getById(req: Request, res: Response) {
     try {
       const { id } = req.params;
       const cliente = await ClientesModel.findById(parseInt(id));
@@ -27,38 +27,50 @@ export class ClienteController {
     } catch (error) {
       res.status(500).json({ error: "Error al obtener el cliente" });
     }
-  };
+  },
 
-  static create: RequestHandler = async (req: Request, res: Response) => {
+  async create(req: Request, res: Response) {
     try {
-      const validatedData = createClientesSchema.parse(req.body);
-      const id = await ClientesModel.create(validatedData);
+      const parse = createClientesSchema.safeParse(req.body);
+      if (!parse.success) {
+        res.status(400).json({
+          errors: parse.error.flatten().fieldErrors,
+          message: "Datos de cliente inválidos",
+        });
+        return;
+      }
+
+      const id = await ClientesModel.create(parse.data);
       res.status(201).json({ id, message: "Cliente creado exitosamente" });
     } catch (error) {
-      res.status(400).json({
-        error: (error as any).errors || "Error al crear el cliente",
-      });
+      res.status(500).json({ error: "Error al crear el cliente" });
     }
-  };
+  },
 
-  static update: RequestHandler = async (req: Request, res: Response) => {
+  async update(req: Request, res: Response) {
     try {
       const id = parseInt(req.params.id);
-      const validatedData = updateClientesSchema.parse(req.body);
-      const updated = await ClientesModel.update(id, validatedData);
+      const parse = updateClientesSchema.safeParse(req.body);
+      if (!parse.success) {
+        res.status(400).json({
+          errors: parse.error.flatten().fieldErrors,
+          message: "Datos de cliente inválidos",
+        });
+        return;
+      }
+
+      const updated = await ClientesModel.update(id, parse.data);
       if (!updated) {
         res.status(404).json({ message: "Cliente no encontrado" });
         return;
       }
       res.json({ message: "Cliente actualizado exitosamente" });
     } catch (error) {
-      res.status(400).json({
-        error: (error as any).errors || "Error al actualizar el cliente",
-      });
+      res.status(500).json({ error: "Error al actualizar el cliente" });
     }
-  };
+  },
 
-  static delete: RequestHandler = async (req: Request, res: Response) => {
+  async delete(req: Request, res: Response) {
     try {
       const { id } = req.params;
       const deleted = await ClientesModel.delete(parseInt(id));
@@ -70,5 +82,5 @@ export class ClienteController {
     } catch (error) {
       res.status(500).json({ error: "Error al eliminar el cliente" });
     }
-  };
-}
+  },
+};

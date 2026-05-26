@@ -5,7 +5,8 @@ import { parseProducto, parseProductoPartial, parseLote } from "../validators/pr
 export const ProductoController = {
   async getAll(req: Request, res: Response) {
     try {
-      const productos = await ProductoModel.getAll();
+      const { categoria_id } = req.query;
+      const productos = await ProductoModel.getAll(categoria_id ? Number(categoria_id) : undefined);
       res.json(productos);
     } catch (error: any) {
       console.error("Error al obtener productos:", error);
@@ -15,7 +16,7 @@ export const ProductoController = {
 
   async getById(req: Request, res: Response) {
     try {
-      const producto = await ProductoModel.getWithPrices(Number(req.params.id));
+      const producto = await ProductoModel.findById(Number(req.params.id));
       if (!producto) {
         res.status(404).json({ message: "Producto no encontrado" });
         return;
@@ -88,7 +89,7 @@ export const ProductoController = {
         return;
       }
 
-      const producto = await ProductoModel.getWithPrices(id);
+      const producto = await ProductoModel.findById(id);
       res.json(producto);
     } catch (error: any) {
       console.error("Error al actualizar producto:", error);
@@ -141,12 +142,16 @@ export const ProductoController = {
         return;
       }
 
-      const id = await ProductoModel.createLote(parse.data);
-      
+      const loteData = {
+        ...parse.data,
+        cantidad_disponible: parse.data.cantidad_disponible ?? parse.data.cantidad_inicial,
+      };
+      const id = await ProductoModel.createLote(loteData);
+
       await ProductoModel.updateStock(
         parse.data.producto_id,
         parse.data.cantidad_inicial,
-        "caja",
+        "unidad",
         "sumar"
       );
 
@@ -182,9 +187,9 @@ export const ProductoController = {
     }
   },
 
-  async getProductosWhitExpired(req: Request, res: Response) {
+  async getProductosVencidos(req: Request, res: Response) {
     try {
-      const productos = await ProductoModel.getProductosWhitExpired();
+      const productos = await ProductoModel.getProductosVencidos();
       res.json(productos);
     } catch (error: any) {
       console.error("Error al obtener productos vencidos:", error);

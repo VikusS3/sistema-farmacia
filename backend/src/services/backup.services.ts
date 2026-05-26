@@ -17,14 +17,19 @@ export const backupMySQL = (): Promise<BackupResult> => {
     const backupDir = path.join(__dirname, "../../backups");
     const filePath = path.join(backupDir, `backup-${timestamp}.sql`);
 
-    // Crear directorio si no existe
     fs.mkdirSync(backupDir, { recursive: true });
 
-    // 🧠 Ruta absoluta a mysqldump.exe
-    // const mysqldumpPath = "D:\\xamp\\mysql\\bin\\mysqldump.exe";
     const mysqldumpPath = findMysqldump();
+    const dbName = process.env.DB_NAME || "newfarmacia";
+    const dbUser = process.env.DB_USER || "root";
+    const dbHost = process.env.DB_HOST || "localhost";
 
-    const dump = spawn(mysqldumpPath, ["-u", "root", "farmacia"]);
+    const args = ["-u", dbUser, `--host=${dbHost}`, dbName];
+    if (process.env.DB_PASSWORD) {
+      args.splice(1, 0, `-p${process.env.DB_PASSWORD}`);
+    }
+
+    const dump = spawn(mysqldumpPath, args);
     const writeStream = fs.createWriteStream(filePath);
 
     dump.stdout.pipe(writeStream);
@@ -33,17 +38,14 @@ export const backupMySQL = (): Promise<BackupResult> => {
 
     dump.stderr.on("data", (data) => {
       errorOutput += data.toString();
-      console.error("❌ mysqldump stderr:", data.toString());
     });
 
     dump.on("error", (err) => {
-      console.error("❌ Error al ejecutar mysqldump:", err.message);
       reject(new Error(`Error ejecutando mysqldump: ${err.message}`));
     });
 
     dump.on("close", (code) => {
       if (code === 0) {
-        console.log("✅ Backup creado correctamente en:", filePath);
         resolve({
           success: true,
           filePath,
@@ -51,15 +53,11 @@ export const backupMySQL = (): Promise<BackupResult> => {
           message: "Backup creado exitosamente",
         });
       } else {
-        console.error("❌ mysqldump terminó con código:", code);
-        console.error("❌ Error output:", errorOutput);
         reject(new Error(`mysqldump falló con código ${code}: ${errorOutput}`));
       }
     });
 
-    // Manejar errores del stream de escritura
     writeStream.on("error", (err) => {
-      console.error("❌ Error escribiendo archivo:", err);
       reject(new Error(`Error escribiendo archivo: ${err.message}`));
     });
   });
