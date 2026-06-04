@@ -148,13 +148,6 @@ export const ProductoController = {
       };
       const id = await ProductoModel.createLote(loteData);
 
-      await ProductoModel.updateStock(
-        parse.data.producto_id,
-        parse.data.cantidad_inicial,
-        "unidad",
-        "sumar"
-      );
-
       res.status(201).json({ 
         message: "Lote creado correctamente",
         lote_id: id 

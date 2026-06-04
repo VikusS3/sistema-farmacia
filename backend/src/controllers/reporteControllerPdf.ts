@@ -5,7 +5,7 @@ import { renderFile } from "ejs";
 import { getBrowser } from "../services/browserPool";
 import { getLogoBase64 } from "../utils/logoHelper";
 
-async function renderPdf(templateName: string, data: Record<string, any>): Promise<Buffer> {
+async function renderPdf(templateName: string, data: Record<string, any>): Promise<Uint8Array> {
   const templatePath = path.join(__dirname, `../views/${templateName}.ejs`);
   const logoUrl = getLogoBase64();
 

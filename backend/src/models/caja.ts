@@ -75,11 +75,9 @@ export const CajaModel = {
         [caja_id],
       );
 
-      const totalVentas = parseFloat(
-        (ventasResult[0] as any).total_ventas || 0,
-      );
-      const montoSistema = caja.monto_apertura + totalVentas;
-      const diferencia = monto_cierre - montoSistema;
+      const totalVentas = Number((ventasResult[0] as any)?.total_ventas) || 0;
+      const montoSistema = (Number(caja.monto_apertura) || 0) + totalVentas;
+      const diferencia = (Number(monto_cierre) - montoSistema) || 0;
 
       await connection.query(
         `UPDATE cajas
