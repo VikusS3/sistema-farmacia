@@ -19,6 +19,8 @@ import {
   UserCircle,
   LogOut,
   PillBottle,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 
 const menuItems = [
@@ -35,7 +37,7 @@ const menuItems = [
   { name: "Usuarios", href: "/usuarios", icon: UserCircle },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen = true, onToggle }) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const [alertasCount, setAlertasCount] = useState(0);
@@ -55,17 +57,49 @@ export default function Sidebar() {
   }, []);
 
   return (
-    <aside className="w-64 bg-zinc-900/95 border-r border-zinc-800/50 h-screen flex flex-col fixed left-0 top-0 z-50 backdrop-blur-xl">
-      <div className="px-5 py-5 border-b border-zinc-800/50">
-        <Link href="/dashboard" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-            <PillBottle className="w-5 h-5 text-emerald-400" />
-          </div>
-          <span className="text-lg font-bold text-white tracking-tight">
-            Farmacia
-          </span>
-        </Link>
-      </div>
+    <>
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onToggle}
+        />
+      )}
+
+      {!isOpen && (
+        <button
+          onClick={onToggle}
+          className="fixed left-4 top-4 z-50 p-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-all duration-200"
+          title="Abrir menú"
+        >
+          <PanelLeftOpen className="w-5 h-5" />
+        </button>
+      )}
+
+      <aside
+        className={`
+          w-64 bg-zinc-900/95 border-r border-zinc-800/50 h-screen flex flex-col
+          fixed left-0 top-0 z-50 backdrop-blur-xl
+          transition-transform duration-300 ease-in-out
+          ${isOpen ? "translate-x-0" : "-translate-x-64"}
+        `}
+      >
+        <div className="px-5 py-5 border-b border-zinc-800/50 flex items-center justify-between">
+          <Link href="/dashboard" className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+              <PillBottle className="w-5 h-5 text-emerald-400" />
+            </div>
+            <span className="text-lg font-bold text-white tracking-tight">
+              Farmacia
+            </span>
+          </Link>
+          <button
+            onClick={onToggle}
+            className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50 transition-all duration-200 hidden lg:block"
+            title="Cerrar menú"
+          >
+            <PanelLeftClose className="w-5 h-5" />
+          </button>
+        </div>
 
       <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">
         {menuItems.map((item) => {
@@ -127,5 +161,6 @@ export default function Sidebar() {
         </div>
       </div>
     </aside>
+    </>
   );
 }

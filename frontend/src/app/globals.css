@@ -98,3 +98,23 @@ button {
 .animate-fade-in {
   animation: fade-in 0.4s ease-out both;
 }
+
+/* Staggered card entry */
+@keyframes stagger-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.stagger-in {
+  animation: stagger-in 0.35s ease-out both;
+}
+
+/* Slide-in for conditional sections */
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-in {
+  animation: slide-in 0.2s ease-out both;
+}
