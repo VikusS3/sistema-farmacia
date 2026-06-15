@@ -176,10 +176,10 @@ export default function CategoriasPage() {
                 )}
               </div>
               <div className="mt-5 pt-4 border-t border-zinc-800/50 flex gap-2">
-                <Button variant="ghost" size="sm" onClick={() => handleEdit(cat)}>
+                <Button variant="ghost" size="sm" onClick={() => handleEdit(cat)} className="!text-sky-400 hover:!text-sky-300 hover:!bg-sky-500/10">
                   <Pencil className="w-3.5 h-3.5" /> Editar
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => handleDelete(cat.id)} className="text-red-400 hover:text-red-300 hover:bg-red-500/10">
+                <Button variant="ghost" size="sm" onClick={() => handleDelete(cat.id)} className="!text-red-400 hover:!text-red-300 hover:!bg-red-500/10">
                   <Trash2 className="w-3.5 h-3.5" /> Eliminar
                 </Button>
               </div>

@@ -193,10 +193,10 @@ export default function ProveedoresPage() {
                   <TableCell className="text-zinc-400">{p.telefono || "—"}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="sm" onClick={() => handleEdit(p)}>
+                      <Button variant="ghost" size="sm" onClick={() => handleEdit(p)} className="!text-sky-400 hover:!text-sky-300 hover:!bg-sky-500/10">
                         <Pencil className="w-3.5 h-3.5" /> Editar
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleDelete(p.id)} className="text-red-400 hover:text-red-300 hover:bg-red-500/10">
+                      <Button variant="ghost" size="sm" onClick={() => handleDelete(p.id)} className="!text-red-400 hover:!text-red-300 hover:!bg-red-500/10">
                         <Trash2 className="w-3.5 h-3.5" /> Eliminar
                       </Button>
                     </div>

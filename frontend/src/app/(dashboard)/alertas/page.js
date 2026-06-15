@@ -148,7 +148,7 @@ export default function AlertasPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => eliminarAlerta(alerta.id)}
-                      className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                      className="!text-red-400 hover:!text-red-300 hover:!bg-red-500/10"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </Button>

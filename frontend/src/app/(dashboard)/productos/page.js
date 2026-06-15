@@ -161,7 +161,7 @@ export default function ProductosPage() {
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
                       <Link href={`/productos/${producto.id}`}>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" className="!text-sky-400 hover:!text-sky-300 hover:!bg-sky-500/10">
                           <Pencil className="w-3.5 h-3.5" />
                           Editar
                         </Button>
@@ -170,7 +170,7 @@ export default function ProductosPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(producto.id)}
-                        className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                        className="!text-red-400 hover:!text-red-300 hover:!bg-red-500/10"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                         Eliminar

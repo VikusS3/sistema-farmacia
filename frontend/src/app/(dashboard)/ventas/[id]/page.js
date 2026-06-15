@@ -36,12 +36,10 @@ export default function VentaDetailPage() {
   useEffect(() => {
     const fetchVenta = async () => {
       try {
-        const [ventaRes, prodRes] = await Promise.all([
-          ventasService.getById(params.id),
-          ventasService.getVentaConProductos(params.id),
-        ]);
-        setVenta(ventaRes.data);
-        setProductos(prodRes.data.productos || prodRes.data || []);
+        const ventaRes = await ventasService.getById(params.id);
+        const data = ventaRes.data.venta;
+        setVenta(data);
+        setProductos(data.productos || []);
       } catch (e) {
         console.error("Error fetching venta:", e);
         setError("Error al cargar la venta");
@@ -68,7 +66,9 @@ export default function VentaDetailPage() {
         confirmButtonColor: "#10b981",
       });
       const res = await ventasService.getById(params.id);
-      setVenta(res.data);
+      const data = res.data.venta;
+      setVenta(data);
+      setProductos(data.productos || []);
       setMotivo("");
     } catch (e) {
       Swal.fire({
@@ -123,18 +123,15 @@ export default function VentaDetailPage() {
         }
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
           <CardContent className="space-y-3">
             <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
               Cliente
             </p>
             <p className="text-white font-medium">
-              {venta.cliente?.nombre || "Sin cliente"}
+              {venta.cliente_nombre || "Sin cliente"}
             </p>
-            {venta.cliente?.email && (
-              <p className="text-zinc-400 text-sm">{venta.cliente.email}</p>
-            )}
           </CardContent>
         </Card>
         <Card>
@@ -143,7 +140,17 @@ export default function VentaDetailPage() {
               Usuario
             </p>
             <p className="text-white font-medium">
-              {venta.usuario?.nombre || "—"}
+              {venta.usuario_nombre || "—"}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+              Método de Pago
+            </p>
+            <p className="text-white font-medium capitalize">
+              {venta.metodo_pago || "—"}
             </p>
           </CardContent>
         </Card>
@@ -159,7 +166,7 @@ export default function VentaDetailPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
         <Card>
           <CardContent className="space-y-1">
             <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
@@ -200,50 +207,82 @@ export default function VentaDetailPage() {
             </p>
           </CardContent>
         </Card>
+        <Card>
+          <CardContent className="space-y-1">
+            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+              Caja
+            </p>
+            <p className="text-xl font-bold text-white">
+              ${Number(venta.caja_apertura || 0).toFixed(2)}
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       <Card>
-        <Table>
-          <TableHeader>
-            <TableHead>Producto</TableHead>
-            <TableHead>Unidad</TableHead>
-            <TableHead className="text-right">Cantidad</TableHead>
-            <TableHead className="text-right">Precio</TableHead>
-            <TableHead className="text-right">Subtotal</TableHead>
-          </TableHeader>
-          <TableBody>
-            {productos.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={5}
-                  className="py-8 text-center text-zinc-500"
-                >
-                  Sin productos
-                </TableCell>
-              </TableRow>
-            ) : (
-              (Array.isArray(productos) ? productos : []).map((item, i) => (
-                <TableRow key={item.id || i}>
-                  <TableCell className="text-white font-medium">
-                    {item.producto_nombre || item.nombre || "—"}
-                  </TableCell>
-                  <TableCell className="text-zinc-400 capitalize">
-                    {item.unidad_venta || "—"}
-                  </TableCell>
-                  <TableCell className="text-right text-zinc-300">
-                    {item.cantidad}
-                  </TableCell>
-                  <TableCell className="text-right text-zinc-300">
-                    ${Number(item.precio_unitario || 0).toFixed(2)}
-                  </TableCell>
-                  <TableCell className="text-right text-emerald-400 font-medium">
-                    ${Number(item.subtotal || 0).toFixed(2)}
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableHead>Producto</TableHead>
+              <TableHead>Unidad</TableHead>
+              <TableHead className="text-right">Cantidad</TableHead>
+              <TableHead className="text-right">Unds Base</TableHead>
+              <TableHead className="text-right">Precio</TableHead>
+              <TableHead className="text-right">Dto.</TableHead>
+              <TableHead className="text-right">Adic.</TableHead>
+              <TableHead className="text-right">Subtotal</TableHead>
+              <TableHead className="text-right">Ganancia</TableHead>
+              <TableHead className="text-right">Lote</TableHead>
+            </TableHeader>
+            <TableBody>
+              {productos.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={10}
+                    className="py-8 text-center text-zinc-500"
+                  >
+                    Sin productos
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                (Array.isArray(productos) ? productos : []).map((item, i) => (
+                  <TableRow key={item.id || i}>
+                    <TableCell className="text-white font-medium">
+                      {item.producto_nombre || item.nombre || "—"}
+                    </TableCell>
+                    <TableCell className="text-zinc-400 capitalize">
+                      {item.unidad_venta || "—"}
+                    </TableCell>
+                    <TableCell className="text-right text-zinc-300 tabular-nums">
+                      {item.cantidad}
+                    </TableCell>
+                    <TableCell className="text-right text-zinc-500 tabular-nums text-xs">
+                      {item.unidades_base ?? "—"}
+                    </TableCell>
+                    <TableCell className="text-right text-zinc-300 tabular-nums">
+                      ${Number(item.precio_unitario || 0).toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-right text-zinc-400 tabular-nums">
+                      ${Number(item.descuento || 0).toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-right text-zinc-400 tabular-nums">
+                      ${Number(item.adicional || 0).toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-right text-emerald-400 font-medium tabular-nums">
+                      ${Number(item.subtotal || 0).toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-right text-zinc-300 tabular-nums">
+                      ${Number(item.ganancia || 0).toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-right text-zinc-500 tabular-nums text-xs">
+                      {item.lote_id ? `#${item.lote_id}` : "—"}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </Card>
 
       <div className="flex flex-wrap gap-3">
@@ -263,14 +302,17 @@ export default function VentaDetailPage() {
               document.body.removeChild(a);
               URL.revokeObjectURL(url);
             } catch (e) {
-              setError(e.response?.data?.message || "Error al descargar ticket");
+              setError(
+                e.response?.data?.message || "Error al descargar ticket",
+              );
             } finally {
               setDescargando(false);
             }
           }}
           disabled={descargando}
         >
-          <FileText className="w-4 h-4" /> {descargando ? "Descargando..." : "Descargar Ticket"}
+          <FileText className="w-4 h-4" />{" "}
+          {descargando ? "Descargando..." : "Descargar Ticket"}
         </Button>
       </div>
 

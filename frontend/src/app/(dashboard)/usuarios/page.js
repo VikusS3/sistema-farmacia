@@ -262,6 +262,7 @@ export default function UsuariosPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleEdit(u)}
+                        className="!text-sky-400 hover:!text-sky-300 hover:!bg-sky-500/10"
                       >
                         <Pencil className="w-3.5 h-3.5" />
                         Editar
@@ -270,7 +271,7 @@ export default function UsuariosPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(u.id)}
-                        className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                        className="!text-red-400 hover:!text-red-300 hover:!bg-red-500/10"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                         Eliminar

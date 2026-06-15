@@ -234,7 +234,7 @@ export default function ClientesPage() {
                   <TableCell className="text-zinc-400 max-w-[200px] truncate">{c.direccion || "—"}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="sm" onClick={() => handleEdit(c)}>
+                      <Button variant="ghost" size="sm" onClick={() => handleEdit(c)} className="!text-sky-400 hover:!text-sky-300 hover:!bg-sky-500/10">
                         <Pencil className="w-3.5 h-3.5" />
                         Editar
                       </Button>
@@ -242,7 +242,7 @@ export default function ClientesPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(c.id)}
-                        className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                        className="!text-red-400 hover:!text-red-300 hover:!bg-red-500/10"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                         Eliminar

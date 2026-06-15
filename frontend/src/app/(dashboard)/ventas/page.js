@@ -51,8 +51,11 @@ export default function VentasPage() {
 
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString("es-ES", {
-      day: "2-digit", month: "2-digit", year: "numeric",
-      hour: "2-digit", minute: "2-digit",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -86,7 +89,8 @@ export default function VentasPage() {
         />
       )}
 
-      <Card>
+      <Card variant="glass" className="overflow-hidden">
+        <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-emerald-500/20 to-transparent" />
         <Table>
           <TableHeader>
             <TableHead>ID</TableHead>
@@ -104,7 +108,11 @@ export default function VentasPage() {
                   <EmptyState
                     icon={<ShoppingCart className="w-10 h-10" />}
                     title="No hay ventas"
-                    description={cajaAbierta ? "Realiza tu primera venta" : "Abre la caja para empezar a vender"}
+                    description={
+                      cajaAbierta
+                        ? "Realiza tu primera venta"
+                        : "Abre la caja para empezar a vender"
+                    }
                     action={
                       cajaAbierta && (
                         <Link href="/ventas/nueva">
@@ -118,19 +126,39 @@ export default function VentasPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              ventas.map((venta) => (
-                <TableRow key={venta.id}>
-                  <TableCell className="font-mono text-xs text-zinc-500">#{venta.id}</TableCell>
-                  <TableCell className="text-zinc-300">{formatDate(venta.fecha)}</TableCell>
-                  <TableCell className="text-white">{venta.cliente?.nombre || <span className="text-zinc-600">Sin cliente</span>}</TableCell>
-                  <TableCell className="text-zinc-400">{venta.usuario?.nombre || "—"}</TableCell>
-                  <TableCell className="text-emerald-400 font-medium">${Number(venta.total).toFixed(2)}</TableCell>
+              ventas.map((venta, i) => (
+                <TableRow
+                  key={venta.id}
+                  className="stagger-in"
+                  style={{ animationDelay: `${i * 25}ms` }}
+                >
+                  <TableCell className="font-mono text-xs text-zinc-500">
+                    #{venta.id}
+                  </TableCell>
+                  <TableCell className="text-zinc-300">
+                    {formatDate(venta.fecha)}
+                  </TableCell>
+                  <TableCell className="text-white">
+                    {venta.cliente_nombre || (
+                      <span className="text-zinc-600">Sin cliente</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-zinc-400">
+                    {venta.usuario_nombre || "—"}
+                  </TableCell>
+                  <TableCell className="text-emerald-400 font-medium tabular-nums">
+                    ${Number(venta.total).toFixed(2)}
+                  </TableCell>
                   <TableCell>
                     <Badge
-                      variant={venta.estado === "cancelada" ? "danger" : "success"}
+                      variant={
+                        venta.estado === "cancelada" ? "danger" : "success"
+                      }
                       dot
                     >
-                      {venta.estado === "cancelada" ? "Cancelada" : "Completada"}
+                      {venta.estado === "cancelada"
+                        ? "Cancelada"
+                        : "Completada"}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
