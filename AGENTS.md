@@ -1,95 +1,74 @@
 # Sistema Farmacia
 
-Monorepo with Express/TypeScript backend + Next.js 15 frontend.
+Monorepo with two independent packages:
+
+| Package  | Dir        | PM    | Language/Framework                          |
+|----------|------------|-------|---------------------------------------------|
+| Backend  | `backend/` | npm   | Express + TypeScript + MySQL                |
+| Frontend | `frontend/`| pnpm  | Next.js 16 + React 19 + Tailwind CSS 4 + JS |
+
+**Do not install or run both packages from the repo root.** Each has its own `dev` script.
 
 ## Commands
 
 ```bash
-# Backend (Express + TypeScript + MySQL)
-cd backend && npm run dev   # runs ts-node-dev src/index.ts
+# Backend
+cd backend && npm run dev                          # ts-node-dev src/index.ts on :5000
+cd backend && npm run seed:master                  # seed master admin user
 
-# Frontend (Next.js 15 + React 19 + Tailwind)
-cd frontend && npm run dev    # dev server
-cd frontend && npm run build  # production build
-cd frontend && npm run lint   # ESLint
+# Frontend
+cd frontend && pnpm dev                            # dev server on :3000
+cd frontend && pnpm build                          # production build
+cd frontend && pnpm lint                           # ESLint (flat config + core-web-vitals)
+
+# DB schema (run against MySQL)
+mysql -u root < backend/src/config/farmacia_v2.sql  # layered on top of legacy farmacia.sql
 ```
 
-## Environment
+- **No tests** exist in either package.
+- **No typecheck** script — backend uses `ts-node-dev` (not `tsc --noEmit`); frontend is plain JS.
+- Backend hot-reloads via `ts-node-dev`; manually restart after adding new routes/middleware if needed.
 
-Backend requires `.env` file in `backend/` with:
-```
-DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, PORT, JWT_SECRET
-```
+## Key Architecture
 
-## Database Schema
+- **Backend entry**: `backend/src/index.ts` — Express on `:5000`, all routes mounted under `/api`.
+- **MySQL pool**: `backend/src/config/db.ts` — `mysql2/promise` pool (env-driven via `.env`).
+- **Auth**: JWT in `Authorization: Bearer <token>` header. Every route (except login) uses `authMiddleware`. Token/user stored in `localStorage`.
+- **Validation**: Zod schemas in `backend/src/validators/`, parsed in each controller.
+- **Cash register flow**: Must `POST /api/cajas/abrir` before creating sales. The `verificarCajaAbierta` middleware auto-injects `caja_id` into the sale request body.
 
-New schema at `backend/src/config/farmacia_v2.sql` with enhanced features:
-- **Multi-unit pricing**: Products support prices per unidad, blister, caja
-- **Conversion factors**: `unidades_por_blister`, `unidades_por_caja`
-- **Cash register (caja)**: Opening/closing with sales tracking
-- **Lot tracking**: Expiration dates and batch management
-- **Stock alerts**: Auto-generated low stock and expiration alerts
+### Frontend specifics
+- `'use client'` throughout — all pages are client-rendered.
+- Auth state via React Context (`@/context/AuthContext`). No React Query.
+- Path alias `@/` → `./src/*` (jsconfig.json).
+- API client: axios instance in `src/lib/api.js` — auto-attaches JWT + redirects to `/login` on 401.
+- Error handling helper: `src/lib/errorHandler.js` — `parseBackendError()` / `useFieldErrors()` / Swal alerts.
 
-## API Endpoints
+## Notable Conventions
 
-### Products (`/api/productos`)
-- `GET /` - List all products with calculated prices
-- `GET /bajo-stock` - Products with stock <= stock_minimo
-- `GET /por-vencer?dias=30` - Lots expiring soon
-- `GET /lotes` - All lots with stock
-- `GET /lotes/:id` - Lots for specific product
-- `POST /lotes` - Create new lot (adds stock)
-- `POST /verificar-stock` - Check if stock is available
+- **All API responses are Spanish** — messages, errors, field names.
+- **Roles**: `admin` | `empleado` (from JWT payload and `usuarios.rol`).
+- **Cash register** is mandatory for sales — no exceptions.
+- **Stock always in base units** (pills). Multi-unit sales (blister/caja) are converted via `unidades_por_blister` / `unidades_por_caja`.
+- **Inventory consumption**: oldest lot first (FIFO).
+- **Backend uses CommonJS** (`"module": "commonjs"`) despite `.ts` files.
+- **Tailwind v4** — uses `@tailwindcss/postcss` (no legacy `tailwind.config.js`).
 
-### Cash Register (`/api/cajas`)
-- `POST /abrir` - Open caja with opening balance
-- `POST /cerrar` - Close caja with closing balance
-- `GET /abierta/:usuario_id` - Get open caja
-- `GET /resumen-diario?fecha=YYYY-MM-DD` - Daily summary
-- `GET /cerradas` - List closed cajas
+## API Endpoints at a Glance
 
-### Alerts (`/api/alertas`)
-- `GET /` - List all alerts
-- `GET /contador` - Unread alert count
-- `PUT /:id/leida` - Mark as read
-- `PUT /leer-todas` - Mark all as read
-- `DELETE /:id` - Delete alert
+All routes require `authMiddleware` except login. Prefix: `/api`.
 
-### Sales (`/api/ventas`)
-- `POST /` - Create sale (requires open caja, validates stock)
-- `GET /by-date?fecha_inicio=...&fecha_fin=...` - Sales by date range
-- `GET /estadisticas?fecha_inicio=...&fecha_fin=...` - Sales statistics
-- `POST /:id/cancel` - Cancel sale (returns stock)
-
-## Architecture
-
-- **Backend entry**: `backend/src/index.ts` (Express on port 5000)
-- **Database**: MySQL - schema at `backend/src/config/farmacia.sql` (legacy) / `farmacia_v2.sql` (new)
-- **Backend validation**: Zod (see `backend/src/validators/`)
-- **Frontend**: Next.js 15, React 19, React Query, Tailwind CSS
-- **Frontend API**: Uses axios, API base at `localhost:5000`
-
-## Key Features
-
-### Multi-Unit Products
-- Products can be sold in: `unidad` (single pill), `blister`, `caja`
-- Prices: `precio_unidad`, `precio_blister`, `precio_caja`
-- Stock always tracked in base units (pills)
-- Auto-calculation: blister = precio_venta * unidades_por_blister (if not set)
-
-### Cash Register
-- Must open caja before making sales
-- Sales automatically tracked to active caja
-- Closing calculates: apertura + ventas = monto_sistema
-- Difference = monto_cierre - monto_sistema
-
-### Inventory Logic
-- Stock updated in base units (e.g., individual pills)
-- Conversion: venta de 2 blisters = 20 unidades (if 10 por blister)
-- Lot-based products: stock consumed from oldest lot first
-
-## Known Issues (from README)
-
-- Undefined values being saved to localStorage
-- Missing error handling when no client/provider selected in forms
-- Error when creating user with duplicate email
+- `POST /usuarios/login` — authenticate, returns JWT + user object
+- Full CRUD: `/usuarios`, `/productos`, `/clientes`, `/proveedores`, `/categorias`, `/compras`, `/inventario`
+- `GET /productos/bajo-stock` — stock ≤ stock_minimo
+- `GET /productos/por-vencer?dias=N` — lots expiring soon
+- `GET /productos/lotes` / `POST /productos/lotes` / `GET /productos/:id/lotes` — lot management
+- `GET /productos/vencimiento/with-experied` — products with expired lots
+- `POST /productos/verificar-stock` — check availability
+- `POST /cajas/abrir` / `POST /cajas/cerrar` — open/close cash register
+- `GET /cajas/abierta/:usuario_id` / `GET /cajas/cerradas` / `GET /cajas/resumen-diario`
+- `POST /ventas` — create sale (auto-fills `caja_id` from middleware)
+- `POST /ventas/:id/cancel` — cancels and returns stock
+- `GET /ventas/:id/generar-ticket` — PDF ticket (PDFKit)
+- `GET /reportes/estadisticas?fecha_inicio=...&fecha_fin=...`
+- `GET /alertas` / `PUT /alertas/:id/leida` / `PUT /alertas/leer-todas`
