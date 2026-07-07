@@ -12,7 +12,7 @@ async function seedMasterUser() {
     database: process.env.DB_NAME,
   });
 
-  const nombre = "Administrador";  // Column name in DB is 'nombres'
+  const nombre = "Administrador";
   const email = "admin@farmacia.com";
   const password = "admin123";
   const rol = "admin";
@@ -23,7 +23,7 @@ async function seedMasterUser() {
   try {
     await connection.query(
       "INSERT INTO usuarios (nombres, email, password, rol) VALUES (?, ?, ?, ?)",
-      [nombre, email, hashedPassword, rol]
+      [nombre, email, hashedPassword, rol],
     );
     console.log("✅ Usuario master creado exitosamente");
     console.log("   Email: " + email);
