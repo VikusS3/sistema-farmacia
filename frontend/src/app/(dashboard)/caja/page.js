@@ -36,6 +36,7 @@ export default function CajaPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
+  const [ventasTotal, setVentasTotal] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -57,6 +58,21 @@ export default function CajaPage() {
     fetchData();
   }, [user.id]);
 
+  useEffect(() => {
+    if (!cajaAbierta?.caja?.id) return;
+    const fetchVentas = async () => {
+      try {
+        const res = await cajaService.getById(cajaAbierta.caja.id);
+        setVentasTotal(
+          (res.data.ventas || []).reduce((s, v) => s + Number(v.total || 0), 0)
+        );
+      } catch (e) {
+        console.error("Error fetching ventas:", e);
+      }
+    };
+    fetchVentas();
+  }, [cajaAbierta?.caja?.id]);
+
   const abrirCaja = async (e) => {
     e.preventDefault();
     setActionLoading(true);
@@ -69,7 +85,14 @@ export default function CajaPage() {
         monto_apertura: Number(montoApertura),
       });
       setSuccess("Caja abierta correctamente");
-      setCajaAbierta({ hasOpenCaja: true, caja: { id: res.data.caja_id } });
+      setCajaAbierta({
+        hasOpenCaja: true,
+        caja: {
+          id: res.data.caja_id,
+          monto_apertura: Number(montoApertura),
+          fecha_apertura: new Date().toISOString(),
+        },
+      });
       setMontoApertura("");
     } catch (e) {
       setError(e.response?.data?.message || "Error al abrir caja");
@@ -94,6 +117,7 @@ export default function CajaPage() {
       });
       setSuccess("Caja cerrada correctamente");
       setCajaAbierta(null);
+      setVentasTotal(0);
       setMontoCierre("");
       setCajasCerradas([res.data.resumen, ...cajasCerradas]);
     } catch (e) {
@@ -183,12 +207,34 @@ export default function CajaPage() {
                   </p>
                 </div>
               </div>
-              <div className="space-y-2 mb-6 p-4 bg-zinc-800/30 rounded-xl">
+              <div className="space-y-3 mb-6 p-4 bg-zinc-800/30 rounded-xl">
                 <div className="flex justify-between text-sm">
                   <span className="text-zinc-500">Apertura</span>
                   <span className="text-zinc-300">
                     {formatDate(cajaAbierta.caja.fecha_apertura)}
                   </span>
+                </div>
+                <div className="border-t border-zinc-700/50 pt-3 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-zinc-500">Monto Apertura</span>
+                    <span className="text-white font-semibold">
+                      ${Number(cajaAbierta.caja.monto_apertura || 0).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-zinc-500">Ventas del día</span>
+                    <span className="text-emerald-400 font-semibold">
+                      ${ventasTotal.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t border-zinc-700/50">
+                    <span className="text-zinc-400 text-sm font-medium">
+                      Total en Caja
+                    </span>
+                    <span className="text-white text-lg font-bold">
+                      ${(Number(cajaAbierta.caja.monto_apertura || 0) + ventasTotal).toFixed(2)}
+                    </span>
+                  </div>
                 </div>
               </div>
               <form onSubmit={cerrarCaja} className="space-y-4">

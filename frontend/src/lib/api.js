@@ -127,13 +127,11 @@ export const comprasService = {
   create: (data) => api.post("/compras", data),
 };
 
-export const alertasService = {
-  getAll: (leida) =>
-    api.get(`/alertas${leida !== undefined ? `?leida=${leida}` : ""}`),
-  getContador: () => api.get("/alertas/contador"),
-  marcarLeida: (id) => api.put(`/alertas/${id}/leida`),
-  marcarTodasLeidas: () => api.put("/alertas/leer-todas"),
-  delete: (id) => api.delete(`/alertas/${id}`),
+export const inventarioService = {
+  getAll: () => api.get("/inventario"),
+  getById: (id) => api.get(`/inventario/${id}`),
+  registrar: (data) => api.post("/inventario/registrar", data),
+  verificarStock: (data) => api.post("/inventario/verificar-stock", data),
 };
 
 export const reportesService = {

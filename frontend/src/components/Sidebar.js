@@ -3,8 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { alertasService } from "@/lib/api";
-import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   Pill,
@@ -14,7 +12,7 @@ import {
   Truck,
   Tags,
   Package,
-  Bell,
+  Archive,
   BarChart3,
   UserCircle,
   LogOut,
@@ -32,7 +30,7 @@ const menuItems = [
   { name: "Proveedores", href: "/proveedores", icon: Truck },
   { name: "Categorías", href: "/categorias", icon: Tags },
   { name: "Compras", href: "/compras", icon: Package },
-  { name: "Alertas", href: "/alertas", icon: Bell },
+  { name: "Inventario", href: "/inventario", icon: Archive },
   { name: "Reportes", href: "/reportes", icon: BarChart3 },
   { name: "Usuarios", href: "/usuarios", icon: UserCircle },
 ];
@@ -40,22 +38,6 @@ const menuItems = [
 export default function Sidebar({ isOpen = true, onToggle }) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
-  const [alertasCount, setAlertasCount] = useState(0);
-
-  useEffect(() => {
-    const fetchAlertas = async () => {
-      try {
-        const res = await alertasService.getContador();
-        setAlertasCount(res.data.count);
-      } catch (e) {
-        console.error("Error fetching alertas:", e);
-      }
-    };
-    fetchAlertas();
-    const interval = setInterval(fetchAlertas, 60000);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <>
       {isOpen && (
@@ -105,7 +87,6 @@ export default function Sidebar({ isOpen = true, onToggle }) {
         {menuItems.map((item) => {
           const isActive =
             pathname === item.href || pathname.startsWith(item.href + "/");
-          const showBadge = item.name === "Alertas" && alertasCount > 0;
           const Icon = item.icon;
 
           return (
@@ -128,11 +109,6 @@ export default function Sidebar({ isOpen = true, onToggle }) {
                 />
                 <span className="text-sm">{item.name}</span>
               </span>
-              {showBadge && (
-                <span className="bg-red-500/10 text-red-400 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-red-500/20 min-w-[20px] text-center">
-                  {alertasCount}
-                </span>
-              )}
             </Link>
           );
         })}

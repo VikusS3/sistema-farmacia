@@ -7,9 +7,9 @@ import {
   Activity,
   Clock,
   Pill,
-  Bell,
   DollarSign,
   AlertTriangle,
+  Archive,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -19,7 +19,7 @@ import {
   productosService,
   ventasService,
   cajaService,
-  alertasService,
+  inventarioService,
 } from "@/lib/api";
 
 export default function DashboardPage() {
@@ -29,7 +29,7 @@ export default function DashboardPage() {
     productos: 0,
     bajoStock: 0,
     ventasHoy: 0,
-    alertasNoLeidas: 0,
+    movimientos: 0,
   });
   const [cajaAbierta, setCajaAbierta] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -37,10 +37,10 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [productosRes, bajoStockRes, alertasRes] = await Promise.all([
+        const [productosRes, bajoStockRes, inventarioRes] = await Promise.all([
           productosService.getAll(),
           productosService.getLowStock(),
-          alertasService.getContador(),
+          inventarioService.getAll(),
         ]);
 
         const hoy = new Date().toISOString().split("T")[0];
@@ -53,7 +53,7 @@ export default function DashboardPage() {
             (sum, v) => sum + Number(v.total || 0),
             0,
           ),
-          alertasNoLeidas: alertasRes.data.count || 0,
+          movimientos: inventarioRes.data?.length || 0,
         });
       } catch (e) {
         console.error("Error fetching dashboard data:", e);
@@ -97,10 +97,10 @@ export default function DashboardPage() {
       variant: "emerald",
     },
     {
-      title: "Alertas",
-      value: stats.alertasNoLeidas,
-      icon: Bell,
-      variant: "red",
+      title: "Movimientos",
+      value: stats.movimientos,
+      icon: Archive,
+      variant: "blue",
     },
   ];
 
