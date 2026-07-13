@@ -1,19 +1,40 @@
 import pool from "../config/db";
 import { RowDataPacket, PoolConnection } from "mysql2";
 import { Inventario } from "../types";
+import { PaginationParams, safeSortColumn } from "../utils/pagination";
 
 type ConnectionLike = PoolConnection | any;
 
 export const InventarioModel = {
-  async findAll(): Promise<Inventario[]> {
-    const [rows] = await pool.query<RowDataPacket[]>(
-      `SELECT i.*, p.nombre as producto_nombre, u.nombre as usuario_nombre
-       FROM inventario i
-       JOIN productos p ON i.producto_id = p.id
-       LEFT JOIN usuarios u ON i.usuario_id = u.id
-       ORDER BY i.fecha_movimiento DESC, i.id DESC`
+  async findAll(
+    pag?: PaginationParams
+  ): Promise<{ data: Inventario[]; total: number }> {
+    const conditions: string[] = [];
+    const params: any[] = [];
+
+    if (pag?.search) {
+      conditions.push("(p.nombre LIKE ? OR i.movimiento LIKE ?)");
+      params.push(`%${pag.search}%`, `%${pag.search}%`);
+    }
+
+    const where = conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";
+
+    const [countRows] = await pool.query<RowDataPacket[]>(
+      `SELECT COUNT(*) as total FROM inventario i JOIN productos p ON i.producto_id = p.id LEFT JOIN usuarios u ON i.usuario_id = u.id${where}`,
+      params
     );
-    return rows as Inventario[];
+    const total = (countRows[0] as any).total;
+
+    const sort = safeSortColumn(pag?.sort || "fecha_movimiento");
+    const order = pag?.order || "DESC";
+    const limit = pag?.limit || 10;
+    const offset = pag?.offset || 0;
+
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT i.*, p.nombre as producto_nombre, u.nombre as usuario_nombre FROM inventario i JOIN productos p ON i.producto_id = p.id LEFT JOIN usuarios u ON i.usuario_id = u.id${where} ORDER BY ${sort} ${order}, i.id DESC LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
+    return { data: rows as Inventario[], total };
   },
 
   async findById(id: number): Promise<Inventario | null> {

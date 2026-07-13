@@ -1,6 +1,7 @@
 import pool from "../config/db";
 import { RowDataPacket, PoolConnection } from "mysql2";
 import { Producto, Lote, AlertaStock, UnidadVenta } from "../types";
+import { PaginationParams, safeSortColumn } from "../utils/pagination";
 
 type ConnectionLike = PoolConnection | any;
 
@@ -13,23 +14,41 @@ const UPDATEABLE_FIELDS = [
 ];
 
 export const ProductoModel = {
-  async getAll(categoria_id?: number): Promise<Producto[]> {
-    let query = `
-      SELECT p.*, c.nombre as categoria_nombre
-      FROM productos p
-      LEFT JOIN categorias c ON p.categoria_id = c.id
-    `;
+  async getAll(
+    categoria_id?: number,
+    pag?: PaginationParams
+  ): Promise<{ data: Producto[]; total: number }> {
+    const conditions: string[] = [];
     const params: any[] = [];
 
     if (categoria_id) {
-      query += ` WHERE p.categoria_id = ?`;
+      conditions.push("p.categoria_id = ?");
       params.push(categoria_id);
     }
 
-    query += ` ORDER BY p.nombre ASC`;
+    if (pag?.search) {
+      conditions.push("(p.nombre LIKE ?)");
+      params.push(`%${pag.search}%`);
+    }
 
-    const [rows] = await pool.query<RowDataPacket[]>(query, params);
-    return rows as Producto[];
+    const where = conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";
+
+    const [countRows] = await pool.query<RowDataPacket[]>(
+      `SELECT COUNT(*) as total FROM productos p LEFT JOIN categorias c ON p.categoria_id = c.id${where}`,
+      params
+    );
+    const total = (countRows[0] as any).total;
+
+    const sort = safeSortColumn(pag?.sort || "id");
+    const order = pag?.order || "ASC";
+    const limit = pag?.limit || 10;
+    const offset = pag?.offset || 0;
+
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT p.*, c.nombre as categoria_nombre FROM productos p LEFT JOIN categorias c ON p.categoria_id = c.id${where} ORDER BY ${sort} ${order} LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
+    return { data: rows as Producto[], total };
   },
 
   async findById(id: number): Promise<Producto | null> {
@@ -43,40 +62,104 @@ export const ProductoModel = {
     return rows.length ? (rows[0] as Producto) : null;
   },
 
-  async getProductosVencidos(): Promise<Producto[]> {
-    const [rows] = await pool.query<RowDataPacket[]>(
-      `SELECT DISTINCT p.*, c.nombre as categoria_nombre
-       FROM productos p
-       LEFT JOIN categorias c ON p.categoria_id = c.id
-       INNER JOIN lotes l ON p.id = l.producto_id
-       WHERE l.cantidad_disponible > 0
-       AND l.fecha_vencimiento < CURDATE()`
+  async getProductosVencidos(
+    pag?: PaginationParams
+  ): Promise<{ data: Producto[]; total: number }> {
+    const conditions: string[] = [
+      "l.cantidad_disponible > 0",
+      "l.fecha_vencimiento < CURDATE()",
+    ];
+    const params: any[] = [];
+
+    if (pag?.search) {
+      conditions.push("(p.nombre LIKE ?)");
+      params.push(`%${pag.search}%`);
+    }
+
+    const where = ` WHERE ${conditions.join(" AND ")}`;
+
+    const [countRows] = await pool.query<RowDataPacket[]>(
+      `SELECT COUNT(DISTINCT p.id) as total FROM productos p LEFT JOIN categorias c ON p.categoria_id = c.id INNER JOIN lotes l ON p.id = l.producto_id${where}`,
+      params
     );
-    return rows as Producto[];
+    const total = (countRows[0] as any).total;
+
+    const sort = safeSortColumn(pag?.sort || "id");
+    const order = pag?.order || "ASC";
+    const limit = pag?.limit || 10;
+    const offset = pag?.offset || 0;
+
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT DISTINCT p.*, c.nombre as categoria_nombre FROM productos p LEFT JOIN categorias c ON p.categoria_id = c.id INNER JOIN lotes l ON p.id = l.producto_id${where} ORDER BY ${sort} ${order} LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
+    return { data: rows as Producto[], total };
   },
 
-  async getLowStock(): Promise<Producto[]> {
-    const [rows] = await pool.query<RowDataPacket[]>(
-      `SELECT p.*, c.nombre as categoria_nombre
-       FROM productos p
-       LEFT JOIN categorias c ON p.categoria_id = c.id
-       WHERE p.stock <= p.stock_minimo
-       ORDER BY p.stock ASC`
+  async getLowStock(
+    pag?: PaginationParams
+  ): Promise<{ data: Producto[]; total: number }> {
+    const conditions: string[] = ["p.stock <= p.stock_minimo"];
+    const params: any[] = [];
+
+    if (pag?.search) {
+      conditions.push("(p.nombre LIKE ?)");
+      params.push(`%${pag.search}%`);
+    }
+
+    const where = ` WHERE ${conditions.join(" AND ")}`;
+
+    const [countRows] = await pool.query<RowDataPacket[]>(
+      `SELECT COUNT(*) as total FROM productos p LEFT JOIN categorias c ON p.categoria_id = c.id${where}`,
+      params
     );
-    return rows as Producto[];
+    const total = (countRows[0] as any).total;
+
+    const sort = safeSortColumn(pag?.sort || "stock");
+    const order = pag?.order || "ASC";
+    const limit = pag?.limit || 10;
+    const offset = pag?.offset || 0;
+
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT p.*, c.nombre as categoria_nombre FROM productos p LEFT JOIN categorias c ON p.categoria_id = c.id${where} ORDER BY ${sort} ${order} LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
+    return { data: rows as Producto[], total };
   },
 
-  async getExpiringSoon(days: number = 30): Promise<Lote[]> {
-    const [rows] = await pool.query<RowDataPacket[]>(
-      `SELECT l.*, p.nombre as producto_nombre
-       FROM lotes l
-       JOIN productos p ON l.producto_id = p.id
-       WHERE l.cantidad_disponible > 0
-       AND l.fecha_vencimiento BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL ? DAY)
-       ORDER BY l.fecha_vencimiento ASC`,
-      [days]
+  async getExpiringSoon(
+    days: number = 30,
+    pag?: PaginationParams
+  ): Promise<{ data: Lote[]; total: number }> {
+    const conditions: string[] = [
+      "l.cantidad_disponible > 0",
+      "l.fecha_vencimiento BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL ? DAY)",
+    ];
+    const params: any[] = [days];
+
+    if (pag?.search) {
+      conditions.push("(p.nombre LIKE ?)");
+      params.push(`%${pag.search}%`);
+    }
+
+    const where = ` WHERE ${conditions.join(" AND ")}`;
+
+    const [countRows] = await pool.query<RowDataPacket[]>(
+      `SELECT COUNT(*) as total FROM lotes l JOIN productos p ON l.producto_id = p.id${where}`,
+      params
     );
-    return rows as Lote[];
+    const total = (countRows[0] as any).total;
+
+    const sort = safeSortColumn(pag?.sort || "fecha_vencimiento");
+    const order = pag?.order || "ASC";
+    const limit = pag?.limit || 10;
+    const offset = pag?.offset || 0;
+
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT l.*, p.nombre as producto_nombre FROM lotes l JOIN productos p ON l.producto_id = p.id${where} ORDER BY ${sort} ${order} LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
+    return { data: rows as Lote[], total };
   },
 
   async create(producto: Omit<Producto, "id">): Promise<number> {
@@ -235,14 +318,35 @@ export const ProductoModel = {
     return rows as Lote[];
   },
 
-  async getAllLotes(): Promise<Lote[]> {
-    const [rows] = await pool.query<RowDataPacket[]>(
-      `SELECT l.*, p.nombre as producto_nombre
-       FROM lotes l
-       JOIN productos p ON l.producto_id = p.id
-       ORDER BY l.fecha_vencimiento ASC`
+  async getAllLotes(
+    pag?: PaginationParams
+  ): Promise<{ data: Lote[]; total: number }> {
+    const conditions: string[] = [];
+    const params: any[] = [];
+
+    if (pag?.search) {
+      conditions.push("(p.nombre LIKE ? OR l.numero_lote LIKE ?)");
+      params.push(`%${pag.search}%`, `%${pag.search}%`);
+    }
+
+    const where = conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";
+
+    const [countRows] = await pool.query<RowDataPacket[]>(
+      `SELECT COUNT(*) as total FROM lotes l JOIN productos p ON l.producto_id = p.id${where}`,
+      params
     );
-    return rows as Lote[];
+    const total = (countRows[0] as any).total;
+
+    const sort = safeSortColumn(pag?.sort || "fecha_vencimiento");
+    const order = pag?.order || "ASC";
+    const limit = pag?.limit || 10;
+    const offset = pag?.offset || 0;
+
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT l.*, p.nombre as producto_nombre FROM lotes l JOIN productos p ON l.producto_id = p.id${where} ORDER BY ${sort} ${order} LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
+    return { data: rows as Lote[], total };
   },
 
   async consumeLote(
@@ -382,20 +486,36 @@ async function updateLoteEstado(loteId: number, conn?: any): Promise<void> {
 }
 
 export const AlertaModel = {
-  async getAll(leida?: boolean): Promise<AlertaStock[]> {
-    let query = `SELECT a.*, p.nombre as producto_nombre FROM alertas_stock a JOIN productos p ON a.producto_id = p.id`;
+  async getAll(
+    leida?: boolean,
+    pag?: PaginationParams
+  ): Promise<{ data: AlertaStock[]; total: number }> {
+    const conditions: string[] = [];
+    const params: any[] = [];
 
     if (leida !== undefined) {
-      query += ` WHERE a.leida = ?`;
+      conditions.push("a.leida = ?");
+      params.push(leida ? 1 : 0);
     }
 
-    query += ` ORDER BY a.created_at DESC`;
+    const where = conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";
+
+    const [countRows] = await pool.query<RowDataPacket[]>(
+      `SELECT COUNT(*) as total FROM alertas_stock a JOIN productos p ON a.producto_id = p.id${where}`,
+      params
+    );
+    const total = (countRows[0] as any).total;
+
+    const sort = safeSortColumn(pag?.sort || "created_at");
+    const order = pag?.order || "DESC";
+    const limit = pag?.limit || 10;
+    const offset = pag?.offset || 0;
 
     const [rows] = await pool.query<RowDataPacket[]>(
-      query,
-      leida !== undefined ? [leida ? 1 : 0] : []
+      `SELECT a.*, p.nombre as producto_nombre FROM alertas_stock a JOIN productos p ON a.producto_id = p.id${where} ORDER BY ${sort} ${order} LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
     );
-    return rows as AlertaStock[];
+    return { data: rows as AlertaStock[], total };
   },
 
   async markAsRead(id: number): Promise<void> {

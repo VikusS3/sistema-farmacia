@@ -3,13 +3,38 @@ import { RowDataPacket } from "mysql2";
 import { Usuario } from "../types";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { PaginationParams, safeSortColumn } from "../utils/pagination";
 
 export const UsuarioModel = {
-  async findAll(): Promise<Usuario[]> {
-    const [rows] = await pool.query<RowDataPacket[]>(
-      "SELECT id, nombre, email, rol, estado, creado_en, actualizado_en FROM usuarios"
+  async findAll(
+    pag?: PaginationParams
+  ): Promise<{ data: Usuario[]; total: number }> {
+    const conditions: string[] = [];
+    const params: any[] = [];
+
+    if (pag?.search) {
+      conditions.push("(nombre LIKE ? OR email LIKE ?)");
+      params.push(`%${pag.search}%`, `%${pag.search}%`);
+    }
+
+    const where = conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";
+
+    const [countRows] = await pool.query<RowDataPacket[]>(
+      `SELECT COUNT(*) as total FROM usuarios${where}`,
+      params
     );
-    return rows as Usuario[];
+    const total = (countRows[0] as any).total;
+
+    const sort = safeSortColumn(pag?.sort || "id");
+    const order = pag?.order || "ASC";
+    const limit = pag?.limit || 10;
+    const offset = pag?.offset || 0;
+
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT id, nombre, email, rol, estado, creado_en, actualizado_en FROM usuarios${where} ORDER BY ${sort} ${order} LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
+    return { data: rows as Usuario[], total };
   },
 
   async findById(id: number): Promise<Usuario | null> {

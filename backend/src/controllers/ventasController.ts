@@ -4,6 +4,7 @@ import { parseVenta, ventaCancelSchema } from "../validators/ventasValidators";
 import { ProductoModel } from "../models/productos";
 import { generarTicketPDF } from "../utils/ticketGenerator";
 import { UnidadVenta } from "../types";
+import { parsePagination, buildPaginationMeta } from "../utils/pagination";
 
 export const VentaController = {
   async create(req: Request, res: Response) {
@@ -83,8 +84,9 @@ export const VentaController = {
 
   async getAll(req: Request, res: Response) {
     try {
-      const ventas = await VentaModel.getAll();
-      res.json(ventas);
+      const pag = parsePagination(req.query);
+      const { data, total } = await VentaModel.getAll(pag);
+      res.json({ data, meta: buildPaginationMeta(total, pag.page, pag.limit) });
     } catch (error: any) {
       console.error("Error al obtener ventas:", error);
       res.status(500).json({ error: "Error al obtener ventas" });
@@ -114,11 +116,13 @@ export const VentaController = {
         return;
       }
 
-      const ventas = await VentaModel.getVentasByDateRange(
+      const pag = parsePagination(req.query);
+      const { data, total } = await VentaModel.getVentasByDateRange(
         String(fecha_inicio), 
-        String(fecha_fin)
+        String(fecha_fin),
+        pag
       );
-      res.json(ventas);
+      res.json({ data, meta: buildPaginationMeta(total, pag.page, pag.limit) });
     } catch (error: any) {
       console.error("Error al obtener ventas:", error);
       res.status(500).json({ error: "Error al obtener ventas" });
@@ -149,8 +153,9 @@ export const VentaController = {
         return;
       }
 
-      const ventas = await VentaModel.getVentasPorCliente(cliente_id);
-      res.json(ventas);
+      const pag = parsePagination(req.query);
+      const { data, total } = await VentaModel.getVentasPorCliente(cliente_id, pag);
+      res.json({ data, meta: buildPaginationMeta(total, pag.page, pag.limit) });
     } catch (error: any) {
       console.error("Error al obtener ventas:", error);
       res.status(500).json({ error: "Error al obtener ventas" });

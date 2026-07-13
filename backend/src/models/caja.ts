@@ -1,6 +1,7 @@
 import pool from "../config/db";
 import { RowDataPacket } from "mysql2";
 import { Caja } from "../types";
+import { PaginationParams, safeSortColumn } from "../utils/pagination";
 
 export const CajaModel = {
   async abrirCaja(usuario_id: number, monto_apertura: number): Promise<number> {
@@ -129,27 +130,66 @@ export const CajaModel = {
     return (rows as any[])[0] || null;
   },
 
-  async getAll(): Promise<Caja[]> {
-    const [rows] = await pool.query<RowDataPacket[]>(
-      `SELECT c.*, u.nombre as usuario_nombre 
-       FROM cajas c
-       JOIN usuarios u ON c.usuario_id = u.id
-       ORDER BY c.fecha_apertura DESC`,
+  async getAll(
+    pag?: PaginationParams
+  ): Promise<{ data: Caja[]; total: number }> {
+    const conditions: string[] = [];
+    const params: any[] = [];
+
+    if (pag?.search) {
+      conditions.push("(u.nombre LIKE ?)");
+      params.push(`%${pag.search}%`);
+    }
+
+    const where = conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";
+
+    const [countRows] = await pool.query<RowDataPacket[]>(
+      `SELECT COUNT(*) as total FROM cajas c JOIN usuarios u ON c.usuario_id = u.id${where}`,
+      params
     );
-    return rows as Caja[];
+    const total = (countRows[0] as any).total;
+
+    const sort = safeSortColumn(pag?.sort || "fecha_apertura");
+    const order = pag?.order || "DESC";
+    const limit = pag?.limit || 10;
+    const offset = pag?.offset || 0;
+
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT c.*, u.nombre as usuario_nombre FROM cajas c JOIN usuarios u ON c.usuario_id = u.id${where} ORDER BY ${sort} ${order} LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
+    return { data: rows as Caja[], total };
   },
 
-  async getCajasCerradas(limit: number = 10): Promise<Caja[]> {
-    const [rows] = await pool.query<RowDataPacket[]>(
-      `SELECT c.*, u.nombre as usuario_nombre 
-       FROM cajas c
-       JOIN usuarios u ON c.usuario_id = u.id
-       WHERE c.estado = 'cerrada'
-       ORDER BY c.fecha_cierre DESC
-       LIMIT ?`,
-      [limit],
+  async getCajasCerradas(
+    pag?: PaginationParams
+  ): Promise<{ data: Caja[]; total: number }> {
+    const conditions: string[] = ["c.estado = 'cerrada'"];
+    const params: any[] = [];
+
+    if (pag?.search) {
+      conditions.push("(u.nombre LIKE ?)");
+      params.push(`%${pag.search}%`);
+    }
+
+    const where = ` WHERE ${conditions.join(" AND ")}`;
+
+    const [countRows] = await pool.query<RowDataPacket[]>(
+      `SELECT COUNT(*) as total FROM cajas c JOIN usuarios u ON c.usuario_id = u.id${where}`,
+      params
     );
-    return rows as Caja[];
+    const total = (countRows[0] as any).total;
+
+    const sort = safeSortColumn(pag?.sort || "fecha_cierre");
+    const order = pag?.order || "DESC";
+    const limit = pag?.limit || 10;
+    const offset = pag?.offset || 0;
+
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT c.*, u.nombre as usuario_nombre FROM cajas c JOIN usuarios u ON c.usuario_id = u.id${where} ORDER BY ${sort} ${order} LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
+    return { data: rows as Caja[], total };
   },
 
   async getResumenDiario(fecha: string): Promise<{

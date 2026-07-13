@@ -2,12 +2,14 @@ import { Request, Response } from "express";
 import { InventarioModel } from "../models/inventario";
 import { ProductoModel } from "../models/productos";
 import { createInventarioSchema } from "../validators/inventarioValidators";
+import { parsePagination, buildPaginationMeta } from "../utils/pagination";
 
 export const InventarioController = {
   async getAll(req: Request, res: Response) {
     try {
-      const inventario = await InventarioModel.findAll();
-      res.json(inventario);
+      const pag = parsePagination(req.query);
+      const { data, total } = await InventarioModel.findAll(pag);
+      res.json({ data, meta: buildPaginationMeta(total, pag.page, pag.limit) });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Error al obtener los movimientos" });

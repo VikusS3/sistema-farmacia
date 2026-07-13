@@ -4,12 +4,14 @@ import {
   createUsuarioSchema,
   updateUsuarioSchema,
 } from "../validators/usuarioValidators";
+import { parsePagination, buildPaginationMeta } from "../utils/pagination";
 
 export const UsuarioController = {
   async getAll(req: Request, res: Response) {
     try {
-      const usuarios = await UsuarioModel.findAll();
-      res.json(usuarios);
+      const pag = parsePagination(req.query);
+      const { data, total } = await UsuarioModel.findAll(pag);
+      res.json({ data, meta: buildPaginationMeta(total, pag.page, pag.limit) });
     } catch (error) {
       res.status(500).json({ error: "Error al obtener los usuarios" });
     }

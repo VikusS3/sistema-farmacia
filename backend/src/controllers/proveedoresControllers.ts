@@ -4,12 +4,14 @@ import {
   createProveedoresSchema,
   updateProveedoresSchema,
 } from "../validators/proveedoresValidators";
+import { parsePagination, buildPaginationMeta } from "../utils/pagination";
 
 export const ProveedoresController = {
   async getAll(req: Request, res: Response) {
     try {
-      const proveedores = await ProveedoresModel.findAll();
-      res.json(proveedores);
+      const pag = parsePagination(req.query);
+      const { data, total } = await ProveedoresModel.findAll(pag);
+      res.json({ data, meta: buildPaginationMeta(total, pag.page, pag.limit) });
     } catch (error) {
       res.status(500).json({ error: "Error al obtener los proveedores" });
     }

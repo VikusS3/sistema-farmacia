@@ -1,13 +1,15 @@
 import { Request, Response } from "express";
 import { ProductoModel, AlertaModel } from "../models/productos";
 import { parseProducto, parseProductoPartial, parseLote } from "../validators/productosValidators";
+import { parsePagination, buildPaginationMeta } from "../utils/pagination";
 
 export const ProductoController = {
   async getAll(req: Request, res: Response) {
     try {
-      const { categoria_id } = req.query;
-      const productos = await ProductoModel.getAll(categoria_id ? Number(categoria_id) : undefined);
-      res.json(productos);
+      const pag = parsePagination(req.query);
+      const categoria_id = req.query.categoria_id ? Number(req.query.categoria_id) : undefined;
+      const { data, total } = await ProductoModel.getAll(categoria_id, pag);
+      res.json({ data, meta: buildPaginationMeta(total, pag.page, pag.limit) });
     } catch (error: any) {
       console.error("Error al obtener productos:", error);
       res.status(500).json({ error: "Error al obtener productos" });
@@ -30,8 +32,9 @@ export const ProductoController = {
 
   async getLowStock(req: Request, res: Response) {
     try {
-      const productos = await ProductoModel.getLowStock();
-      res.json(productos);
+      const pag = parsePagination(req.query);
+      const { data, total } = await ProductoModel.getLowStock(pag);
+      res.json({ data, meta: buildPaginationMeta(total, pag.page, pag.limit) });
     } catch (error: any) {
       console.error("Error al obtener productos con bajo stock:", error);
       res.status(500).json({ error: "Error al obtener productos" });
@@ -40,9 +43,10 @@ export const ProductoController = {
 
   async getExpiringSoon(req: Request, res: Response) {
     try {
+      const pag = parsePagination(req.query);
       const days = Number(req.query.dias) || 30;
-      const lotes = await ProductoModel.getExpiringSoon(days);
-      res.json(lotes);
+      const { data, total } = await ProductoModel.getExpiringSoon(days, pag);
+      res.json({ data, meta: buildPaginationMeta(total, pag.page, pag.limit) });
     } catch (error: any) {
       console.error("Error al obtener productos por vencer:", error);
       res.status(500).json({ error: "Error al obtener productos" });
@@ -160,8 +164,9 @@ export const ProductoController = {
 
   async getAllLotes(req: Request, res: Response) {
     try {
-      const lotes = await ProductoModel.getAllLotes();
-      res.json(lotes);
+      const pag = parsePagination(req.query);
+      const { data, total } = await ProductoModel.getAllLotes(pag);
+      res.json({ data, meta: buildPaginationMeta(total, pag.page, pag.limit) });
     } catch (error: any) {
       console.error("Error al obtener lotes:", error);
       res.status(500).json({ error: "Error al obtener lotes" });
@@ -182,8 +187,9 @@ export const ProductoController = {
 
   async getProductosVencidos(req: Request, res: Response) {
     try {
-      const productos = await ProductoModel.getProductosVencidos();
-      res.json(productos);
+      const pag = parsePagination(req.query);
+      const { data, total } = await ProductoModel.getProductosVencidos(pag);
+      res.json({ data, meta: buildPaginationMeta(total, pag.page, pag.limit) });
     } catch (error: any) {
       console.error("Error al obtener productos vencidos:", error);
       res.status(500).json({ error: "Error al obtener productos" });
@@ -194,11 +200,13 @@ export const ProductoController = {
 export const AlertaController = {
   async getAll(req: Request, res: Response) {
     try {
+      const pag = parsePagination(req.query);
       const leida = req.query.leida;
-      const alertas = await AlertaModel.getAll(
-        leida !== undefined ? leida === "true" : undefined
+      const { data, total } = await AlertaModel.getAll(
+        leida !== undefined ? leida === "true" : undefined,
+        pag
       );
-      res.json(alertas);
+      res.json({ data, meta: buildPaginationMeta(total, pag.page, pag.limit) });
     } catch (error: any) {
       console.error("Error al obtener alertas:", error);
       res.status(500).json({ error: "Error al obtener alertas" });

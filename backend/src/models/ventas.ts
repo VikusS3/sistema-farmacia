@@ -2,6 +2,7 @@ import pool from "../config/db";
 import { RowDataPacket } from "mysql2";
 import { Venta, DetalleVenta, Producto, UnidadVenta } from "../types";
 import { ProductoModel } from "./productos";
+import { PaginationParams, safeSortColumn } from "../utils/pagination";
 
 export const VentaModel = {
   async create(
@@ -157,15 +158,35 @@ export const VentaModel = {
     }
   },
 
-  async getAll(): Promise<Venta[]> {
-    const [rows] = await pool.query<RowDataPacket[]>(
-      `SELECT v.*, c.nombre AS cliente_nombre, u.nombre AS usuario_nombre
-       FROM ventas v
-       LEFT JOIN clientes c ON v.cliente_id = c.id
-       JOIN usuarios u ON v.usuario_id = u.id
-       ORDER BY v.fecha DESC, v.id DESC`,
+  async getAll(
+    pag?: PaginationParams
+  ): Promise<{ data: Venta[]; total: number }> {
+    const conditions: string[] = [];
+    const params: any[] = [];
+
+    if (pag?.search) {
+      conditions.push("(c.nombre LIKE ? OR u.nombre LIKE ?)");
+      params.push(`%${pag.search}%`, `%${pag.search}%`);
+    }
+
+    const where = conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";
+
+    const [countRows] = await pool.query<RowDataPacket[]>(
+      `SELECT COUNT(*) as total FROM ventas v LEFT JOIN clientes c ON v.cliente_id = c.id JOIN usuarios u ON v.usuario_id = u.id${where}`,
+      params
     );
-    return rows as Venta[];
+    const total = (countRows[0] as any).total;
+
+    const sort = safeSortColumn(pag?.sort || "fecha");
+    const order = pag?.order || "DESC";
+    const limit = pag?.limit || 10;
+    const offset = pag?.offset || 0;
+
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT v.*, c.nombre AS cliente_nombre, u.nombre AS usuario_nombre FROM ventas v LEFT JOIN clientes c ON v.cliente_id = c.id JOIN usuarios u ON v.usuario_id = u.id${where} ORDER BY ${sort} ${order}, v.id DESC LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
+    return { data: rows as Venta[], total };
   },
 
   async getById(id: number): Promise<any> {
@@ -233,17 +254,34 @@ export const VentaModel = {
   async getVentasByDateRange(
     fechaInicio: string,
     fechaFin: string,
-  ): Promise<Venta[]> {
-    const [rows] = await pool.query<RowDataPacket[]>(
-      `SELECT v.*, c.nombre AS cliente_nombre, u.nombre AS usuario_nombre
-       FROM ventas v
-       LEFT JOIN clientes c ON v.cliente_id = c.id
-       JOIN usuarios u ON v.usuario_id = u.id
-       WHERE DATE(v.fecha) BETWEEN ? AND ?
-       ORDER BY v.fecha DESC`,
-      [fechaInicio, fechaFin],
+    pag?: PaginationParams
+  ): Promise<{ data: Venta[]; total: number }> {
+    const conditions: string[] = ["DATE(v.fecha) BETWEEN ? AND ?"];
+    const params: any[] = [fechaInicio, fechaFin];
+
+    if (pag?.search) {
+      conditions.push("(c.nombre LIKE ? OR u.nombre LIKE ?)");
+      params.push(`%${pag.search}%`, `%${pag.search}%`);
+    }
+
+    const where = ` WHERE ${conditions.join(" AND ")}`;
+
+    const [countRows] = await pool.query<RowDataPacket[]>(
+      `SELECT COUNT(*) as total FROM ventas v LEFT JOIN clientes c ON v.cliente_id = c.id JOIN usuarios u ON v.usuario_id = u.id${where}`,
+      params
     );
-    return rows as Venta[];
+    const total = (countRows[0] as any).total;
+
+    const sort = safeSortColumn(pag?.sort || "fecha");
+    const order = pag?.order || "DESC";
+    const limit = pag?.limit || 10;
+    const offset = pag?.offset || 0;
+
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT v.*, c.nombre AS cliente_nombre, u.nombre AS usuario_nombre FROM ventas v LEFT JOIN clientes c ON v.cliente_id = c.id JOIN usuarios u ON v.usuario_id = u.id${where} ORDER BY ${sort} ${order} LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
+    return { data: rows as Venta[], total };
   },
 
   async getVentasPorUsuario(usuario_id: number): Promise<Venta[]> {
@@ -258,16 +296,36 @@ export const VentaModel = {
     return rows as Venta[];
   },
 
-  async getVentasPorCliente(cliente_id: number): Promise<Venta[]> {
-    const [rows] = await pool.query<RowDataPacket[]>(
-      `SELECT v.*, u.nombre AS usuario_nombre
-       FROM ventas v
-       JOIN usuarios u ON v.usuario_id = u.id
-       WHERE v.cliente_id = ?
-       ORDER BY v.fecha DESC`,
-      [cliente_id],
+  async getVentasPorCliente(
+    cliente_id: number,
+    pag?: PaginationParams
+  ): Promise<{ data: Venta[]; total: number }> {
+    const conditions: string[] = ["v.cliente_id = ?"];
+    const params: any[] = [cliente_id];
+
+    if (pag?.search) {
+      conditions.push("(u.nombre LIKE ?)");
+      params.push(`%${pag.search}%`);
+    }
+
+    const where = ` WHERE ${conditions.join(" AND ")}`;
+
+    const [countRows] = await pool.query<RowDataPacket[]>(
+      `SELECT COUNT(*) as total FROM ventas v JOIN usuarios u ON v.usuario_id = u.id${where}`,
+      params
     );
-    return rows as Venta[];
+    const total = (countRows[0] as any).total;
+
+    const sort = safeSortColumn(pag?.sort || "fecha");
+    const order = pag?.order || "DESC";
+    const limit = pag?.limit || 10;
+    const offset = pag?.offset || 0;
+
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT v.*, u.nombre AS usuario_nombre FROM ventas v JOIN usuarios u ON v.usuario_id = u.id${where} ORDER BY ${sort} ${order} LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
+    return { data: rows as Venta[], total };
   },
 
   async getEstadisticasVenta(

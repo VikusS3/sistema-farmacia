@@ -1,15 +1,40 @@
 import pool from "../config/db";
 import { RowDataPacket } from "mysql2";
 import { Proveedor } from "../types";
+import { PaginationParams, safeSortColumn } from "../utils/pagination";
 
 const PROVEEDORES_UPDATEABLE_FIELDS = ["nombre", "email", "telefono", "direccion"];
 
 export const ProveedoresModel = {
-  async findAll(): Promise<Proveedor[]> {
-    const [rows] = await pool.query<RowDataPacket[]>(
-      "SELECT * FROM proveedores"
+  async findAll(
+    pag?: PaginationParams
+  ): Promise<{ data: Proveedor[]; total: number }> {
+    const conditions: string[] = [];
+    const params: any[] = [];
+
+    if (pag?.search) {
+      conditions.push("(nombre LIKE ? OR email LIKE ? OR telefono LIKE ?)");
+      params.push(`%${pag.search}%`, `%${pag.search}%`, `%${pag.search}%`);
+    }
+
+    const where = conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";
+
+    const [countRows] = await pool.query<RowDataPacket[]>(
+      `SELECT COUNT(*) as total FROM proveedores${where}`,
+      params
     );
-    return rows as Proveedor[];
+    const total = (countRows[0] as any).total;
+
+    const sort = safeSortColumn(pag?.sort || "id");
+    const order = pag?.order || "ASC";
+    const limit = pag?.limit || 10;
+    const offset = pag?.offset || 0;
+
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT * FROM proveedores${where} ORDER BY ${sort} ${order} LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
+    return { data: rows as Proveedor[], total };
   },
 
   async findById(id: number): Promise<Proveedor | null> {

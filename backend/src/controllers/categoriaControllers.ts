@@ -4,12 +4,14 @@ import {
   createCategoriasSchema,
   updateCategoriasSchema,
 } from "../validators/categoriasValidators";
+import { parsePagination, buildPaginationMeta } from "../utils/pagination";
 
 export const CategoriaController = {
   async getAll(req: Request, res: Response) {
     try {
-      const categorias = await CategoriaModel.findAll();
-      res.json(categorias);
+      const pag = parsePagination(req.query);
+      const { data, total } = await CategoriaModel.findAll(pag);
+      res.json({ data, meta: buildPaginationMeta(total, pag.page, pag.limit) });
     } catch (error) {
       res.status(500).json({ error: "Error al obtener las categorias" });
     }

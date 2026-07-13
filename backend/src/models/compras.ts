@@ -2,6 +2,7 @@ import { RowDataPacket } from "mysql2";
 import pool from "../config/db";
 import { Compra, DetalleCompra, Producto, UnidadVenta } from "../types";
 import { ProductoModel } from "./productos";
+import { PaginationParams, safeSortColumn } from "../utils/pagination";
 
 export const CompraModel = {
   async create(
@@ -129,14 +130,35 @@ export const CompraModel = {
     }
   },
 
-  async getAll(): Promise<Compra[]> {
-    const [rows] = await pool.query(
-      `SELECT c.*, p.nombre AS proveedor_nombre
-       FROM compras c
-       JOIN proveedores p ON c.proveedor_id = p.id
-       ORDER BY c.fecha DESC`
+  async getAll(
+    pag?: PaginationParams
+  ): Promise<{ data: Compra[]; total: number }> {
+    const conditions: string[] = [];
+    const params: any[] = [];
+
+    if (pag?.search) {
+      conditions.push("(p.nombre LIKE ?)");
+      params.push(`%${pag.search}%`);
+    }
+
+    const where = conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";
+
+    const [countRows] = await pool.query<RowDataPacket[]>(
+      `SELECT COUNT(*) as total FROM compras c JOIN proveedores p ON c.proveedor_id = p.id${where}`,
+      params
     );
-    return rows as Compra[];
+    const total = (countRows[0] as any).total;
+
+    const sort = safeSortColumn(pag?.sort || "fecha");
+    const order = pag?.order || "DESC";
+    const limit = pag?.limit || 10;
+    const offset = pag?.offset || 0;
+
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT c.*, p.nombre AS proveedor_nombre FROM compras c JOIN proveedores p ON c.proveedor_id = p.id${where} ORDER BY ${sort} ${order} LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
+    return { data: rows as Compra[], total };
   },
 
   async getById(id: number): Promise<any> {

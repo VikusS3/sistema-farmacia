@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { CompraModel } from "../models/compras";
 import { compraSchema } from "../validators/comprasValidators";
+import { parsePagination, buildPaginationMeta } from "../utils/pagination";
 
 export const CompraController = {
   async create(req: Request, res: Response): Promise<void> {
@@ -24,8 +25,9 @@ export const CompraController = {
 
   async getAll(req: Request, res: Response): Promise<void> {
     try {
-      const compras = await CompraModel.getAll();
-      res.json(compras);
+      const pag = parsePagination(req.query);
+      const { data, total } = await CompraModel.getAll(pag);
+      res.json({ data, meta: buildPaginationMeta(total, pag.page, pag.limit) });
     } catch (error) {
       console.error("Error al obtener compras:", error);
       res.status(500).json({ message: "Error al obtener las compras" });

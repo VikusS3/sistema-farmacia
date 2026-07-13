@@ -1,15 +1,40 @@
 import pool from "../config/db";
 import { RowDataPacket } from "mysql2";
 import { Categoria } from "../types";
+import { PaginationParams, safeSortColumn } from "../utils/pagination";
 
 const CATEGORIAS_UPDATEABLE_FIELDS = ["nombre", "descripcion"];
 
 export const CategoriaModel = {
-  async findAll(): Promise<Categoria[]> {
-    const [rows] = await pool.query<RowDataPacket[]>(
-      "SELECT * FROM categorias"
+  async findAll(
+    pag?: PaginationParams
+  ): Promise<{ data: Categoria[]; total: number }> {
+    const conditions: string[] = [];
+    const params: any[] = [];
+
+    if (pag?.search) {
+      conditions.push("(nombre LIKE ?)");
+      params.push(`%${pag.search}%`);
+    }
+
+    const where = conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";
+
+    const [countRows] = await pool.query<RowDataPacket[]>(
+      `SELECT COUNT(*) as total FROM categorias${where}`,
+      params
     );
-    return rows as Categoria[];
+    const total = (countRows[0] as any).total;
+
+    const sort = safeSortColumn(pag?.sort || "id");
+    const order = pag?.order || "ASC";
+    const limit = pag?.limit || 10;
+    const offset = pag?.offset || 0;
+
+    const [rows] = await pool.query<RowDataPacket[]>(
+      `SELECT * FROM categorias${where} ORDER BY ${sort} ${order} LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
+    return { data: rows as Categoria[], total };
   },
 
   async findById(id: number): Promise<Categoria | null> {

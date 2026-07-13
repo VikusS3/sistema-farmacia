@@ -4,12 +4,14 @@ import {
   createClientesSchema,
   updateClientesSchema,
 } from "../validators/clientesValidators";
+import { parsePagination, buildPaginationMeta } from "../utils/pagination";
 
 export const ClienteController = {
   async getAll(req: Request, res: Response) {
     try {
-      const clientes = await ClientesModel.findAll();
-      res.json(clientes);
+      const pag = parsePagination(req.query);
+      const { data, total } = await ClientesModel.findAll(pag);
+      res.json({ data, meta: buildPaginationMeta(total, pag.page, pag.limit) });
     } catch (error) {
       res.status(500).json({ error: "Error al obtener los clientes" });
     }

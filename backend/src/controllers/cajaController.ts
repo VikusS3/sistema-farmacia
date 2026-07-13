@@ -5,7 +5,7 @@ import {
   cierreCajaSchema,
   getCajaAbiertaSchema,
 } from "../validators/cajaValidators";
-
+import { parsePagination, buildPaginationMeta } from "../utils/pagination";
 export const CajaController = {
   async abrirCaja(req: Request, res: Response) {
     try {
@@ -105,8 +105,9 @@ export const CajaController = {
 
   async getAll(req: Request, res: Response) {
     try {
-      const cajas = await CajaModel.getAll();
-      res.json(cajas);
+      const pag = parsePagination(req.query);
+      const { data, total } = await CajaModel.getAll(pag);
+      res.json({ data, meta: buildPaginationMeta(total, pag.page, pag.limit) });
     } catch (error: any) {
       console.error("Error al obtener cajas:", error);
       res.status(500).json({ error: "Error al obtener lista de cajas" });
@@ -155,9 +156,9 @@ export const CajaController = {
 
   async getCajasCerradas(req: Request, res: Response) {
     try {
-      const limit = Number(req.query.limit) || 10;
-      const cajas = await CajaModel.getCajasCerradas(limit);
-      res.json(cajas);
+      const pag = parsePagination(req.query);
+      const { data, total } = await CajaModel.getCajasCerradas(pag);
+      res.json({ data, meta: buildPaginationMeta(total, pag.page, pag.limit) });
     } catch (error: any) {
       console.error("Error al obtener cajas cerradas:", error);
       res.status(500).json({ error: "Error al obtener cajas cerradas" });
