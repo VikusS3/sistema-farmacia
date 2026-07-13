@@ -57,7 +57,7 @@ export default function EditarProductoPage() {
           require_lote: producto.require_lote || false,
           unidad_medida: producto.unidad_medida || 'unidad',
         });
-        setCategorias(categoriasRes.data);
+        setCategorias(categoriasRes.data.data);
       } catch (e) {
         console.error('Error fetching producto:', e);
       } finally {

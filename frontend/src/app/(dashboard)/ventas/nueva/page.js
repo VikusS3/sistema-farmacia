@@ -77,8 +77,8 @@ export default function NuevaVentaPage() {
           productosService.getAll(),
           clientesService.getAll(),
         ]);
-        setProductos(productosRes.data);
-        setClientes(clientesRes.data);
+        setProductos(productosRes.data.data);
+        setClientes(clientesRes.data.data);
       } catch (e) {
         console.error("Error fetching data:", e);
       }

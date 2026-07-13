@@ -5,10 +5,7 @@ import { usuariosService } from "@/lib/api";
 import Swal from "sweetalert2";
 import { useFieldErrors } from "@/lib/errorHandler";
 import { Button } from "@/components/ui/Button";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/Card";
+import { Card, CardContent } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import {
@@ -24,11 +21,17 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { AlertBanner } from "@/components/ui/AlertBanner";
-import { UserPlus, Pencil, Trash2, Users } from "lucide-react";
+import { Pagination } from "@/components/ui/Pagination";
+import { UserPlus, Pencil, Trash2, Users, Search } from "lucide-react";
 
 export default function UsuariosPage() {
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [meta, setMeta] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
@@ -41,7 +44,6 @@ export default function UsuariosPage() {
     fieldErrors,
     setErrors,
     getFieldError,
-    hasError,
     clearFieldError,
     clearAllErrors,
     showGlobalAlertFromError,
@@ -50,10 +52,22 @@ export default function UsuariosPage() {
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearch(searchInput);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  useEffect(() => {
     const fetchUsuarios = async () => {
+      setLoading(true);
       try {
-        const res = await usuariosService.getAll();
-        setUsuarios(res.data);
+        const params = { page, limit: 10 };
+        if (search) params.search = search;
+        const res = await usuariosService.getAll(params);
+        setUsuarios(res.data.data);
+        setMeta(res.data.meta);
       } catch (e) {
         console.error("Error fetching usuarios:", e);
       } finally {
@@ -61,7 +75,11 @@ export default function UsuariosPage() {
       }
     };
     fetchUsuarios();
-  }, []);
+  }, [page, search, refreshKey]);
+
+  const handleSearch = (e) => {
+    setSearchInput(e.target.value);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -81,8 +99,7 @@ export default function UsuariosPage() {
       setEditingId(null);
       setFormData({ nombre: "", email: "", password: "", rol: "empleado" });
       clearAllErrors();
-      const res = await usuariosService.getAll();
-      setUsuarios(res.data);
+      setRefreshKey(k => k + 1);
     } catch (error) {
       setErrors(error);
       showGlobalAlertFromError(error);
@@ -100,9 +117,7 @@ export default function UsuariosPage() {
   const handleInputChange = useCallback(
     (field, value) => {
       setFormData((prev) => ({ ...prev, [field]: value }));
-      if (fieldErrors[field]) {
-        clearFieldError(field);
-      }
+      if (fieldErrors[field]) clearFieldError(field);
     },
     [fieldErrors, clearFieldError],
   );
@@ -123,7 +138,7 @@ export default function UsuariosPage() {
     if (!result.isConfirmed) return;
     try {
       await usuariosService.delete(id);
-      setUsuarios(usuarios.filter((u) => u.id !== id));
+      setRefreshKey(k => k + 1);
     } catch (e) {
       Swal.fire({
         title: "Error",
@@ -143,8 +158,6 @@ export default function UsuariosPage() {
     clearAllErrors();
   };
 
-  if (loading) return <LoadingState type="table" />;
-
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8 animate-fade-in">
       <PageHeader
@@ -160,6 +173,15 @@ export default function UsuariosPage() {
 
       <AlertBanner variant="success" message={success} onDismiss={() => setSuccess("")} />
       <AlertBanner variant="error" message={error} onDismiss={() => setError("")} />
+
+      <div className="max-w-md">
+        <Input
+          placeholder="Buscar por nombre o email..."
+          value={searchInput}
+          onChange={handleSearch}
+          icon={<Search className="w-4 h-4 text-zinc-500" />}
+        />
+      </div>
 
       {showForm && (
         <Card>
@@ -216,74 +238,64 @@ export default function UsuariosPage() {
         </Card>
       )}
 
-      <Card>
-        <Table>
-          <TableHeader>
-            <TableHead>Nombre</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Rol</TableHead>
-            <TableHead className="text-right">Acciones</TableHead>
-          </TableHeader>
-          <TableBody>
-            {usuarios.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={4} className="py-16">
-                  <EmptyState
-                    icon={<Users className="w-10 h-10" />}
-                    title="No hay usuarios"
-                    description="Crea tu primer usuario para empezar"
-                    action={
-                      <Button size="sm" onClick={openForm}>
-                        <UserPlus className="w-4 h-4" />
-                        Crear Usuario
-                      </Button>
-                    }
-                  />
-                </TableCell>
-              </TableRow>
-            ) : (
-              usuarios.map((u) => (
+      {loading ? (
+        <Card><LoadingState type="table" /></Card>
+      ) : usuarios.length === 0 ? (
+        <Card>
+          <EmptyState
+            icon={<Users className="w-10 h-10" />}
+            title={search ? "Sin resultados" : "No hay usuarios"}
+            description={search ? "Intenta con otro término de búsqueda" : "Crea tu primer usuario para empezar"}
+            action={
+              !search && (
+                <Button size="sm" onClick={openForm}>
+                  <UserPlus className="w-4 h-4" />
+                  Crear Usuario
+                </Button>
+              )
+            }
+          />
+        </Card>
+      ) : (
+        <Card>
+          <Table>
+            <TableHeader>
+              <TableHead>Nombre</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Rol</TableHead>
+              <TableHead className="text-right">Acciones</TableHead>
+            </TableHeader>
+            <TableBody>
+              {usuarios.map((u) => (
                 <TableRow key={u.id}>
                   <TableCell>
                     <span className="font-medium text-white">{u.nombre}</span>
                   </TableCell>
                   <TableCell className="text-zinc-400">{u.email}</TableCell>
                   <TableCell>
-                    <Badge
-                      variant={u.rol === "admin" ? "purple" : "default"}
-                      dot
-                    >
+                    <Badge variant={u.rol === "admin" ? "purple" : "default"} dot>
                       {u.rol}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEdit(u)}
-                        className="!text-sky-400 hover:!text-sky-300 hover:!bg-sky-500/10"
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => handleEdit(u)} className="!text-sky-400 hover:!text-sky-300 hover:!bg-sky-500/10">
                         <Pencil className="w-3.5 h-3.5" />
                         Editar
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(u.id)}
-                        className="!text-red-400 hover:!text-red-300 hover:!bg-red-500/10"
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => handleDelete(u.id)} className="!text-red-400 hover:!text-red-300 hover:!bg-red-500/10">
                         <Trash2 className="w-3.5 h-3.5" />
                         Eliminar
                       </Button>
                     </div>
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </Card>
+              ))}
+            </TableBody>
+          </Table>
+          <Pagination meta={meta} onPageChange={setPage} />
+        </Card>
+      )}
     </div>
   );
 }

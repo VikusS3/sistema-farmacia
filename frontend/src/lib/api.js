@@ -55,26 +55,27 @@ export const authService = {
 };
 
 export const productosService = {
-  getAll: () => api.get("/productos"),
+  getAll: (params = {}) => api.get("/productos", { params }),
   getById: (id) => api.get(`/productos/${id}`),
-  getLowStock: () => api.get("/productos/bajo-stock"),
-  getExpiringSoon: (dias) => api.get(`/productos/por-vencer?dias=${dias}`),
+  getLowStock: (params = {}) => api.get("/productos/bajo-stock", { params }),
+  getExpiringSoon: (dias, params = {}) => api.get(`/productos/por-vencer?dias=${dias}`, { params }),
   create: (data) => api.post("/productos", data),
   update: (id, data) => api.put(`/productos/${id}`, data),
   delete: (id) => api.delete(`/productos/${id}`),
   getLotes: (id) => api.get(`/productos/${id}/lotes`),
   createLote: (data) => api.post("/productos/lotes", data),
-  getAllLotes: () => api.get("/productos/lotes"),
+  getAllLotes: (params = {}) => api.get("/productos/lotes", { params }),
   checkStock: (data) => api.post("/productos/verificar-stock", data),
 };
 
 export const ventasService = {
-  getAll: () => api.get("/ventas"),
+  getAll: (params = {}) => api.get("/ventas", { params }),
   getById: (id) => api.get(`/ventas/${id}`),
   create: (data) => api.post("/ventas", data),
-  getByDateRange: (fecha_inicio, fecha_fin) =>
+  getByDateRange: (fecha_inicio, fecha_fin, params = {}) =>
     api.get(
       `/ventas/by-date?fecha_inicio=${fecha_inicio}&fecha_fin=${fecha_fin}`,
+      { params },
     ),
   getEstadisticas: (fecha_inicio, fecha_fin) =>
     api.get(
@@ -82,7 +83,7 @@ export const ventasService = {
     ),
   cancel: (id, data) => api.post(`/ventas/${id}/cancel`, data),
   getVentaConProductos: (id) => api.get(`/ventas/venta/${id}/productos`),
-  getVentasPorCliente: (clienteId) => api.get(`/ventas/cliente/${clienteId}`),
+  getVentasPorCliente: (clienteId, params = {}) => api.get(`/ventas/cliente/${clienteId}`, { params }),
   generarTicket: (id) =>
     api.get(`/ventas/${id}/generar-ticket`, { responseType: "blob" }),
 };
@@ -91,14 +92,14 @@ export const cajaService = {
   abrir: (data) => api.post("/cajas/abrir", data),
   cerrar: (data) => api.post("/cajas/cerrar", data),
   getAbierta: (usuario_id) => api.get(`/cajas/abierta/${usuario_id}`),
-  getAll: () => api.get("/cajas"),
+  getAll: (params = {}) => api.get("/cajas", { params }),
   getById: (id) => api.get(`/cajas/${id}`),
   getResumenDiario: (fecha) => api.get(`/cajas/resumen-diario?fecha=${fecha}`),
-  getCerradas: (limit) => api.get(`/cajas/cerradas?limit=${limit}`),
+  getCerradas: (params = {}) => api.get("/cajas/cerradas", { params }),
 };
 
 export const clientesService = {
-  getAll: () => api.get("/clientes"),
+  getAll: (params = {}) => api.get("/clientes", { params }),
   getById: (id) => api.get(`/clientes/${id}`),
   create: (data) => api.post("/clientes", data),
   update: (id, data) => api.put(`/clientes/${id}`, data),
@@ -106,7 +107,7 @@ export const clientesService = {
 };
 
 export const proveedoresService = {
-  getAll: () => api.get("/proveedores"),
+  getAll: (params = {}) => api.get("/proveedores", { params }),
   getById: (id) => api.get(`/proveedores/${id}`),
   create: (data) => api.post("/proveedores", data),
   update: (id, data) => api.put(`/proveedores/${id}`, data),
@@ -114,7 +115,7 @@ export const proveedoresService = {
 };
 
 export const categoriasService = {
-  getAll: () => api.get("/categorias"),
+  getAll: (params = {}) => api.get("/categorias", { params }),
   getById: (id) => api.get(`/categorias/${id}`),
   create: (data) => api.post("/categorias", data),
   update: (id, data) => api.put(`/categorias/${id}`, data),
@@ -122,13 +123,13 @@ export const categoriasService = {
 };
 
 export const comprasService = {
-  getAll: () => api.get("/compras"),
+  getAll: (params = {}) => api.get("/compras", { params }),
   getById: (id) => api.get(`/compras/${id}`),
   create: (data) => api.post("/compras", data),
 };
 
 export const inventarioService = {
-  getAll: () => api.get("/inventario"),
+  getAll: (params = {}) => api.get("/inventario", { params }),
   getById: (id) => api.get(`/inventario/${id}`),
   registrar: (data) => api.post("/inventario/registrar", data),
   verificarStock: (data) => api.post("/inventario/verificar-stock", data),
@@ -141,7 +142,7 @@ export const reportesService = {
 };
 
 export const usuariosService = {
-  getAll: () => api.get("/usuarios"),
+  getAll: (params = {}) => api.get("/usuarios", { params }),
   getById: (id) => api.get(`/usuarios/${id}`),
   create: (data) => api.post("/usuarios", data),
   update: (id, data) => api.put(`/usuarios/${id}`, data),

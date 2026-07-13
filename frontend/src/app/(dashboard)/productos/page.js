@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { productosService } from "@/lib/api";
 import Swal from "sweetalert2";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 import {
   Table,
   TableHeader,
@@ -19,18 +19,35 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Input } from "@/components/ui/Input";
+import { Pagination } from "@/components/ui/Pagination";
 import { Plus, Search, Pencil, Trash2, Pill } from "lucide-react";
 
 export default function ProductosPage() {
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [meta, setMeta] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearch(searchInput);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   useEffect(() => {
     const fetchProductos = async () => {
+      setLoading(true);
       try {
-        const res = await productosService.getAll();
-        setProductos(res.data);
+        const params = { page, limit: 10 };
+        if (search) params.search = search;
+        const res = await productosService.getAll(params);
+        setProductos(res.data.data);
+        setMeta(res.data.meta);
       } catch (e) {
         console.error("Error fetching productos:", e);
       } finally {
@@ -38,7 +55,11 @@ export default function ProductosPage() {
       }
     };
     fetchProductos();
-  }, []);
+  }, [page, search, refreshKey]);
+
+  const handleSearch = (e) => {
+    setSearchInput(e.target.value);
+  };
 
   const handleDelete = async (id) => {
     const result = await Swal.fire({
@@ -56,7 +77,7 @@ export default function ProductosPage() {
     if (!result.isConfirmed) return;
     try {
       await productosService.delete(id);
-      setProductos(productos.filter((p) => p.id !== id));
+      setRefreshKey(k => k + 1);
     } catch (e) {
       Swal.fire({
         title: "Error",
@@ -68,14 +89,6 @@ export default function ProductosPage() {
       });
     }
   };
-
-  const filteredProductos = productos.filter(
-    (p) =>
-      p.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.descripcion?.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
-
-  if (loading) return <LoadingState type="table" />;
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8 animate-fade-in">
@@ -94,45 +107,45 @@ export default function ProductosPage() {
 
       <div className="max-w-md">
         <Input
-          placeholder="Buscar por nombre o código..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Buscar por nombre..."
+          value={searchInput}
+          onChange={handleSearch}
           icon={<Search className="w-4 h-4 text-zinc-500" />}
         />
       </div>
 
-      <Card>
-        <Table>
-          <TableHeader>
-            <TableHead>Nombre</TableHead>
-            <TableHead>Categoría</TableHead>
-            <TableHead>Stock</TableHead>
-            <TableHead>Precio Venta</TableHead>
-            <TableHead className="text-right">Acciones</TableHead>
-          </TableHeader>
-          <TableBody>
-            {filteredProductos.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="py-16">
-                  <EmptyState
-                    icon={<Pill className="w-10 h-10" />}
-                    title={searchTerm ? "Sin resultados" : "No hay productos"}
-                    description={searchTerm ? "Intenta con otro término de búsqueda" : "Agrega tu primer producto"}
-                    action={
-                      !searchTerm && (
-                        <Link href="/productos/nuevo">
-                          <Button size="sm">
-                            <Plus className="w-4 h-4" />
-                            Nuevo Producto
-                          </Button>
-                        </Link>
-                      )
-                    }
-                  />
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredProductos.map((producto) => (
+      {loading ? (
+        <Card><LoadingState type="table" /></Card>
+      ) : productos.length === 0 ? (
+        <Card>
+          <EmptyState
+            icon={<Pill className="w-10 h-10" />}
+            title={search ? "Sin resultados" : "No hay productos"}
+            description={search ? "Intenta con otro término de búsqueda" : "Agrega tu primer producto"}
+            action={
+              !search && (
+                <Link href="/productos/nuevo">
+                  <Button size="sm">
+                    <Plus className="w-4 h-4" />
+                    Nuevo Producto
+                  </Button>
+                </Link>
+              )
+            }
+          />
+        </Card>
+      ) : (
+        <Card>
+          <Table>
+            <TableHeader>
+              <TableHead>Nombre</TableHead>
+              <TableHead>Categoría</TableHead>
+              <TableHead>Stock</TableHead>
+              <TableHead>Precio Venta</TableHead>
+              <TableHead className="text-right">Acciones</TableHead>
+            </TableHeader>
+            <TableBody>
+              {productos.map((producto) => (
                 <TableRow key={producto.id}>
                   <TableCell>
                     <div>
@@ -148,10 +161,7 @@ export default function ProductosPage() {
                     )}
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      variant={producto.stock <= producto.stock_minimo ? "warning" : "success"}
-                      dot
-                    >
+                    <Badge variant={producto.stock <= producto.stock_minimo ? "warning" : "success"} dot>
                       {producto.stock} {producto.stock <= producto.stock_minimo ? "(mín)" : ""}
                     </Badge>
                   </TableCell>
@@ -166,23 +176,19 @@ export default function ProductosPage() {
                           Editar
                         </Button>
                       </Link>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(producto.id)}
-                        className="!text-red-400 hover:!text-red-300 hover:!bg-red-500/10"
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => handleDelete(producto.id)} className="!text-red-400 hover:!text-red-300 hover:!bg-red-500/10">
                         <Trash2 className="w-3.5 h-3.5" />
                         Eliminar
                       </Button>
                     </div>
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </Card>
+              ))}
+            </TableBody>
+          </Table>
+          <Pagination meta={meta} onPageChange={setPage} />
+        </Card>
+      )}
     </div>
   );
 }

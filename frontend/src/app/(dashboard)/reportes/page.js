@@ -36,11 +36,12 @@ export default function ReportesPage() {
       setLoading(true);
       try {
         const res = await ventasService.getByDateRange(fechaInicio, fechaFin);
-        setVentas(res.data);
+        const data = res.data.data || res.data;
+        setVentas(data);
         setTotalVentas(
-          res.data.reduce((sum, v) => sum + Number(v.total || 0), 0),
+          data.reduce((sum, v) => sum + Number(v.total || 0), 0),
         );
-        setNumVentas(res.data.length);
+        setNumVentas(data.length);
       } catch (e) {
         console.error("Error fetching reporte:", e);
       } finally {

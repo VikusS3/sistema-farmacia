@@ -10,12 +10,18 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Input } from "@/components/ui/Input";
+import { Pagination } from "@/components/ui/Pagination";
 import { AlertBanner } from "@/components/ui/AlertBanner";
-import { Plus, Pencil, Trash2, Tags } from "lucide-react";
+import { Plus, Pencil, Trash2, Tags, Search } from "lucide-react";
 
 export default function CategoriasPage() {
   const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [meta, setMeta] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({ nombre: "", descripcion: "" });
@@ -25,9 +31,13 @@ export default function CategoriasPage() {
 
   useEffect(() => {
     const fetchCategorias = async () => {
+      setLoading(true);
       try {
-        const res = await categoriasService.getAll();
-        setCategorias(res.data);
+        const params = { page, limit: 10 };
+        if (search) params.search = search;
+        const res = await categoriasService.getAll(params);
+        setCategorias(res.data.data);
+        setMeta(res.data.meta);
       } catch (e) {
         console.error("Error fetching categorias:", e);
       } finally {
@@ -35,7 +45,19 @@ export default function CategoriasPage() {
       }
     };
     fetchCategorias();
-  }, []);
+  }, [page, search, refreshKey]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearch(searchInput);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  const handleSearch = (e) => {
+    setSearchInput(e.target.value);
+  };
 
   const handleInputChange = useCallback((field) => (e) => {
     setFormData({ ...formData, [field]: e.target.value });
@@ -58,8 +80,7 @@ export default function CategoriasPage() {
       setEditingId(null);
       setFormData({ nombre: "", descripcion: "" });
       clearAllErrors();
-      const res = await categoriasService.getAll();
-      setCategorias(res.data);
+      setRefreshKey(k => k + 1);
     } catch (e) {
       setErrors(e);
       showGlobalAlertFromError(e, "Error al guardar categoría");
@@ -90,7 +111,7 @@ export default function CategoriasPage() {
     if (!result.isConfirmed) return;
     try {
       await categoriasService.delete(id);
-      setCategorias(categorias.filter((c) => c.id !== id));
+      setRefreshKey(k => k + 1);
     } catch (e) {
       Swal.fire({
         title: "Error",
@@ -102,8 +123,6 @@ export default function CategoriasPage() {
       });
     }
   };
-
-  if (loading) return <LoadingState type="card" />;
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8 animate-fade-in">
@@ -123,12 +142,19 @@ export default function CategoriasPage() {
       <AlertBanner variant="success" message={success} onDismiss={() => setSuccess("")} />
       <AlertBanner variant="error" message={error} onDismiss={() => setError("")} />
 
+      <div className="max-w-md">
+        <Input
+          placeholder="Buscar por nombre..."
+          value={searchInput}
+          onChange={handleSearch}
+          icon={<Search className="w-4 h-4 text-zinc-500" />}
+        />
+      </div>
+
       {showForm && (
         <Card>
           <CardContent>
-            <h2 className="text-lg font-semibold text-white mb-6">
-              {editingId ? "Editar Categoría" : "Nueva Categoría"}
-            </h2>
+            <h2 className="text-lg font-semibold text-white mb-6">{editingId ? "Editar Categoría" : "Nueva Categoría"}</h2>
             <form onSubmit={handleSubmit} className="space-y-5 max-w-lg">
               <Input label="Nombre" placeholder="Nombre de la categoría" value={formData.nombre} onChange={handleInputChange("nombre")} error={getFieldError("nombre")} required />
               <div>
@@ -140,52 +166,49 @@ export default function CategoriasPage() {
                   className={`w-full px-3.5 py-2.5 bg-zinc-800/50 border rounded-xl text-white placeholder-zinc-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500/50 ${hasError("descripcion") ? "border-red-500/50" : "border-zinc-700 hover:border-zinc-600"}`}
                   rows={2}
                 />
-                {hasError("descripcion") && (
-                  <p className="mt-1.5 text-xs text-red-400">{getFieldError("descripcion")}</p>
-                )}
+                {hasError("descripcion") && <p className="mt-1.5 text-xs text-red-400">{getFieldError("descripcion")}</p>}
               </div>
               <div className="flex gap-3 pt-2">
                 <Button type="submit">{editingId ? "Actualizar" : "Guardar"}</Button>
-                <Button type="button" variant="secondary" onClick={() => setShowForm(false)}>Cancelar</Button>
+                <Button type="button" variant="secondary" onClick={() => { setShowForm(false); setEditingId(null); }}>Cancelar</Button>
               </div>
             </form>
           </CardContent>
         </Card>
       )}
 
-      {categorias.length === 0 ? (
-        <Card>
-          <CardContent className="py-16">
-            <EmptyState icon={<Tags className="w-10 h-10" />} title="No hay categorías" description="Crea tu primera categoría" action={
-              <Button size="sm" onClick={() => { clearAllErrors(); setShowForm(true); }}>
-                <Plus className="w-4 h-4" /> Crear Categoría
-              </Button>
-            } />
-          </CardContent>
-        </Card>
+      {loading ? (
+        <Card><LoadingState type="card" /></Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {categorias.map((cat) => (
-            <Card key={cat.id} hover className="p-5">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-white font-semibold">{cat.nombre}</h3>
+        <Card>
+          <div className="divide-y divide-zinc-800/50">
+            {categorias.length === 0 ? (
+              <div className="py-16 text-center">
+                <EmptyState icon={<Tags className="w-10 h-10" />} title={search ? "Sin resultados" : "No hay categorías"} description={search ? "Intenta con otro término de búsqueda" : "Crea tu primera categoría"} action={
+                  !search && <Button size="sm" onClick={() => { clearAllErrors(); setShowForm(true); }}><Plus className="w-4 h-4" /> Crear Categoría</Button>
+                } />
+              </div>
+            ) : (
+              categorias.map((cat) => (
+                <div key={cat.id} className="flex items-center justify-between px-5 py-4 hover:bg-zinc-800/30 transition-colors">
+                  <div>
+                    <p className="text-white font-medium">{cat.nombre}</p>
+                    {cat.descripcion && <p className="text-xs text-zinc-500 mt-0.5">{cat.descripcion}</p>}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="sm" onClick={() => handleEdit(cat)} className="!text-sky-400 hover:!text-sky-300 hover:!bg-sky-500/10">
+                      <Pencil className="w-3.5 h-3.5" /> Editar
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => handleDelete(cat.id)} className="!text-red-400 hover:!text-red-300 hover:!bg-red-500/10">
+                      <Trash2 className="w-3.5 h-3.5" /> Eliminar
+                    </Button>
+                  </div>
                 </div>
-                {cat.descripcion && (
-                  <p className="text-zinc-500 text-sm leading-relaxed">{cat.descripcion}</p>
-                )}
-              </div>
-              <div className="mt-5 pt-4 border-t border-zinc-800/50 flex gap-2">
-                <Button variant="ghost" size="sm" onClick={() => handleEdit(cat)} className="!text-sky-400 hover:!text-sky-300 hover:!bg-sky-500/10">
-                  <Pencil className="w-3.5 h-3.5" /> Editar
-                </Button>
-                <Button variant="ghost" size="sm" onClick={() => handleDelete(cat.id)} className="!text-red-400 hover:!text-red-300 hover:!bg-red-500/10">
-                  <Trash2 className="w-3.5 h-3.5" /> Eliminar
-                </Button>
-              </div>
-            </Card>
-          ))}
-        </div>
+              ))
+            )}
+          </div>
+          <Pagination meta={meta} onPageChange={setPage} />
+        </Card>
       )}
     </div>
   );
